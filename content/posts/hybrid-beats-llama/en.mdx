@@ -3,9 +3,10 @@ title: "Pure TONN lost to Llama. The hybrid wins."
 date: 2026-11-11
 order: 2
 day: 2
-summary: "Pure TONN trailed a same-size Llama by 0.06 bits per byte, almost all of it on code. In a sweep of 49 runs on one Mac, a hybrid with two attention layers for every TONN layer beat Llama at equal steps and then at equal compute, up to the 0.1B size we plan to train, where it trains at Llama's speed."
+summary: "Pure TONN trailed a same-size Llama by 0.06 bits per byte, almost all of it on code. In a sweep of 49 runs on one Mac, a hybrid with two attention layers for every TONN layer beat Llama at equal steps. After the speed work it also won at equal compute, up to the 0.1B size we plan to train. At that size it trains at Llama's speed."
 tags: [architecture, speed, scaling]
-contributors: [AvnehSBhatia]
+credits:
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Ran the 49-run sweep and the 0.1B equal-compute runs on the Mac Studio. Wrote the prefix scan and the layer speedups." }
 numbers:
   - { value: "1.464", label: "bits per byte, ExeaLM at 0.1B, same training time as Llama (1.481)" }
   - { value: "1.01×", label: "Llama's training cost per token" }
@@ -20,7 +21,7 @@ sources:
   - { label: "Commit ed4fc14: 0.1B at lr 1e-3", href: "https://github.com/exea-labs/ExeaLM/commit/ed4fc14" }
 ---
 
-The first fair test went against us. A 13M TONN and a same-size <Term id="llama">Llama-style transformer</Term>, trained on the same data for the same steps, ended close on prose and far apart on code. This post follows the 49 runs that turned that into a win, and the speed work that made the win hold at equal compute.
+The first fair test went against us. We trained a 13M TONN and a same-size <Term id="llama">Llama-style transformer</Term> on the same data for the same steps. They ended close on prose and far apart on code. This post follows the 49 runs that turned that into a win. It also covers the speed work that made the win hold at equal compute.
 
 All numbers are <Term id="bpb">bits per byte</Term> on held-out English, Japanese Wikipedia, Japanese web text and code. Lower is better. Every model uses the same 32k tokenizer and the same data mix: 50% English, 30% Japanese, 20% code.
 
@@ -44,9 +45,9 @@ That evening a queue of runs started on the Mac, one idea at a time, each agains
   <SweepTimeline />
 </Figure>
 
-The order of what we tried, and what each step found:
+What we tried, in order:
 
-1. **Hybrid with a random start.** TONN layers alternate with full attention layers (attention at layers 1, 3 and 5). Seed 0 beat Llama. Seed 1 did not: close on prose, 1.950 on code. The seed also picks the TONN layers' starting circuits. Seed 0 drew 7 short convolutions; seed 1 drew per-position gated units, which duplicate what the MLP already does, and only 3 convolutions.
+1. **Hybrid with a random start.** TONN layers alternate with full attention layers (attention at layers 1, 3 and 5). Seed 0 beat Llama. Seed 1 did not: close on prose, 1.950 on code. The seed also picks the TONN layers' starting circuits. Seed 0 drew 7 short convolutions. Seed 1 drew only 3, plus per-position gated units, which duplicate what the MLP already does.
 2. **The search** helped seed 1 a little (1.594 to 1.585) but did not fix it.
 3. **More attention circuits inside pure TONN** cut the code gap from 0.17 to 0.08 and stayed behind Llama. Full attention layers do better than many small attention circuits.
 4. **A <Term id="conv-start">convolution-heavy start</Term>** fixed seed 1. Code went from 1.950 to 1.748.
@@ -60,7 +61,7 @@ The hybrid with the convolution-heavy start beat Llama on every kind of text, wi
 | Llama | 0 | 1.461 | 1.534 | 1.413 | 1.775 | 1.546 |
 | Llama | 1 | 1.473 | 1.545 | 1.426 | 1.803 | 1.562 |
 
-Its two seeds land within 0.002 of each other. With the retrieval and board circuits kept in, as in the real model, it still wins on every kind of text; the idle memory circuits cost 0.010.
+Its two seeds land within 0.002 of each other. With the retrieval and board circuits kept in, as in the real model, it still wins on every kind of text. The idle memory circuits cost 0.010.
 
 ## Bigger models, same steps
 
@@ -68,7 +69,7 @@ At 27M parameters (width 384, 8 layers, two seeds) the hybrid's lead doubled, fr
 
 ## Equal compute: the speed problem
 
-Winning per step is half the test. A model that is better per step but slower can lose when both get the same training time. That is the <Term id="equal-compute">equal-compute</Term> comparison, and it decides whether an architecture is worth using.
+Winning per step is half the test. A model that is better per step but slower can lose when both get the same training time. That is the <Term id="equal-compute">equal-compute</Term> comparison. It decides whether an architecture is worth using.
 
 The hybrid was 1.3 times slower per step than Llama on the Mac. Attention runs as one fused kernel; TONN's circuits run as plain PyTorch. Profiling one layer showed where the time went:
 
@@ -77,7 +78,8 @@ The hybrid was 1.3 times slower per step than Llama on the Mac. Attention runs a
 </Figure>
 
 - The two gated recurrences, GI and SM, took 127 and 145 ms because they ran one step at a time. A <Term id="prefix-scan">parallel prefix scan</Term> computes the same running sums in a logarithmic number of passes: 5 times and 3.3 times faster.
-- One FFT instead of two for the softmax-pooling circuit, and cheaper rotary positions.
+- One FFT instead of two for the softmax-pooling circuit.
+- Cheaper rotary positions.
 - The TONN layer now permutes its small weight matrices into circuit-type order instead of shuffling activations: the same function to 3e-7, 9% faster per step.
 
 ## Equal compute: the results
@@ -91,7 +93,7 @@ Each pair gets the same seconds on the same GPU, each model at its best learning
 - **13M, 600 seconds:** a tie (1.527 each). Llama is slightly ahead on prose, the hybrid on code.
 - **27M, 1,000 seconds:** the hybrid wins by 0.006, on both seeds.
 - **48M, 2,000 seconds:** the first try lost by 0.020. Llama got 23% more steps in the same time. At equal steps the hybrid still won, so the loss came from speed, not from the architecture fading.
-- **48M with two attention layers per TONN layer:** the hybrid wins again, 1.445 against 1.452, on both seeds and every kind of text. More attention layers make it faster, and the remaining TONN layers still carry the gain.
+- **48M with two attention layers per TONN layer:** the hybrid wins again, 1.445 against 1.452, on both seeds and every kind of text. More attention layers make it faster. The remaining TONN layers still carry the gain.
 
 This 2:1 layout is now the default: every third layer is TONN. At the size we plan to train, it costs 1.01 times Llama per token.
 
@@ -109,11 +111,11 @@ The real model: width 640, 14 layers, TONN at layers 0, 3, 6, 9 and 12, about 90
 | ExeaLM hybrid, lr 1.5e-3 | 3,151 | 1.386 | 1.462 | 1.347 | 1.702 | 1.474 |
 | Llama, lr 1e-3 | 3,491 | 1.392 | 1.468 | 1.352 | 1.713 | 1.481 |
 
-At the same learning rate as Llama, the hybrid leads by 0.017 bits per byte, and it is ahead on every kind of text.
+At the same learning rate as Llama, the hybrid leads by 0.017 bits per byte. It is ahead on every kind of text.
 
 ## What this does not show
 
-- **One seed at 0.1B.** Seed 1 of both models is training now. From 13M to 48M, every equal-compute result held on two seeds.
+- **One seed at 0.1B.** Seed 1 is running: Llama now, the hybrid at 1e-3 next. A seed-1 hybrid at 1.5e-3 has finished at 1.482, behind seed 0's 1.474. It took 2,902 steps against 3,151, because the Mac ran slower during that run. There is no seed-1 Llama to compare it with yet. From 13M to 48M, every equal-compute result held on two seeds.
 - **Llama ran at one learning rate at 0.1B** (1e-3, its best rate at 27M and 48M). A better rate could narrow the gap.
 - **Both models are badly under-trained**: 50M to 57M tokens for 90M parameters, against the 100B tokens planned. Margins can shrink with longer training. At 13M, doubling the steps cut the lead from 0.014 to 0.006.
 - **Speed was measured on one Mac GPU, uncompiled.** `torch.compile` speeds up Llama by 20% and the hybrid by 8% on this GPU, so a compiled comparison would favour Llama today. A compile-friendly TONN layer is on the to-do list.

@@ -62,6 +62,11 @@ Write like the TONN paper (`paper_tonn/main.tex`) and the AAAI submission it gre
 
 - **Short declarative sentences.** Mostly 8 to 20 words. One idea per sentence, one topic per paragraph.
   > Every large language model in use today runs on an architecture chosen by people.
+- **Split instead of chaining with "and".** "And" joins items in a list ("English, Japanese and code"). It does not
+  join two thoughts. When a sentence reads "X happened, and Y happened", make it two sentences. Avneh flags this one
+  first.
+  > Before: The skeleton runs and its 16 tests pass, but no model has been trained on real data, and the bet is a hypothesis.
+  > After: The skeleton runs and its 16 tests pass. No model has been trained on real data yet. The bet is a hypothesis.
 - **Define every term where it first appears**, in plain words, with "meaning" or a short apposition. Then link it to
   the glossary with `<Term id="...">`.
   > A circuit, meaning a small combination of signal operations such as delays, running sums and products, stays in
@@ -241,6 +246,7 @@ type a number into a chart.
 - [ ] "What this does not show" is present.
 - [ ] No banned word or pattern from section 5. No em dash in the title or summary. No italics.
 - [ ] Every sentence passes the portability test.
+- [ ] No sentence joins two thoughts with ", and". Split them; keep "and" for lists.
 - [ ] Headings alone tell the story. No section shorter than two paragraphs unless it is a list or a table.
 - [ ] Every figure caption stands alone.
 - [ ] Credits name every person whose work the post reports, with one specific sentence each.

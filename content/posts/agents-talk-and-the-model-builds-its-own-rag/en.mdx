@@ -1,15 +1,17 @@
 ---
-title: "Agents learn to talk, and the model builds its own RAG"
+title: "Agents learn to talk. The model builds its own RAG."
 date: 2026-11-11
 order: 1
 day: 2
-summary: "Both new circuits work on tasks that can only be solved through them: 99.8% on a relay that needs the board (chance is 1.6%), 100% on a lookup over 1,024 facts the model has never seen. On real text, swarms beat a matched control by 0.014 bits per byte. The retrieval circuit took three fixes to learn anything."
+summary: "Both new circuits work on tasks that can only be solved through them: 99.8% on a relay that needs the board (chance is 1.6%), 100% on a lookup over 1,024 facts the model has never seen. On real text, swarms beat a matched control by about 0.012 bits per byte after correcting for a leak Aaron found. The retrieval circuit took three fixes to learn anything."
 tags: [swarms, retrieval, tokenizer]
-contributors: [AvnehSBhatia]
 numbers:
   - { value: "99.8%", label: "relay accuracy through the board; chance is 1.6%" }
   - { value: "100%", label: "lookup accuracy over 1,024 unseen facts" }
-  - { value: "0.014", label: "bits per byte swarms gain on real text, 2 seeds" }
+  - { value: "0.012", label: "bits per byte swarms gain on real text at least, 2 seeds, after correcting for a leak (0.014 as first reported)" }
+credits:
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Ran the relay, swarm, lookup and tokenizer experiments on the Mac Studio. Traced the three retrieval blockers." }
+  - { login: aarochu, name: "Aaron", what: "Found the split-swarm seam leak while building the swarm-vs-solo harness (PR #5). Fixed it in PR #7. Added the board statistics (PR #4) that show how agents use the board." }
 sources:
   - { label: "results/README.md, sections 1 to 4", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/README.md" }
   - { label: "experiments/swarm_relay.py", href: "https://github.com/exea-labs/ExeaLM/blob/main/experiments/swarm_relay.py" }
@@ -19,13 +21,13 @@ sources:
   - { label: "Commit 380e0f4: swarms on the hybrid, seed 1", href: "https://github.com/exea-labs/ExeaLM/commit/380e0f4" }
 ---
 
-Day 1 put two new circuits into TONN: a message board shared by copies of the model (AG) and retrieval from a library (RG). Day 2 asked whether either one learns anything. Each test below is built so that only the new circuit can solve it, and each has a control that removes the circuit.
+Day 1 put two new circuits into TONN: a message board shared by copies of the model (AG) and retrieval from a library (RG). Day 2 asked whether either one learns anything. Each test below is built so that only the new circuit can solve it. Each has a control that removes the circuit.
 
 All runs are on one Mac Studio GPU (Apple M3 Ultra). The models are small, from 0.8M to 13M parameters, so these results test mechanisms, not the final model.
 
 ## The relay: agents must talk to score
 
-**Task.** The information is split across a swarm. Fact holders read chunks like `[FACT, key, value]`. The asker reads questions like `[ASK, key, ?]` about those facts, and only the asker is scored. Values are drawn at random for every example, so the asker can beat chance (1 in 64) only if the fact holders pass the facts over the board.
+**Task.** The information is split across a swarm. Fact holders read chunks like `[FACT, key, value]`. The asker reads questions like `[ASK, key, ?]` about those facts. Only the asker is scored. Values are drawn at random for every example, so the asker can beat chance (1 in 64) only if the fact holders pass the facts over the board.
 
 The fact holders get no loss of their own. Everything they learn to post comes from the asker's errors, flowing back through the board.
 
@@ -57,6 +59,10 @@ On pure TONN (5.2M parameters), the board gains 0.006 bits per byte. On the <Ter
 - Every position in the swarm gains.
 - The swarm-trained model is better than the control even with its board cut, by 0.010. Training as a swarm improves each agent on its own, beyond what it reads.
 
+<Correction title="A seam leak, found by Aaron (PR #7)">
+  <p>In a split swarm, the last byte an agent predicts is the first byte the next agent reads. That agent's first board post can carry it. Agents 1 to 3 could read 1 target in 512 off the board; the control could not. The leak can explain at most 0.002 bits per byte of the 0.014. Measured from the data, it explains about 0.001. Agent 4, which has no seam, still beats the control by 0.012 and 0.009 on the two seeds. The pure-TONN gain of 0.006 is the most exposed. Reruns with the fix are queued; details in <a href="/posts/seven-pull-requests-and-a-leak/">Seven pull requests from Aaron. One found a leak.</a></p>
+</Correction>
+
 Split batches have a cost. A batch of 32 rows read in swarms of 4 holds 8 independent stretches of text instead of 32. On pure TONN the control trained on split batches is 0.021 worse than ordinary training. Pretraining will need more rows per batch, or swarms that read related documents instead of one stretch.
 
 ## The model builds its own RAG
@@ -73,7 +79,7 @@ To beat chance, the model has to learn every part of retrieval by itself: its ow
 
 ## Three fixes before retrieval learned anything
 
-The first design never learned. For 4,000 steps, accuracy sat at chance. Small diagnostic runs found three separate blockers, and each one alone was enough to stop learning.
+The first design never learned. For 4,000 steps, accuracy sat at chance. Small diagnostic runs found three separate blockers. Each one alone was enough to stop learning.
 
 1. **The query and the stored keys lived in unrelated spaces.** The query came from the circuit's own stream; the keys came from a separate encoder. The search was no better than random. Fix: the query for chunk c is the same encoder applied to chunk c-1, plus a learned share of the circuit's own stream that starts at zero.
 2. **An output gate scrambled the retrieved value.** The read was multiplied by a gate computed from the reading position. A linear probe recovered the value from the read 68% of the time before the gate and 2.5% after it. Fix: no gate.
@@ -89,7 +95,7 @@ Controls along the way confirmed where the problem was. The same model learned t
 
 ## Also decided: a 32k tokenizer
 
-Byte-level BPE <Term id="tokenizer">tokenizers</Term> with 32k, 49k and 64k tokens, trained on 200 MB of English, 160 MB of Japanese and 80 MB of code. Bigger vocabularies pack more text into each token, but at a fixed number of training tokens their extra embeddings are seen less often, and they cost parameters.
+Byte-level BPE <Term id="tokenizer">tokenizers</Term> with 32k, 49k and 64k tokens, trained on 200 MB of English, 160 MB of Japanese and 80 MB of code. Bigger vocabularies pack more text into each token. But at a fixed number of training tokens, their extra embeddings are seen less often. They also cost parameters.
 
 <Figure n={6} caption="Tokenizer size against quality. Left: bytes of text per token (higher packs more text). Right: bits per byte of a 13M model trained on the same 49M tokens with each tokenizer (lower is better). 32k wins or ties on every kind of text and is clearly better on code and Japanese Wikipedia.">
   <TokenizerChart />
@@ -99,4 +105,4 @@ At 0.1B, 32k instead of 49k frees 10.5M parameters, about 10% of the model. The 
 
 ## What this does not show
 
-The relay and the lookup prove the circuits can learn. They do not show that retrieval helps on real text. That test, and a result we had to correct, is in [Retrieval on real text, and a correction](/posts/retrieval-on-real-text-and-a-correction/).
+The relay and the lookup prove the circuits can learn. They do not show that retrieval helps on real text. That test, with a result we had to correct, is in [Retrieval on real text needs a better search](/posts/retrieval-on-real-text-and-a-correction/).

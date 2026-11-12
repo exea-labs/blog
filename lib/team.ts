@@ -3,6 +3,9 @@ import team from "@/data/team.json";
 
 export type Person = { login?: string; name: string; avatar?: string; url?: string; commits?: number; role?: "maintainer" | "member" | "contributor" };
 
+/** Public GitHub display names, for contributors whose name is not their login. */
+const NAMES: Record<string, string> = { aarochu: "Aaron" };
+
 /** Maintainers as listed in ExeaLM's CONTRIBUTORS.md. */
 const MAINTAINERS: Person[] = [
   { login: "AvnehSBhatia", name: "Avneh Bhatia", role: "maintainer" },
@@ -24,7 +27,7 @@ export function people(): Person[] {
   };
   MAINTAINERS.forEach(add);
   (contributors as { login: string; avatar: string; url: string; commits: number }[]).forEach((c) =>
-    add({ login: c.login, name: c.login, avatar: c.avatar, url: c.url, commits: c.commits, role: "contributor" }),
+    add({ login: c.login, name: NAMES[c.login.toLowerCase()] ?? c.login, avatar: c.avatar, url: c.url, commits: c.commits, role: "contributor" }),
   );
   (team as { login: string; name: string | null; avatar: string; url: string }[]).forEach((m) =>
     add({ login: m.login, name: m.name ?? m.login, avatar: m.avatar, url: m.url, role: "member" }),

@@ -1,0 +1,75 @@
+---
+title: "Seven pull requests from Aaron. One found a leak."
+date: 2026-11-11
+order: 4
+day: 2
+summary: "Aaron opened seven pull requests on day 2: checkpoint resume, near-duplicate removal, a speed benchmark, a retrieval inspector, board statistics, a swarm-vs-solo harness, and a fix for a leak in our split-swarm test. All seven are merged. The leak can explain at most 0.002 of the 0.014 bits per byte swarm gain. The one agent per swarm that cannot leak still beats the control by 0.012 and 0.009."
+tags: [contributions, swarms, correction, data]
+numbers:
+  - { value: "7", label: "pull requests from Aaron, all merged on day 2" }
+  - { value: "0.002", label: "bits per byte, the most the seam leak can explain of the 0.014 swarm gain" }
+  - { value: "0.012", label: "bits per byte the last agent in each swarm, which cannot leak, gains over the control (seed 0; 0.009 on seed 1)" }
+credits:
+  - { login: aarochu, name: "Aaron", what: "Wrote all seven pull requests in this post. Found the split-swarm seam leak while building the swarm-vs-solo harness." }
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Reviewed and merged the pull requests. Checked the leak against the published swarm results. Published the correction." }
+sources:
+  - { label: "PR #1: resume pretraining exactly from a checkpoint", href: "https://github.com/exea-labs/ExeaLM/pull/1" }
+  - { label: "PR #2: a TONN vs Llama speed benchmark", href: "https://github.com/exea-labs/ExeaLM/pull/2" }
+  - { label: "PR #3: print what retrieval pulled in for a prompt", href: "https://github.com/exea-labs/ExeaLM/pull/3" }
+  - { label: "PR #4: log how agents use the board", href: "https://github.com/exea-labs/ExeaLM/pull/4" }
+  - { label: "PR #5: the swarm vs solo harness", href: "https://github.com/exea-labs/ExeaLM/pull/5" }
+  - { label: "PR #6: MinHash near-duplicate removal", href: "https://github.com/exea-labs/ExeaLM/pull/6" }
+  - { label: "PR #7: hide the seam target in split swarms", href: "https://github.com/exea-labs/ExeaLM/pull/7" }
+  - { label: "Commit 37f4f44: the correction to the swarm results", href: "https://github.com/exea-labs/ExeaLM/commit/37f4f44" }
+  - { label: "results/README.md, section 2", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/README.md" }
+---
+
+Aaron (<a href="https://github.com/aarochu">@aarochu</a>) opened seven pull requests on the morning of day 2. Three prepare the 100B-token run. Two let us see inside the memory circuits. Two test the swarm. One of those found a flaw in an experiment we had already published. All seven are merged, with his commits as he wrote them. The test suite now has 46 tests.
+
+## What the seven pull requests add
+
+1. **Exact checkpoint resume** (PR #1). A checkpoint now holds the optimizer, the searched architecture, every random-generator state, the search's own state and the retrieval library's keys. It is written atomically. A run stopped and resumed ends with weights bit-identical to a run that never stopped. His test stops one between two search rounds to prove it. The main run will span many free Colab sessions, which time out after a few hours. This is what makes that possible.
+2. **Near-duplicate removal across sources** (PR #6). `exealm/data/dedup.py` finds near-duplicate documents with MinHash, on a CPU, with numpy only. It uses FineWeb's settings: word 5-grams, 112 hashes in 14 bands of 8. Japanese gets character 5-grams. Before it drops anything, it checks the signatures exactly. It reports which source each duplicate matched, so we can see where the overlap comes from.
+3. **A speed benchmark with generation** (PR #2). `python -m exealm.eval.speed` times training and greedy generation in tokens per second. It compares ExeaLM with a same-size Llama on any preset, with retrieval and swarms on or off. It is the repository's first measurement of generation speed.
+4. **A retrieval inspector** (PR #3). `exealm/eval/show_retrieval.py` prints, for every chunk of a prompt, which library chunks each retrieval circuit pulled in, with their weights, document ids and text. When retrieval does not help, this is how to see what it found instead.
+5. **Board statistics** (PR #4). Every evaluation now logs how agents use the <Term id="board">board</Term>, layer by layer. It records how much they read the empty entry, each other, themselves or the persistent board. It also records how strongly they post and how often they stay quiet. Every search round logs what the board circuits are worth.
+6. **A swarm-vs-solo harness** (PR #5). `exealm/eval/swarm_vs_solo.py` scores the same held-out text three ways: as a <Term id="swarm">swarm</Term>, as agents reading alone, and with a separately trained solo model. It does this on split swarms and on random swarms as the control, by position in the swarm. Building it is how he found the leak.
+7. **The seam leak fix** (PR #7). The rest of this post.
+
+## The leak
+
+A split swarm is 4 agents reading 4 consecutive windows of one stretch of text (from [the swarm post](/posts/agents-talk-and-the-model-builds-its-own-rag/)). Each agent predicts the next byte at every position of its window. Two facts about that layout combine:
+
+- The last byte agent 1 must predict is the first byte agent 2 reads. Agents 2 and 3 share a seam the same way. So do agents 3 and 4.
+- After each <Term id="chunk">chunk</Term> of 64 bytes, every agent posts the average of what it read to the board. Any agent can read posts from earlier chunks. Agent 2's first post is computed from a chunk that starts with the seam byte. Agent 1 can read that post while it predicts its last byte.
+
+So agents 1 to 3 could, in principle, read one target each off the board: 1 target in 512 per agent. Agent 4 has no seam. The control was trained with no teammates on its board, so it had no way to use the leak.
+
+## How much it changes
+
+<Correction title="The swarm gain was overstated by up to 0.002 bits per byte">
+  <p>We reported that swarms beat the matched control by 0.014 bits per byte on the hybrid (2 seeds) and by 0.006 on pure TONN. The seam leak can explain at most about 0.002 of each: that is what the gain would be if the board gave the seam byte away completely.</p>
+  <p>Measured from the data, it is about 0.001: agents 1 to 3 gain about 0.001 more from the board than agent 4, which has no seam. Agent 4 alone, with no leak and no look-ahead, beats the control by 0.012 on seed 0 and 0.009 on seed 1.</p>
+  <p>The pure-TONN gain is the most exposed: a ceiling of 0.002 is a third of 0.006. The gain that remains with the board cut (0.010) cannot use the leak at evaluation. The correction is on the results page (commit 37f4f44); the original numbers stay in the record until the reruns replace them.</p>
+</Correction>
+
+The swarm result holds at about 0.012 bits per byte or more on the hybrid. The number we published was a little too high. The pure-TONN result is weaker than it looked.
+
+## The fix
+
+- The loader hides seam targets in split swarms (`mask_seams`), so no agent is trained or scored on a byte a teammate already posted.
+- `experiments/swarm_text.py` now averages only over the targets it keeps. Without this, a hidden target would count as zero loss and lower every arm's score by about 0.002.
+- Tests cover the leak, the hidden seams and the fixed scorer.
+
+## What this does not show
+
+The exact corrected numbers. The hybrid swarm experiment (both seeds) and the pure-TONN one (one seed, as before) are queued to rerun with the fix. They start on the Mac after the 0.1B runs finish tonight. The next post will report them. The swarm post will link to it.
+
+## Next
+
+Three of the new tools are waiting for a first real use. Each is a good first task:
+- run `exealm.eval.speed` on the 0.1B preset and add the generation numbers to the results page;
+- run `show_retrieval.py` on the Wikipedia knowledge task and look at what the search returns when it misses;
+- run the dedup script over the candidate data mixes and report the overlap between sources.
+
+Sign up through the [form](https://docs.google.com/forms/d/e/1FAIpQLSdPHVZhuXxBDUf-cJM2zDbj1JZPsduu95Y_kTJ_g4gKAXdDVw/viewform), or open a pull request.

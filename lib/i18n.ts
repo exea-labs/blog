@@ -122,4 +122,6 @@ export const TAGS: Record<string, { en: string; ja: string }> = {
   speed: { en: "Speed", ja: "速度" },
   scaling: { en: "Scaling", ja: "スケーリング" },
   correction: { en: "Correction", ja: "訂正" },
+  contributions: { en: "Contributions", ja: "貢献" },
+  data: { en: "Data", ja: "データ" },
 };

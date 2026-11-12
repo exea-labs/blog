@@ -39,11 +39,11 @@ export function Home({ lang }: { lang: Lang }) {
       p: ja ? `トークンあたりの学習コストは Llama の ${rel("hybrid_2to1").toFixed(2)} 倍。純粋な TONN では ${rel("pure_tonn").toFixed(2)} 倍でした。` : `Training cost per token, relative to a same-size Llama. Pure TONN was ${rel("pure_tonn").toFixed(2)} times.`,
     },
     {
-      v: "0.014",
+      v: "0.012",
       unit: "bpb",
-      slug: "agents-talk-and-the-model-builds-its-own-rag",
+      slug: "seven-pull-requests-and-a-leak",
       h: ja ? "スウォームは実際のテキストで効く" : "Swarms help on real text",
-      p: ja ? "掲示板を共有するスウォームは、条件をそろえた対照より良くなりました（シード 2 つ）。中継タスクでは正答率 99.8%（偶然は 1.6%）。" : "Agents sharing a board beat a matched control, on both seeds. On a relay task built to need the board they answer 99.8% of questions; chance is 1.6%.",
+      p: ja ? "掲示板を共有するスウォームは、条件をそろえた対照より少なくとも 0.012 良くなりました（シード 2 つ）。最初は 0.014 と報告しましたが、Aaron が見つけたリークの分を差し引いています。" : "At least this much better than a matched control, on both seeds. We first reported 0.014; up to 0.002 of it could come from a leak Aaron found. Reruns with the fix are queued.",
     },
     {
       v: "30",
