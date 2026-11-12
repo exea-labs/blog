@@ -64,8 +64,8 @@ export const GLOSSARY: Term[] = [
   },
   {
     id: "board",
-    en: { term: "Agent board (AG)", def: "The circuit agents use to talk. After each chunk an agent posts a message (a value, a key and a strength); later it reads teammates' earlier posts with attention." },
-    ja: { term: "エージェント掲示板（AG）", def: "エージェント同士が話すための回路。各チャンクのあとにメッセージ（値・キー・強さ）を投稿し、あとで仲間の過去の投稿をアテンションで読みます。" },
+    en: { term: "Agent board (AG)", def: "The circuit agents use to talk. After each chunk an agent posts a message (a value, a key and a strength). In later chunks it reads the earlier posts on the board, its teammates' and its own, with attention." },
+    ja: { term: "エージェント掲示板（AG）", def: "エージェント同士が話すための回路。各チャンクのあとにメッセージ（値・キー・強さ）を投稿します。後のチャンクで、掲示板にある前の投稿（仲間の投稿と自分の投稿）をアテンションで読みます。" },
   },
   {
     id: "retrieval",
