@@ -14,6 +14,8 @@ export type PostMeta = {
   order: number;
   day: number;
   summary: string;
+  dek: string;
+  cover: string;
   tags: string[];
   contributors: string[];
   credits: Credit[];
@@ -62,6 +64,8 @@ export function readPost(slug: string, lang: Lang): { meta: PostMeta; body: stri
   if (!fs.existsSync(file)) file = path.join(ROOT, slug, "en.mdx");
   if (!fs.existsSync(file)) return null;
   const { data, content } = matter(fs.readFileSync(file, "utf8"));
+  const enFile = path.join(ROOT, slug, "en.mdx");
+  const en = file === enFile ? data : matter(fs.readFileSync(enFile, "utf8")).data;
   const meta: PostMeta = {
     slug,
     lang,
@@ -70,6 +74,8 @@ export function readPost(slug: string, lang: Lang): { meta: PostMeta; body: stri
     order: Number(data.order ?? 0),
     day: Number(data.day ?? 1),
     summary: data.summary ?? "",
+    dek: data.dek ?? data.summary ?? "",
+    cover: data.cover ?? en.cover ?? "layer",
     tags: data.tags ?? [],
     contributors: data.contributors ?? (data.credits ?? []).map((c: Credit) => c.login).filter(Boolean),
     credits: data.credits ?? [],

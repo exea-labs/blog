@@ -1,15 +1,22 @@
 import { Figure, Note, Correction, makeH2, H3, Table } from "./Blocks";
 import { Term } from "./Term";
-import { HybridStack } from "@/components/viz/HybridStack";
-import { TonnLayer } from "@/components/viz/TonnLayer";
-import { CircuitMenu } from "@/components/viz/CircuitMenu";
-import { SwarmBoard } from "@/components/viz/SwarmBoard";
-import { RetrievalFlow } from "@/components/viz/RetrievalFlow";
-import { RelayChart, SwarmTextChart, LookupChart, TokenizerChart, HitRate } from "@/components/viz/SmallCharts";
-import { EqualCompute } from "@/components/viz/EqualCompute";
-import { LossCurves } from "@/components/viz/LossCurves";
-import { SpeedBars } from "@/components/viz/SpeedBars";
-import { SweepTimeline } from "@/components/viz/SweepTimeline";
+import dynamic from "next/dynamic";
+
+// Each figure is its own chunk: a post downloads only the figures it uses.
+const HybridStack = dynamic(() => import("@/components/viz/HybridStack").then((m) => m.HybridStack));
+const TonnLayer = dynamic(() => import("@/components/viz/TonnLayer").then((m) => m.TonnLayer));
+const CircuitMenu = dynamic(() => import("@/components/viz/CircuitMenu").then((m) => m.CircuitMenu));
+const SwarmBoard = dynamic(() => import("@/components/viz/SwarmBoard").then((m) => m.SwarmBoard));
+const RetrievalFlow = dynamic(() => import("@/components/viz/RetrievalFlow").then((m) => m.RetrievalFlow));
+const RelayChart = dynamic(() => import("@/components/viz/SmallCharts").then((m) => m.RelayChart));
+const SwarmTextChart = dynamic(() => import("@/components/viz/SmallCharts").then((m) => m.SwarmTextChart));
+const LookupChart = dynamic(() => import("@/components/viz/SmallCharts").then((m) => m.LookupChart));
+const TokenizerChart = dynamic(() => import("@/components/viz/SmallCharts").then((m) => m.TokenizerChart));
+const HitRate = dynamic(() => import("@/components/viz/SmallCharts").then((m) => m.HitRate));
+const EqualCompute = dynamic(() => import("@/components/viz/EqualCompute").then((m) => m.EqualCompute));
+const LossCurves = dynamic(() => import("@/components/viz/LossCurves").then((m) => m.LossCurves));
+const SpeedBars = dynamic(() => import("@/components/viz/SpeedBars").then((m) => m.SpeedBars));
+const SweepTimeline = dynamic(() => import("@/components/viz/SweepTimeline").then((m) => m.SweepTimeline));
 import type { Lang } from "@/lib/i18n";
 
 type P = Record<string, unknown>;

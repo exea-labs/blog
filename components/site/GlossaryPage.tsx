@@ -11,9 +11,9 @@ export function GlossaryPage({ lang }: { lang: Lang }) {
       <article className="sheet" data-pagefind-body>
         <PageHead
           title={lang === "ja" ? "用語集" : "Glossary"}
-          lead={lang === "ja" ? "記事で使う用語を一度ずつ定義します。記事の中で点線の下線がついた語にカーソルを合わせても、同じ定義が出ます。" : "Every term the posts use, defined once. Point at a dotted word in any post to see the same definition."}
+          lead={lang === "ja" ? "記事で使う用語を、一度ずつ定義します。" : "Every term the posts use, defined once."}
         />
-        <dl className="mt-16 grid border-t border-[var(--line-2)] md:grid-cols-2 md:gap-x-12">
+        <dl data-reveal="stagger" className="mt-16 grid border-t border-[var(--line-2)] md:grid-cols-2 md:gap-x-12">
           {sorted.map((g) => (
             <div key={g.id} id={g.id} className="scroll-mt-28 border-b border-[var(--line-2)] py-5">
               <dt className="text-[1.3rem] font-light leading-snug tracking-[-0.01em]">

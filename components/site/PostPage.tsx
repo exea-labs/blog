@@ -38,11 +38,9 @@ export async function PostPage({ slug, lang }: { slug: string; lang: Lang }) {
               <span className="text-signal-ink">{d.day(meta.day)}</span> · <time dateTime={meta.date}>{d.dateFmt(meta.date)}</time>
             </p>
             <h1 className="h-display mt-5 max-w-[15em]">{meta.title}</h1>
-            <p className="deck mt-6">{meta.summary}</p>
+            <p className="mt-6 max-w-[34rem] text-[1.35rem] font-light leading-snug text-ink-2">{meta.dek}</p>
           </div>
           <dl className="titleblock enter" data-pagefind-ignore>
-            <div><dt>{ja ? "プロジェクト" : "Project"}</dt><dd>ExeaLM</dd></div>
-            <div><dt>{ja ? "日" : "Sheet"}</dt><dd>{d.day(meta.day)}</dd></div>
             <div><dt>{ja ? "日付" : "Date"}</dt><dd>{meta.date}</dd></div>
             <div><dt>{ja ? "読む時間" : "Read"}</dt><dd>{d.minutes(meta.minutes)}</dd></div>
             <div><dt>{d.tags}</dt><dd>{meta.tags.map((tag) => TAGS[tag]?.[lang] ?? tag).join(", ")}</dd></div>
@@ -51,10 +49,10 @@ export async function PostPage({ slug, lang }: { slug: string; lang: Lang }) {
         </header>
 
         {meta.numbers.length > 0 && (
-          <div className="results mt-14" data-pagefind-ignore>
+          <div className="results mt-14" data-pagefind-ignore data-reveal="stagger">
             {meta.numbers.map((n) => (
               <div key={n.label} className="result result--compact">
-                <div className="result__v">{n.value}</div>
+                <div className="result__v">{/^\d+(\.\d+)?$/.test(n.value) ? <span data-count={n.value} className="!m-0 !text-[1em] !tracking-[inherit] !text-signal">{n.value}</span> : n.value}</div>
                 <div className="result__t">
                   <p>{n.label}</p>
                 </div>
@@ -69,9 +67,9 @@ export async function PostPage({ slug, lang }: { slug: string; lang: Lang }) {
           <section id="credits" className="section" aria-labelledby="credits-h">
             <div className="section__head">
               <span className="section__num mono">{String(meta.toc.length + 1).padStart(2, "0")}</span>
-              <h2 id="credits-h" className="section__title">{ja ? "作業した人" : "Who did the work"}</h2>
+              <h2 id="credits-h" className="section__title" data-reveal="clip">{ja ? "作業した人" : "Who did the work"}</h2>
             </div>
-            <div className="contrib">
+            <div className="contrib" data-reveal="stagger">
               {meta.credits.map((c) => (
                 <div key={c.name + c.what.slice(0, 12)} className="contrib__row">
                   {c.login ? (
@@ -94,10 +92,9 @@ export async function PostPage({ slug, lang }: { slug: string; lang: Lang }) {
         <section id="sources" className="section" aria-labelledby="sources-h">
           <div className="section__head">
             <span className="section__num mono">{String(meta.toc.length + (meta.credits.length ? 2 : 1)).padStart(2, "0")}</span>
-            <h2 id="sources-h" className="section__title">{d.sources}</h2>
+            <h2 id="sources-h" className="section__title" data-reveal="clip">{d.sources}</h2>
           </div>
-          <p className="section__lead">{d.sourcesNote}</p>
-          <ul className="border-t border-[var(--line-2)]">
+          <ul className="border-t border-[var(--line-2)]" data-reveal="stagger">
             {meta.sources.map((s) => (
               <li key={s.href} className="border-b border-[var(--line)]">
                 <a href={s.href} className="flex items-baseline justify-between gap-4 py-3 no-underline transition-colors hover:text-signal-ink">

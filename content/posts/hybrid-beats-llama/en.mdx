@@ -4,6 +4,8 @@ date: 2026-11-11
 order: 2
 day: 2
 summary: "Pure TONN trailed a same-size Llama by 0.06 bits per byte, almost all of it on code. In a sweep of 49 runs on one Mac, a hybrid with two attention layers for every TONN layer beat Llama at equal steps. After the speed work it also won at equal compute, up to the 0.1B size we plan to train. At that size it trains at Llama's speed."
+dek: "Two attention layers for every TONN layer. It beats a same-size Llama at equal compute, up to 0.1B."
+cover: stack
 tags: [architecture, speed, scaling]
 credits:
   - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Ran the 49-run sweep and the 0.1B equal-compute runs on the Mac Studio. Wrote the prefix scan and the layer speedups." }

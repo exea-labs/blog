@@ -10,7 +10,7 @@
    ========================================================================== */
 
 @theme {
-  --font-serif: var(--f-serif), var(--f-ja), "Iowan Old Style", Georgia, serif;
+  --font-serif: var(--f-serif), "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif JP", "Iowan Old Style", Georgia, serif;
   --font-mono: var(--f-mono), ui-monospace, "SF Mono", Menlo, monospace;
   --color-paper: var(--paper);
   --color-panel: var(--panel);
@@ -74,20 +74,26 @@ body {
   margin: 0;
   min-height: 100svh;
   overflow-x: hidden;
-  background-color: var(--paper);
-  /* hairline sheet grid: 96 px major, 24 px minor */
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px),
-    linear-gradient(var(--grid-minor) 1px, transparent 1px), linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px);
-  background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px;
-  background-attachment: fixed;
+  background: transparent; /* the paper is on html; the grid layer sits between them */
   color: var(--ink);
   font: 400 1rem/1.55 var(--font-serif);
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-body::before { content: ""; position: fixed; inset: 0; background: var(--grain); opacity: var(--grain-op); pointer-events: none; z-index: 90; }
+/* hairline sheet grid (96 px major, 24 px minor) on its own fixed layer, so scrolling never repaints it */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    linear-gradient(var(--grid-minor) 1px, transparent 1px), linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px);
+  background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px;
+}
+body::before { content: ""; position: fixed; inset: 0; background: var(--grain); opacity: var(--grain-op); pointer-events: none; z-index: 90; will-change: transform; }
 html[lang="ja"] body { line-height: 1.85; letter-spacing: 0.01em; }
 em, i, cite, dfn, var { font-style: normal; }
 b, strong { font-weight: 600; }
@@ -376,3 +382,82 @@ html[lang="ja"] .figure figcaption { font-weight: 500; line-height: 1.8; }
 }
 .prose .plate__head a, .prose .figure a.no-underline { text-decoration: none; }
 .prose .plate, .prose .plate * { text-wrap: initial; }
+
+
+/* ==========================================================================
+   Reveals (UltraUI scroll-reveal-choreography-system): one IntersectionObserver adds .is-revealed; CSS does the
+   motion with opacity, transform and clip-path only. Hidden states apply only when JS runs (html.js) and motion is
+   allowed, so content is never lost.
+   ========================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal="rise"] { opacity: 0; transform: translateY(28px); transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out); }
+  html.js [data-reveal="clip"] { clip-path: inset(0 0 100% 0); transition: clip-path 0.75s cubic-bezier(0.77, 0, 0.175, 1); }
+  html.js [data-reveal="draw"] { transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.9s var(--ease-out); }
+  html.js [data-reveal="scale"] { opacity: 0; transform: scale(0.97) translateY(16px); transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out); }
+  html.js [data-reveal="left"] { opacity: 0; transform: translateX(-32px); transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out); }
+  html.js [data-reveal="stagger"] > * { opacity: 0; transform: translateY(24px); transition: opacity 0.55s var(--ease-out), transform 0.55s var(--ease-out); transition-delay: calc(var(--i, 0) * 70ms); }
+  html.js [data-reveal].is-revealed { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
+  html.js [data-reveal="stagger"].is-revealed > * { opacity: 1; transform: none; }
+}
+
+/* section head: the hairline draws in under the title */
+.section__head { position: relative; border-bottom: 0; }
+.section__head::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--line-2); transform-origin: 0 50%; }
+@media (prefers-reduced-motion: no-preference) {
+  html.js .section__head::after { transform: scaleX(0); transition: transform 0.9s var(--ease-out) 0.1s; }
+  html.js .section__head.is-revealed::after { transform: none; }
+}
+
+/* ---------- post cards ---------- */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr)); gap: 1.5rem; }
+.card { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line-2); text-decoration: none; color: var(--ink);
+  transition: transform var(--t) var(--ease-out), box-shadow var(--t) var(--ease-out), border-color var(--t); }
+.card:hover, .card:focus-visible { transform: translate(-3px, -3px); box-shadow: 6px 6px 0 var(--signal); border-color: var(--ink); }
+.card:active { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 var(--signal); }
+.card__cover { aspect-ratio: 16 / 9; border-bottom: 1px solid var(--line-2); background: var(--paper); overflow: hidden; }
+.card__cover svg { width: 100%; height: 100%; display: block; }
+.card__body { padding: 1rem 1.1rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; flex: 1; }
+.card__meta { display: flex; justify-content: space-between; gap: 1rem; color: var(--ink-3); }
+.card__meta b { color: var(--signal-ink); font-weight: 500; }
+.card__title { font: 400 1.5rem/1.12 var(--font-serif); letter-spacing: -0.02em; text-wrap: balance; }
+html[lang="ja"] .card__title { font-weight: 500; font-size: 1.3rem; line-height: 1.45; letter-spacing: 0; }
+.card__dek { color: var(--ink-2); font-size: 1rem; line-height: 1.45; }
+.card__more { margin-top: auto; padding-top: 0.4rem; color: var(--ink-3); display: flex; align-items: center; gap: 0.5rem; }
+.card:hover .card__more { color: var(--signal-ink); }
+.card__more svg { width: 0.9rem; height: 0.9rem; transition: transform var(--t) var(--ease-out); }
+.card:hover .card__more svg { transform: translateX(3px); }
+
+/* the cover drawings: lines draw in when the card is revealed, and again on hover */
+.cover-line { stroke-dasharray: var(--len, 600); stroke-dashoffset: 0; transition: stroke-dashoffset 1.1s var(--ease-out); }
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal]:not(.is-revealed) .cover-line { stroke-dashoffset: var(--len, 600); }
+  .card:hover .cover-pulse { animation: pulse 1.2s var(--ease-in-out) infinite; }
+}
+@keyframes pulse { 50% { opacity: 0.35; } }
+
+/* feature card: the latest post, the first thing on the home page */
+.feature { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); background: var(--panel); border: 1px solid var(--ink); text-decoration: none; color: var(--ink);
+  transition: transform var(--t) var(--ease-out), box-shadow var(--t) var(--ease-out); }
+.feature:hover, .feature:focus-visible { transform: translate(-4px, -4px); box-shadow: 8px 8px 0 var(--signal); }
+.feature__cover { border-right: 1px solid var(--line-2); background: var(--paper); min-height: 20rem; }
+.feature__cover svg { width: 100%; height: 100%; display: block; }
+.feature__body { padding: 1.75rem 1.75rem 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+.feature__title { font: 300 clamp(2rem, 1.2rem + 2.4vw, 3.4rem)/1.02 var(--font-serif); letter-spacing: -0.03em; text-wrap: balance; }
+html[lang="ja"] .feature__title { font-weight: 500; line-height: 1.3; letter-spacing: 0; font-size: clamp(1.6rem, 1rem + 1.8vw, 2.5rem); }
+.feature__dek { color: var(--ink-2); font-size: 1.15rem; line-height: 1.45; }
+.feature__nums { display: flex; flex-wrap: wrap; gap: 1.5rem 2.25rem; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--line-2); }
+.feature__nums div b { display: block; font: 300 2.4rem/1 var(--font-serif); letter-spacing: -0.03em; color: var(--signal); font-variant-numeric: tabular-nums; }
+.feature__nums div span { display: block; margin-top: 0.35rem; color: var(--ink-3); max-width: 12rem; }
+@media (max-width: 900px) {
+  .feature { grid-template-columns: 1fr; }
+  .feature__cover { border-right: 0; border-bottom: 1px solid var(--line-2); min-height: 13rem; }
+}
+
+/* the home headline: who builds this, said once and large */
+.kicker { display: inline-flex; align-items: center; gap: 0.6rem; color: var(--ink-2); }
+.kicker i { width: 0.55rem; height: 0.55rem; background: var(--signal); transform: rotate(45deg); }
+
+/* circuit cards: the definition appears over the plot on hover or focus, and below it on touch screens */
+.circuit-what { position: absolute; inset: 0; margin: 0; padding: 0.55rem 0.7rem; background: var(--panel); border: 1px solid var(--line-2); color: var(--ink-2); font-size: 0.9rem; line-height: 1.35; opacity: 0; transition: opacity var(--t) var(--ease-out); pointer-events: none; }
+.circuit-card:hover .circuit-what, .circuit-card:focus-visible .circuit-what { opacity: 1; }
+@media (hover: none) { .circuit-what { position: static; opacity: 1; border: 0; padding: 0.5rem 0.25rem 0.25rem; } }

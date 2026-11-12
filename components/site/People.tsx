@@ -8,7 +8,6 @@ export function People({ lang }: { lang: Lang }) {
   const list = people();
   return (
     <>
-      <p className="section__lead">{d.contributorsNote}</p>
       <p className="credits">
         {list.map((p, i) => (
           <span key={p.name}>

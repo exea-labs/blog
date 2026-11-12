@@ -10,20 +10,20 @@ type Lang = "en" | "ja";
 
 const STEPS = {
   en: [
-    { t: "Read a chunk", d: "The circuit waits for a full chunk of 64 tokens. Retrieval runs once per chunk, using the chunk just read." },
-    { t: "Encode it into a query", d: "The model's own chunk encoder (attention inside the chunk, then an MLP) pools the chunk into one vector." },
-    { t: "Mix in the circuit's own view", d: "A learned share of the circuit's stream is added. It starts at zero, so early on the query is pure encoder." },
-    { t: "Search the library", d: "Library keys come from the same encoder, so query and keys live in one space. The 4 best matches from other documents are kept." },
-    { t: "Re-encode what came back", d: "The 4 chunks are encoded again with the current weights, so gradients reach the encoder through what was retrieved." },
-    { t: "Read through the layer's own rows", d: "Retrieved tokens go through the layer's input projection. Keys look one token back, so finding a key and taking the token after it is one attention step. No gate." },
+    { t: "Read a chunk", d: "Retrieval runs once per 64-token chunk." },
+    { t: "Encode it into a query", d: "The model's own encoder turns the chunk into one vector." },
+    { t: "Mix in the circuit's own view", d: "A learned share of the circuit's own stream is added. It starts at zero." },
+    { t: "Search the library", d: "Keys come from the same encoder. The 4 best matches are kept." },
+    { t: "Re-encode what came back", d: "The 4 chunks are encoded again, so gradients reach the encoder." },
+    { t: "Read through the layer's own rows", d: "Retrieved tokens go through the layer's own input projection. No gate." },
   ],
   ja: [
-    { t: "チャンクを読む", d: "回路は 64 トークンのチャンクが揃うのを待ちます。検索はチャンクごとに 1 回、読んだばかりのチャンクを使って行います。" },
-    { t: "クエリに符号化する", d: "モデル自身のチャンクエンコーダー（チャンク内のアテンションと MLP）が、チャンクを 1 つのベクトルにまとめます。" },
-    { t: "回路自身の見方を足す", d: "回路のストリームを学習した割合だけ足します。割合はゼロから始まるので、最初はエンコーダーだけのクエリです。" },
-    { t: "ライブラリを検索する", d: "ライブラリのキーも同じエンコーダーから作るので、クエリとキーは同じ空間にあります。ほかの文書から上位 4 件を取ります。" },
-    { t: "取ってきたものを符号化し直す", d: "4 つのチャンクを現在の重みでもう一度符号化します。これで検索結果を通してエンコーダーに勾配が届きます。" },
-    { t: "層自身の行で読む", d: "取ってきたトークンを層の入力射影に通します。キーは 1 トークン前を見るので、キーを見つけて次のトークンを取るのが 1 回のアテンションで済みます。ゲートはありません。" },
+    { t: "チャンクを読む", d: "検索は 64 トークンのチャンクごとに 1 回です。" },
+    { t: "クエリに符号化する", d: "モデル自身のエンコーダーがチャンクを 1 つのベクトルにします。" },
+    { t: "回路自身の見方を足す", d: "回路自身のストリームを学習した割合だけ足します。最初はゼロです。" },
+    { t: "ライブラリを検索する", d: "キーも同じエンコーダーから作ります。上位 4 件を残します。" },
+    { t: "取ってきたものを符号化し直す", d: "4 チャンクを符号化し直し、エンコーダーに勾配を届けます。" },
+    { t: "層自身の行で読む", d: "取ってきたトークンを層自身の入力射影に通します。ゲートはありません。" },
   ],
 };
 

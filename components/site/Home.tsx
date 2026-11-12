@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Shell } from "./Shell";
-import { PostList } from "./PostList";
+import { PostCard } from "./PostCard";
+import { PostCover } from "./PostCover";
 import { People } from "./People";
 import { HybridStack } from "@/components/viz/HybridStack";
 import { allPosts } from "@/lib/posts";
-import { SITE, href, t, type Lang } from "@/lib/i18n";
+import { href, t, type Lang } from "@/lib/i18n";
 import cmp from "@/data/comparisons.json";
 import speed from "@/data/speed.json";
 
@@ -14,136 +15,94 @@ const rel = (k: string) => {
   return rows.find((r) => r.name === "llama")!.tokens_per_sec / rows.find((r) => r.name === "tonn, memory idle")!.tokens_per_sec;
 };
 
+const Arrow = () => (
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+    <path d="M2 8h11M9 4l4 4-4 4" />
+  </svg>
+);
+
 export function Home({ lang }: { lang: Lang }) {
   const d = t(lang);
   const ja = lang === "ja";
   const posts = allPosts(lang);
-  const latest = posts[0];
+  const [latest, ...rest] = posts;
   const other: Lang = ja ? "en" : "ja";
   const big = cmp.equal_time.find((c) => c.size === "90M")!;
-  const hy = big.hybrid.mean.toFixed(3);
-  const ll = big.llama.mean.toFixed(3);
   const results = [
-    {
-      v: hy,
-      unit: "bpb",
-      slug: "hybrid-beats-llama",
-      h: ja ? "0.1B、同じ学習時間で Llama を上回る" : "Ahead of Llama at 0.1B, same training time",
-      p: ja ? `同じサイズの Llama は ${ll}。差は 4 種類のテキストすべてで ExeaLM 側に出ました。シードはまだ 1 つです。` : `A same-size Llama reaches ${ll} bits per byte. ExeaLM is ahead on English, Japanese and code. One seed so far; the second is training.`,
-    },
-    {
-      v: rel("hybrid_2to1").toFixed(2),
-      unit: "×",
-      slug: "hybrid-beats-llama",
-      h: ja ? "Llama と同じ学習速度" : "Llama's training speed",
-      p: ja ? `トークンあたりの学習コストは Llama の ${rel("hybrid_2to1").toFixed(2)} 倍。純粋な TONN では ${rel("pure_tonn").toFixed(2)} 倍でした。` : `Training cost per token, relative to a same-size Llama. Pure TONN was ${rel("pure_tonn").toFixed(2)} times.`,
-    },
-    {
-      v: "0.012",
-      unit: "bpb",
-      slug: "seven-pull-requests-and-a-leak",
-      h: ja ? "スウォームは実際のテキストで効く" : "Swarms help on real text",
-      p: ja ? "掲示板を共有するスウォームは、条件をそろえた対照より少なくとも 0.012 良くなりました（シード 2 つ）。最初は 0.014 と報告しましたが、Aaron が見つけたリークの分を差し引いています。" : "At least this much better than a matched control, on both seeds. We first reported 0.014; up to 0.002 of it could come from a leak Aaron found. Reruns with the fix are queued.",
-    },
-    {
-      v: "30",
-      unit: "%",
-      slug: "retrieval-on-real-text-and-a-correction",
-      h: ja ? "検索はまだ未解決" : "Retrieval is the open problem",
-      p: ja ? "見たことのない事実の照会は 100% 解けます。実際のテキストでは、検索が正しい記事を見つけるのは 30% ほどで、正味の改善はまだ確かめられていません。" : "The model's own search finds the right article about 30% of the time. On a lookup task retrieval is perfect; on real text the net gain is not established yet.",
-    },
+    { v: big.hybrid.mean.toFixed(3), unit: "bpb", slug: "hybrid-beats-llama", h: ja ? "0.1B で同サイズの Llama を上回る" : "Ahead of a same-size Llama at 0.1B", p: ja ? `Llama は ${big.llama.mean.toFixed(3)}。同じ学習時間。シードはまだ 1 つ。` : `Llama: ${big.llama.mean.toFixed(3)}. Same training time. One seed so far.` },
+    { v: rel("hybrid_2to1").toFixed(2), unit: "×", slug: "hybrid-beats-llama", h: ja ? "Llama と同じ学習速度" : "Trains at Llama's speed", p: ja ? `トークンあたりのコスト。純粋な TONN は ${rel("pure_tonn").toFixed(2)} 倍。` : `Cost per token against Llama. Pure TONN was ${rel("pure_tonn").toFixed(2)}×.` },
+    { v: "0.012", unit: "bpb", slug: "seven-pull-requests-and-a-leak", h: ja ? "スウォームは実際のテキストで効く" : "Swarms help on real text", p: ja ? "リークを差し引いても、少なくともこれだけ。シード 2 つ。" : "At least this much, after a leak fix. Two seeds." },
+    { v: "30", unit: "%", slug: "retrieval-on-real-text-and-a-correction", h: ja ? "検索はまだ未解決" : "Retrieval's open problem", p: ja ? "検索が正しい記事を見つける割合。" : "How often the search finds the right article." },
   ];
   const beam = [
-    { id: "model", label: ja ? "モデル" : "The model" },
-    { id: "standing", label: ja ? "現在地" : "Where it stands" },
+    { id: "latest", label: d.latest },
     { id: "posts", label: d.allPosts },
+    { id: "standing", label: ja ? "現在地" : "Where it stands" },
+    { id: "model", label: ja ? "モデル" : "The model" },
     { id: "people", label: ja ? "人" : "People" },
   ];
   return (
     <Shell lang={lang} altHref={href(other, "/")} current="posts" beam={beam}>
       <div className="sheet">
-        <section className="grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_19rem]">
-          <div className="enter">
-            <p className="mono text-ink-3">{ja ? "Exea Labs の研究ノート" : "Research notes from Exea Labs"}</p>
-            <h1 className="h-display mt-5 max-w-[13em]">{ja ? "オープンな言語モデルを、毎日公開しながら作る。" : "Building an open language model, one day at a time."}</h1>
-            <p className="deck mt-6">{d.description}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              {latest && (
-                <Link href={href(lang, `/posts/${latest.slug}/`)} className="btn btn--signal">
-                  {ja ? "最新の記事を読む" : "Read the latest"}
-                  <span className="btn__aside">{d.day(latest.day)}</span>
-                </Link>
-              )}
-              <a href={SITE.repo} className="btn btn--ghost">
-                {ja ? "GitHub の ExeaLM" : "ExeaLM on GitHub"}
-              </a>
-            </div>
-            <p className="proof mt-6">
-              {ja ? (
-                <>
-                  0.1B、同じ学習時間で ExeaLM は <b>{hy}</b> bpb、同じサイズの Llama は <b>{ll}</b>。
-                </>
-              ) : (
-                <>
-                  At 0.1B and the same training time: ExeaLM <b>{hy}</b> bits per byte, a same-size Llama <b>{ll}</b>.
-                </>
-              )}
-            </p>
-          </div>
-          <dl className="titleblock enter">
-            <div><dt>{ja ? "プロジェクト" : "Project"}</dt><dd>ExeaLM</dd></div>
-            <div><dt>{ja ? "サイズ" : "Size"}</dt><dd>0.1B</dd></div>
-            <div><dt>{ja ? "学習データ" : "Data"}</dt><dd>{ja ? "100B トークン（予定）" : "100B tokens, planned"}</dd></div>
-            <div><dt>{ja ? "ライセンス" : "License"}</dt><dd>Apache 2.0</dd></div>
-            <div><dt>{ja ? "記事" : "Posts"}</dt><dd>{posts.length}</dd></div>
-            <div><dt>{ja ? "更新" : "Updated"}</dt><dd>{latest?.date}</dd></div>
-            <div><dt>{ja ? "言語" : "Languages"}</dt><dd>EN, JA</dd></div>
-            <div><dt>{ja ? "参加" : "Join"}</dt><dd><a href={SITE.signup}>{ja ? "登録フォーム" : "Sign-up form"}</a></dd></div>
-          </dl>
-        </section>
+        <header className="enter">
+          <p className="kicker mono">
+            <i aria-hidden="true" />
+            {ja ? "Exea Labs、高校生がつくる研究ラボ" : "Exea Labs, a research lab run by high schoolers"}
+          </p>
+          <h1 className="h-display mt-5 max-w-[14em]">{ja ? "高校生がつくる、オープンな言語モデル。" : "An open language model, built by high schoolers."}</h1>
+          <p className="mt-5 text-[1.3rem] leading-snug text-ink-2">{ja ? "ExeaLM を毎日の記録で公開します。" : "Daily notes from building ExeaLM."}</p>
+        </header>
 
-        <section id="model" className="section" aria-labelledby="model-h">
+        {latest && (
+          <Link id="latest" href={href(lang, `/posts/${latest.slug}/`)} className="feature enter mt-10 scroll-mt-28">
+            <div className="feature__cover">
+              <PostCover kind={latest.cover} />
+            </div>
+            <div className="feature__body">
+              <p className="mono text-ink-3">
+                <span className="text-signal-ink">{d.latest}</span> · {d.day(latest.day)} · {d.dateFmt(latest.date)}
+              </p>
+              <h2 className="feature__title">{latest.title}</h2>
+              <p className="feature__dek">{latest.dek}</p>
+              {latest.numbers.length > 0 && (
+                <div className="feature__nums">
+                  {latest.numbers.slice(0, 2).map((n) => (
+                    <div key={n.label}>
+                      <b>{n.value}</b>
+                      <span className="mono">{n.label.split(",")[0].split("（")[0]}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <span className="card__more mono">
+                {d.readPost} <Arrow />
+              </span>
+            </div>
+          </Link>
+        )}
+
+        <section id="posts" className="section" aria-labelledby="posts-h">
           <div className="section__head">
             <span className="section__num mono">01</span>
-            <h2 id="model-h" className="section__title">{ja ? "モデル" : "The model"}</h2>
+            <h2 id="posts-h" className="section__title" data-reveal="clip">{d.allPosts}</h2>
           </div>
-          <div className="grid items-start gap-10 xl:grid-cols-[minmax(0,1fr)_20rem]">
-            <div className="plate">
-              <div className="plate__head mono">
-                <b>{ja ? "図 01" : "Fig. 01"}</b>
-                <span>{ja ? "ExeaLM 0.1B、層ごと" : "ExeaLM 0.1B, layer by layer"}</span>
-              </div>
-              <HybridStack lang={lang} />
-            </div>
-            <div className="text-[1.0625rem] leading-relaxed text-ink-2">
-              <p>
-                {ja
-                  ? "ExeaLM は Exea Labs のアーキテクチャ TONN の上に作ります。TONN 層は、畳み込みや累積和や小さなアテンションヘッドなど、20 個の小さな回路の列です。どの回路を使うかは学習中の探索が決めます。"
-                  : "ExeaLM is built on TONN, Exea Labs' architecture. A TONN layer is a row of 20 small circuits, such as convolutions, running sums and small attention heads, and a search picks which circuits to keep during training."}
-              </p>
-              <p className="mt-4">
-                {ja
-                  ? "TONN 層にはどれも、2 つのメモリ回路が固定で入ります。モデル自身の埋め込みで検索する回路と、モデルのコピー同士が話す掲示板です。"
-                  : "Every TONN layer also carries two memory circuits: retrieval with the model's own embeddings, and a message board that copies of the model use to talk."}
-              </p>
-              <Link href={href(lang, "/architecture/")} className="btn btn--ghost mt-6">
-                {ja ? "アーキテクチャの中を見る" : "See inside the architecture"}
-              </Link>
-            </div>
+          <div className="cards" data-reveal="stagger">
+            {rest.map((p) => (
+              <PostCard key={p.slug} post={p} lang={lang} />
+            ))}
           </div>
         </section>
 
         <section id="standing" className="section" aria-labelledby="standing-h">
           <div className="section__head">
             <span className="section__num mono">02</span>
-            <h2 id="standing-h" className="section__title">{d.where}</h2>
+            <h2 id="standing-h" className="section__title" data-reveal="clip">{d.where}</h2>
           </div>
-          <p className="section__lead">{d.whereNote}</p>
-          <div className="results">
-            {results.map((r, i) => (
-              <Link key={i} href={href(lang, `/posts/${r.slug}/`)} className="result">
+          <div className="results" data-reveal="stagger">
+            {results.map((r) => (
+              <Link key={r.h} href={href(lang, `/posts/${r.slug}/`)} className="result">
                 <div className="result__v">
-                  {r.v}
+                  <span data-count={r.v} className="!m-0 !text-[1em] !tracking-[inherit] !text-signal">{r.v}</span>
                   <span>{r.unit}</span>
                 </div>
                 <div className="result__t">
@@ -155,20 +114,38 @@ export function Home({ lang }: { lang: Lang }) {
           </div>
         </section>
 
-        <section id="posts" className="section" aria-labelledby="posts-h">
+        <section id="model" className="section" aria-labelledby="model-h">
           <div className="section__head">
             <span className="section__num mono">03</span>
-            <h2 id="posts-h" className="section__title">{d.allPosts}</h2>
+            <h2 id="model-h" className="section__title" data-reveal="clip">{ja ? "モデル" : "The model"}</h2>
           </div>
-          <PostList posts={posts} lang={lang} />
+          <div className="grid items-start gap-10 xl:grid-cols-[minmax(0,1fr)_17rem]">
+            <div className="plate" data-reveal="scale">
+              <div className="plate__head mono">
+                <b>{ja ? "図 01" : "Fig. 01"}</b>
+                <span>ExeaLM 0.1B</span>
+              </div>
+              <HybridStack lang={lang} />
+            </div>
+            <div data-reveal="left">
+              <p className="text-[1.3rem] font-light leading-snug">
+                {ja ? "3 層に 1 層が TONN。小さな回路の列で、検索と掲示板を内蔵します。" : "Every third layer is TONN: a row of small circuits, with retrieval and a message board built in."}
+              </p>
+              <Link href={href(lang, "/architecture/")} className="btn btn--ghost mt-6">
+                {ja ? "中を見る" : "See inside"}
+              </Link>
+            </div>
+          </div>
         </section>
 
         <section id="people" className="section" aria-labelledby="people-h">
           <div className="section__head">
             <span className="section__num mono">04</span>
-            <h2 id="people-h" className="section__title">{d.contributors}</h2>
+            <h2 id="people-h" className="section__title" data-reveal="clip">{d.contributors}</h2>
           </div>
-          <People lang={lang} />
+          <div data-reveal="rise">
+            <People lang={lang} />
+          </div>
         </section>
       </div>
     </Shell>

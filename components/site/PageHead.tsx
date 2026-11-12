@@ -2,8 +2,8 @@ export function PageHead({ title, lead, kicker }: { title: string; lead: string;
   return (
     <header className="enter">
       {kicker && <p className="mono text-ink-3">{kicker}</p>}
-      <h1 className="h-display mt-5 max-w-[14em]">{title}</h1>
-      <p className="deck mt-6">{lead}</p>
+      <h1 className="h-display mt-2 max-w-[14em]">{title}</h1>
+      <p className="mt-5 max-w-[34rem] text-[1.3rem] font-light leading-snug text-ink-2">{lead}</p>
     </header>
   );
 }
@@ -13,7 +13,7 @@ export function Section({ id, n, title, children }: { id: string; n?: number; ti
     <section id={id} className="section" aria-labelledby={`${id}-h`}>
       <div className="section__head">
         {n !== undefined && <span className="section__num mono">{String(n).padStart(2, "0")}</span>}
-        <h2 id={`${id}-h`} className="section__title">{title}</h2>
+        <h2 id={`${id}-h`} className="section__title" data-reveal="clip">{title}</h2>
       </div>
       {children}
     </section>
@@ -21,5 +21,5 @@ export function Section({ id, n, title, children }: { id: string; n?: number; ti
 }
 
 export function P({ children }: { children: React.ReactNode }) {
-  return <p className="mt-3 max-w-[38rem] text-[1.0625rem] leading-relaxed text-ink-2">{children}</p>;
+  return <p className="mt-3 max-w-[36rem] text-[1.25rem] font-light leading-snug text-ink-2" data-reveal="rise">{children}</p>;
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import { CIRCUITS, FAMILY_NAME, MODEL, byId, startingDraw, type Family } from "@/lib/circuits";
 import type { Lang } from "@/lib/i18n";
@@ -48,23 +48,23 @@ export function Hatch() {
 
 const copy = {
   en: {
-    overview: "ExeaLM at 0.1B: 14 layers, about 90M parameters.",
-    overviewText: "Every third layer is a TONN layer, carrying 20 small circuits. The other nine are full attention. A gated MLP follows every layer.",
+    overview: "14 layers. About 90M parameters.",
+    overviewText: "Plates with circuits are TONN layers. The rest are attention. Point at a layer.",
     tonn: (i: number) => `Layer ${i}, TONN`,
-    tonnText: "20 circuits of 32 channels, one starting draw weighted toward short convolutions. Training swaps circuits. Retrieval (RG) and the agent board (AG), in orange, are pinned in every TONN layer.",
+    tonnText: "20 circuits. Orange: retrieval and the agent board, in every TONN layer.",
     attn: (i: number) => `Layer ${i}, attention`,
-    attnText: "Causal attention with 10 heads of 64 channels and rotary positions. Each dot is one query reading one earlier key.",
+    attnText: "10 heads of 64 channels. Each dot: one query reading one earlier key.",
     layers: "14 layers",
     width: "640 channels",
     resid: "residual stream",
   },
   ja: {
-    overview: "0.1B の ExeaLM：14 層、約 9 千万パラメータ。",
-    overviewText: "3 層に 1 層が TONN 層で、小さな回路を 20 個持ちます。残りの 9 層はフルアテンション。各層のあとにゲートつき MLP が続きます。",
+    overview: "14 層。約 9 千万パラメータ。",
+    overviewText: "回路が載った板が TONN 層、残りはアテンション層。層にカーソルを合わせてください。",
     tonn: (i: number) => `第 ${i} 層：TONN`,
-    tonnText: "32 チャネルの回路が 20 個。短い畳み込み寄りの初期配置の一例で、学習中に回路が入れ替わります。オレンジの検索（RG）とエージェント掲示板（AG）はすべての TONN 層に固定です。",
+    tonnText: "回路は 20 個。オレンジは検索とエージェント掲示板で、すべての TONN 層に入ります。",
     attn: (i: number) => `第 ${i} 層：アテンション`,
-    attnText: "64 チャネルのヘッド 10 個、回転位置埋め込みつきの因果アテンション。点ひとつが、1 つのクエリが前のキーを 1 つ読むことを表します。",
+    attnText: "64 チャネルのヘッドが 10 個。点ひとつが、クエリが前のキーを読むことを表します。",
     layers: "14 層",
     width: "640 チャネル",
     resid: "残差ストリーム",
@@ -107,23 +107,9 @@ export function HybridStack({ lang = "en", className = "" }: { lang?: "en" | "ja
   const box = useRef<HTMLDivElement>(null);
   const seen = useInView(box, { once: true, amount: 0.3 });
   const [focus, setFocus] = useState<number | null>(null);
-  const [token, setToken] = useState(0);
   const layers = Array.from({ length: MODEL.layers }, (_, i) => i);
   const isTonn = (i: number) => MODEL.tonnLayers.includes(i);
   const show = seen || !!reduce;
-
-  // a token travels up the residual stream: alive at rest, slow
-  useEffect(() => {
-    if (reduce || !show) return;
-    let raf = 0;
-    const t0 = performance.now();
-    const tick = (now: number) => {
-      setToken(((now - t0) / 5200) % 1);
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [reduce, show]);
 
   const counts = useMemo(() => {
     if (focus === null || !isTonn(focus)) return [];
@@ -135,8 +121,6 @@ export function HybridStack({ lang = "en", className = "" }: { lang?: "en" | "ja
   const top = (MODEL.layers - 1) * GAP;
   const [ax0, ay0] = iso(W / 2, D / 2, -18);
   const [ax1, ay1] = iso(W / 2, D / 2, top + 34);
-  const tokZ = -18 + token * (top + 52);
-  const [tx, ty] = iso(W / 2, D / 2, tokZ);
   const [r0x, r0y] = iso(W, 0, 0);
   const [r1x, r1y] = iso(W, 0, top);
   const [b0x, b0y] = iso(0, D, 0);
@@ -148,8 +132,6 @@ export function HybridStack({ lang = "en", className = "" }: { lang?: "en" | "ja
       <svg viewBox="0 0 640 640" className="block h-auto w-full" role="img" aria-label={`${L.overview} ${L.overviewText}`} onMouseLeave={() => setFocus(null)}>
         <Hatch />
         <line x1={ax0} y1={ay0} x2={ax1} y2={ay1} stroke="var(--ink-3)" strokeWidth={1} strokeDasharray="4 4" />
-        <path d={`M ${ax1 - 4} ${ay1 + 8} L ${ax1} ${ay1} L ${ax1 + 4} ${ay1 + 8}`} fill="none" stroke="var(--ink-3)" />
-        <text x={ax1 + 10} y={ay1 + 4} style={mono} fill="var(--ink-3)">{L.resid.toUpperCase()}</text>
 
         {layers.map((i) => {
           const tonn = isTonn(i);
@@ -181,8 +163,15 @@ export function HybridStack({ lang = "en", className = "" }: { lang?: "en" | "ja
           );
         })}
 
-        {!reduce && show && <circle cx={tx} cy={ty} r={3.2} fill="var(--signal)" />}
+        {/* a token travels up the residual stream: one compositor animation, no re-render per frame */}
+        {!reduce && show && (
+          <motion.circle cx={ax0} r={3.2} fill="var(--signal)" initial={{ cy: ay0, opacity: 0 }} animate={{ cy: [ay0, ay1], opacity: [0, 1, 1, 0] }} transition={{ duration: 4.2, ease: "linear", repeat: Infinity, repeatDelay: 1.2, times: [0, 1] }} />
+        )}
 
+        {/* the stream's arrow and label sit on top of the plates */}
+        <line x1={ax1} y1={ay1 + 30} x2={ax1} y2={ay1 - 16} stroke="var(--ink-2)" strokeWidth={1} strokeDasharray="4 4" />
+        <path d={`M ${ax1 - 4} ${ay1 - 8} L ${ax1} ${ay1 - 16} L ${ax1 + 4} ${ay1 - 8}`} fill="none" stroke="var(--ink-2)" />
+        <text x={ax1 + 10} y={ay1 - 10} style={mono} fill="var(--ink-2)" paintOrder="stroke" stroke="var(--panel)" strokeWidth={4}>{L.resid.toUpperCase()}</text>
         <g stroke="var(--ink-3)" strokeWidth={1}>
           <line x1={r0x + 26} y1={r0y} x2={r1x + 26} y2={r1y} />
           <line x1={r0x + 20} y1={r0y} x2={r0x + 32} y2={r0y} />
@@ -192,7 +181,17 @@ export function HybridStack({ lang = "en", className = "" }: { lang?: "en" | "ja
           <line x1={b1x} y1={b1y + 16} x2={b1x} y2={b1y + 28} />
         </g>
         <text x={r0x + 34} y={(r0y + r1y) / 2} style={mono} fill="var(--ink-2)">{L.layers.toUpperCase()}</text>
-        <text x={(b0x + b1x) / 2 + 8} y={(b0y + b1y) / 2 + 40} style={mono} fill="var(--ink-2)">{L.width.toUpperCase()}</text>
+        <text
+          x={(b0x + b1x) / 2}
+          y={(b0y + b1y) / 2 + 22}
+          dy={16}
+          textAnchor="middle"
+          transform={`rotate(${(Math.atan2(b1y - b0y, b1x - b0x) * 180) / Math.PI} ${(b0x + b1x) / 2} ${(b0y + b1y) / 2 + 22})`}
+          style={mono}
+          fill="var(--ink-2)"
+        >
+          {L.width.toUpperCase()}
+        </text>
       </svg>
 
       <div className="grid gap-4 border-t border-[var(--line-2)] px-4 py-3 md:grid-cols-[minmax(0,1fr)_auto]" aria-live="polite">

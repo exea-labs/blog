@@ -6,7 +6,7 @@ type Lang = "en" | "ja";
 export function Figure({ n, caption, title, children, id, lang = "en" }: { n?: number; caption?: React.ReactNode; title?: string; children: React.ReactNode; id?: string; lang?: Lang }) {
   const anchor = id ?? (n ? `figure-${n}` : undefined);
   return (
-    <figure id={anchor} className="figure">
+    <figure id={anchor} className="figure" data-reveal="scale">
       <div className="plate">
         <div className="plate__head mono">
           <a href={anchor ? `#${anchor}` : undefined} className="no-underline">
@@ -23,7 +23,7 @@ export function Figure({ n, caption, title, children, id, lang = "en" }: { n?: n
 
 export function Correction({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <aside className="note note--signal">
+    <aside className="note note--signal" data-reveal="left">
       <span className="note__tag mono">{title}</span>
       <div className="note__body">{children}</div>
     </aside>
@@ -32,7 +32,7 @@ export function Correction({ title, children }: { title: string; children: React
 
 export function Note({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <aside className="note">
+    <aside className="note" data-reveal="left">
       {title && <span className="note__tag mono">{title}</span>}
       <div className="note__body">{children}</div>
     </aside>
@@ -52,7 +52,7 @@ export function makeH2(order: string[]) {
     const id = slugify(textOf(children));
     const k = order.indexOf(id);
     return (
-      <h2 id={id}>
+      <h2 id={id} data-reveal="clip">
         <a href={`#${id}`}>
           {k >= 0 && <span className="h2-num">{String(k + 1).padStart(2, "0")}</span>}
           {children}
@@ -73,7 +73,7 @@ export function H3({ children }: { children: React.ReactNode }) {
 
 export function Table({ children }: { children: React.ReactNode }) {
   return (
-    <div className="table-wrap">
+    <div className="table-wrap" data-reveal="rise">
       <table>{children}</table>
     </div>
   );

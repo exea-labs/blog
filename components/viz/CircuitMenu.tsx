@@ -145,7 +145,7 @@ function Card({ c, lang, run }: { c: Circuit; lang: "en" | "ja"; run: boolean })
   const path = out.slice(0, t).map((v, i) => `${i ? "L" : "M"}${sx(i).toFixed(1)},${Math.max(3, Math.min(H - 3, sy(v))).toFixed(1)}`).join("");
   const chunked = c.id === "RG" || c.id === "AG";
   return (
-    <div className="bg-panel p-1 transition-colors hover:bg-[color-mix(in_srgb,var(--ink)_4%,var(--panel))]" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div tabIndex={0} className="circuit-card bg-panel p-1 outline-none transition-colors hover:bg-[color-mix(in_srgb,var(--ink)_4%,var(--panel))]" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onFocus={() => setHover(true)} onBlur={() => setHover(false)}>
       <div className="flex items-start justify-between gap-2 px-2 pt-2">
         <div>
           <div className="text-[1rem] leading-tight text-ink">{c.name[lang]}</div>
@@ -158,7 +158,8 @@ function Card({ c, lang, run }: { c: Circuit; lang: "en" | "ja"; run: boolean })
           <span className="mono text-ink">{c.id}</span>
         </span>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="mt-2 block h-[74px] w-full  bg-paper" aria-hidden="true">
+      <div className="relative mt-2">
+        <svg viewBox={`0 0 ${W} ${H}`} className="block h-[74px] w-full bg-paper" aria-hidden="true">
         {chunked && [8, 16, 24, 32].map((k) => <line key={k} x1={sx(k)} x2={sx(k)} y1={4} y2={H - 4} stroke="var(--line-2)" strokeDasharray="2 3" />)}
         {s.A.map((v, i) => (
           <rect key={i} x={sx(i) - 2} width={4} y={v > 0 ? sy(v) : H / 2} height={Math.abs(v) * 22} rx={1.5} fill="var(--line-2)" />
@@ -166,7 +167,8 @@ function Card({ c, lang, run }: { c: Circuit; lang: "en" | "ja"; run: boolean })
         <path d={path} fill="none" stroke={color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
         {t < N && <line x1={sx(t - 1)} x2={sx(t - 1)} y1={3} y2={H - 3} stroke="color-mix(in srgb, var(--ink) 45%, transparent)" />}
       </svg>
-      <p className="mt-2 px-2 pb-2 text-[0.78rem] leading-snug text-ink-2">{c.what[lang]}</p>
+      <p className="circuit-what">{c.what[lang]}</p>
+      </div>
     </div>
   );
 }

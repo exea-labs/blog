@@ -20,7 +20,7 @@ const L = {
     ],
     narrow: "Showing 10 of the 20 slots.",
     reads: (n: number) => (n === 1 ? "reads stream A" : n === 2 ? "reads streams A and B" : "reads streams A, B and C"),
-    pick: "Point at a circuit to see what it computes and which streams it reads.",
+    pick: "Point at a circuit.",
     replay: "Replay",
     next: "to the next layer",
   },
@@ -38,7 +38,7 @@ const L = {
     ],
     narrow: "20 スロットのうち 10 個を表示しています。",
     reads: (n: number) => (n === 1 ? "ストリーム A を読む" : n === 2 ? "ストリーム A と B を読む" : "ストリーム A・B・C を読む"),
-    pick: "回路にカーソルを合わせると、計算の中身と読むストリームが表示されます。",
+    pick: "回路にカーソルを合わせてください。",
     replay: "もう一度再生",
     next: "次の層へ",
   },
@@ -221,10 +221,7 @@ export function TonnLayer({ lang = "en", layer = 6 }: { lang?: "en" | "ja"; laye
               {T.pick} {narrow ? T.narrow : ""}
             </div>
           )}
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.74rem] text-ink-3">
-            <span>{T.stages[4]}: <span className="text-signal-ink">○</span></span>
-            <span>{T.stages[5]}: <span className="text-signal-ink">▪</span></span>
-          </div>
+
         </div>
         <button type="button" onClick={play} className="rounded-full px-3.5 py-1.5 text-[0.8rem] text-ink-2 border border-[var(--line-2)] hover:text-ink">
           {T.replay}
