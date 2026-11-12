@@ -69,7 +69,7 @@ export function Home({ lang }: { lang: Lang }) {
                   {latest.numbers.slice(0, 2).map((n) => (
                     <div key={n.label}>
                       <b>{n.value}</b>
-                      <span className="mono">{n.label.split(",")[0].split("（")[0]}</span>
+                      <span className="mono">{n.label.split(/[,、。（(]/)[0]}</span>
                     </div>
                   ))}
                 </div>

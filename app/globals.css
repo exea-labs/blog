@@ -461,3 +461,6 @@ html[lang="ja"] .feature__title { font-weight: 500; line-height: 1.3; letter-spa
 .circuit-what { position: absolute; inset: 0; margin: 0; padding: 0.55rem 0.7rem; background: var(--panel); border: 1px solid var(--line-2); color: var(--ink-2); font-size: 0.9rem; line-height: 1.35; opacity: 0; transition: opacity var(--t) var(--ease-out); pointer-events: none; }
 .circuit-card:hover .circuit-what, .circuit-card:focus-visible .circuit-what { opacity: 1; }
 @media (hover: none) { .circuit-what { position: static; opacity: 1; border: 0; padding: 0.5rem 0.25rem 0.25rem; } }
+
+/* Japanese headings break at punctuation, never inside a word */
+html[lang="ja"] :is(.h-display, .feature__title, .card__title, .section__title, .reg-post__title, .result__t h3, .prose h2) { word-break: keep-all; overflow-wrap: anywhere; line-break: strict; }

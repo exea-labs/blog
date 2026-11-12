@@ -87,7 +87,7 @@ The first design never learned. For 4,000 steps, accuracy sat at chance. Small d
 2. **An output gate scrambled the retrieved value.** The read was multiplied by a gate computed from the reading position. A linear probe recovered the value from the read 68% of the time before the gate and 2.5% after it. Fix: no gate.
 3. **A zero-initialized matrix drowned the retrieved tokens' identity.** It added the encoder's in-chunk states to each retrieved token. Adam moves every entry of a zero matrix by about the learning rate per step, whatever the gradient, so within 100 steps the added noise swamped the token identity the match depends on. Fix: retrieved tokens are plain token embeddings, read through the layer's own input projection.
 
-<Figure n={5} caption="The retrieval circuit after the fixes. The previous chunk is encoded into a query. The library's keys come from the same encoder, so both live in one space. The top 4 chunks are re-encoded and read through the layer's own input projection, with no gate. Step through the stages with the buttons.">
+<Figure n={5} caption="The retrieval circuit after the fixes. The previous chunk is encoded into a query. The library's keys come from the same encoder, so both live in one space. The top 4 chunks are scored again with the current encoder. Their tokens enter as plain embeddings, read through the layer's own input projection, with no gate. Step through the stages with the buttons.">
   <RetrievalFlow mode="design" />
 </Figure>
 
