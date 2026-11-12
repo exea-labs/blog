@@ -1,0 +1,613 @@
+{
+ "chance": 0.015625,
+ "runs": [
+  {
+   "file": "relay_a4_f4_seed0.json",
+   "seed": 0,
+   "facts": 4,
+   "agents": 4,
+   "arm": "swarm",
+   "shared": 0.9977,
+   "cut": 0.015,
+   "curve": [
+    {
+     "step": 250,
+     "shared": 0.0316,
+     "cut": 0.0163
+    },
+    {
+     "step": 500,
+     "shared": 0.958,
+     "cut": 0.0179
+    },
+    {
+     "step": 750,
+     "shared": 0.9889,
+     "cut": 0.0173
+    },
+    {
+     "step": 1000,
+     "shared": 0.9964,
+     "cut": 0.0192
+    },
+    {
+     "step": 1250,
+     "shared": 0.9993,
+     "cut": 0.0173
+    },
+    {
+     "step": 1500,
+     "shared": 0.9945,
+     "cut": 0.0173
+    },
+    {
+     "step": 1750,
+     "shared": 0.9997,
+     "cut": 0.014
+    },
+    {
+     "step": 2000,
+     "shared": 0.9935,
+     "cut": 0.0166
+    },
+    {
+     "step": 2250,
+     "shared": 0.9984,
+     "cut": 0.0153
+    },
+    {
+     "step": 2500,
+     "shared": 0.998,
+     "cut": 0.015
+    },
+    {
+     "step": 2750,
+     "shared": 0.9993,
+     "cut": 0.0163
+    },
+    {
+     "step": 3000,
+     "shared": 0.9971,
+     "cut": 0.0189
+    },
+    {
+     "step": 3250,
+     "shared": 0.9977,
+     "cut": 0.0179
+    },
+    {
+     "step": 3500,
+     "shared": 0.998,
+     "cut": 0.015
+    },
+    {
+     "step": 3750,
+     "shared": 0.999,
+     "cut": 0.0176
+    },
+    {
+     "step": 4000,
+     "shared": 0.9977,
+     "cut": 0.015
+    }
+   ]
+  },
+  {
+   "file": "relay_a4_f4_seed0.json",
+   "seed": 0,
+   "facts": 4,
+   "agents": 4,
+   "arm": "solo",
+   "shared": 0.016,
+   "cut": 0.016,
+   "curve": [
+    {
+     "step": 250,
+     "shared": 0.0189,
+     "cut": 0.0189
+    },
+    {
+     "step": 500,
+     "shared": 0.0137,
+     "cut": 0.0137
+    },
+    {
+     "step": 750,
+     "shared": 0.0169,
+     "cut": 0.0169
+    },
+    {
+     "step": 1000,
+     "shared": 0.0156,
+     "cut": 0.0156
+    },
+    {
+     "step": 1250,
+     "shared": 0.015,
+     "cut": 0.015
+    },
+    {
+     "step": 1500,
+     "shared": 0.014,
+     "cut": 0.014
+    },
+    {
+     "step": 1750,
+     "shared": 0.0153,
+     "cut": 0.0153
+    },
+    {
+     "step": 2000,
+     "shared": 0.015,
+     "cut": 0.015
+    },
+    {
+     "step": 2250,
+     "shared": 0.0133,
+     "cut": 0.0133
+    },
+    {
+     "step": 2500,
+     "shared": 0.013,
+     "cut": 0.013
+    },
+    {
+     "step": 2750,
+     "shared": 0.0182,
+     "cut": 0.0182
+    },
+    {
+     "step": 3000,
+     "shared": 0.0182,
+     "cut": 0.0182
+    },
+    {
+     "step": 3250,
+     "shared": 0.0156,
+     "cut": 0.0156
+    },
+    {
+     "step": 3500,
+     "shared": 0.0146,
+     "cut": 0.0146
+    },
+    {
+     "step": 3750,
+     "shared": 0.0146,
+     "cut": 0.0146
+    },
+    {
+     "step": 4000,
+     "shared": 0.016,
+     "cut": 0.016
+    }
+   ]
+  },
+  {
+   "file": "relay_seed0.json",
+   "seed": 0,
+   "facts": 4,
+   "agents": 2,
+   "arm": "swarm",
+   "shared": 0.998,
+   "cut": 0.0151,
+   "curve": [
+    {
+     "step": 250,
+     "shared": 0.981,
+     "cut": 0.0107
+    },
+    {
+     "step": 500,
+     "shared": 0.9873,
+     "cut": 0.0181
+    },
+    {
+     "step": 750,
+     "shared": 0.9956,
+     "cut": 0.0181
+    },
+    {
+     "step": 1000,
+     "shared": 0.9976,
+     "cut": 0.0151
+    },
+    {
+     "step": 1250,
+     "shared": 0.9985,
+     "cut": 0.0171
+    },
+    {
+     "step": 1500,
+     "shared": 0.9976,
+     "cut": 0.0161
+    },
+    {
+     "step": 1750,
+     "shared": 0.9995,
+     "cut": 0.0151
+    },
+    {
+     "step": 2000,
+     "shared": 0.998,
+     "cut": 0.0103
+    },
+    {
+     "step": 2250,
+     "shared": 0.9976,
+     "cut": 0.0156
+    },
+    {
+     "step": 2500,
+     "shared": 0.9932,
+     "cut": 0.0186
+    },
+    {
+     "step": 2750,
+     "shared": 0.999,
+     "cut": 0.0146
+    },
+    {
+     "step": 3000,
+     "shared": 0.998,
+     "cut": 0.0151
+    }
+   ]
+  },
+  {
+   "file": "relay_seed0.json",
+   "seed": 0,
+   "facts": 4,
+   "agents": 2,
+   "arm": "solo",
+   "shared": 0.022,
+   "cut": 0.022,
+   "curve": [
+    {
+     "step": 250,
+     "shared": 0.0161,
+     "cut": 0.0161
+    },
+    {
+     "step": 500,
+     "shared": 0.0161,
+     "cut": 0.0161
+    },
+    {
+     "step": 750,
+     "shared": 0.0122,
+     "cut": 0.0122
+    },
+    {
+     "step": 1000,
+     "shared": 0.0176,
+     "cut": 0.0176
+    },
+    {
+     "step": 1250,
+     "shared": 0.0122,
+     "cut": 0.0122
+    },
+    {
+     "step": 1500,
+     "shared": 0.022,
+     "cut": 0.022
+    },
+    {
+     "step": 1750,
+     "shared": 0.0166,
+     "cut": 0.0161
+    },
+    {
+     "step": 2000,
+     "shared": 0.0137,
+     "cut": 0.0137
+    },
+    {
+     "step": 2250,
+     "shared": 0.0127,
+     "cut": 0.0127
+    },
+    {
+     "step": 2500,
+     "shared": 0.0166,
+     "cut": 0.0166
+    },
+    {
+     "step": 2750,
+     "shared": 0.0166,
+     "cut": 0.0166
+    },
+    {
+     "step": 3000,
+     "shared": 0.022,
+     "cut": 0.022
+    }
+   ]
+  },
+  {
+   "file": "relay_seed1.json",
+   "seed": 1,
+   "facts": 4,
+   "agents": 2,
+   "arm": "swarm",
+   "shared": 0.9976,
+   "cut": 0.0176,
+   "curve": [
+    {
+     "step": 250,
+     "shared": 0.894,
+     "cut": 0.0132
+    },
+    {
+     "step": 500,
+     "shared": 0.9893,
+     "cut": 0.0151
+    },
+    {
+     "step": 750,
+     "shared": 0.9844,
+     "cut": 0.0181
+    },
+    {
+     "step": 1000,
+     "shared": 0.9902,
+     "cut": 0.019
+    },
+    {
+     "step": 1250,
+     "shared": 0.9956,
+     "cut": 0.0122
+    },
+    {
+     "step": 1500,
+     "shared": 0.9932,
+     "cut": 0.0176
+    },
+    {
+     "step": 1750,
+     "shared": 0.9976,
+     "cut": 0.0156
+    },
+    {
+     "step": 2000,
+     "shared": 0.999,
+     "cut": 0.0156
+    },
+    {
+     "step": 2250,
+     "shared": 0.998,
+     "cut": 0.0181
+    },
+    {
+     "step": 2500,
+     "shared": 0.999,
+     "cut": 0.0171
+    },
+    {
+     "step": 2750,
+     "shared": 0.998,
+     "cut": 0.019
+    },
+    {
+     "step": 3000,
+     "shared": 0.9976,
+     "cut": 0.0176
+    }
+   ]
+  },
+  {
+   "file": "relay_seed1.json",
+   "seed": 1,
+   "facts": 4,
+   "agents": 2,
+   "arm": "solo",
+   "shared": 0.0137,
+   "cut": 0.0137,
+   "curve": [
+    {
+     "step": 250,
+     "shared": 0.0142,
+     "cut": 0.0142
+    },
+    {
+     "step": 500,
+     "shared": 0.0176,
+     "cut": 0.0176
+    },
+    {
+     "step": 750,
+     "shared": 0.0171,
+     "cut": 0.0171
+    },
+    {
+     "step": 1000,
+     "shared": 0.0166,
+     "cut": 0.0161
+    },
+    {
+     "step": 1250,
+     "shared": 0.0156,
+     "cut": 0.0156
+    },
+    {
+     "step": 1500,
+     "shared": 0.021,
+     "cut": 0.021
+    },
+    {
+     "step": 1750,
+     "shared": 0.0137,
+     "cut": 0.0137
+    },
+    {
+     "step": 2000,
+     "shared": 0.0234,
+     "cut": 0.0234
+    },
+    {
+     "step": 2250,
+     "shared": 0.0132,
+     "cut": 0.0132
+    },
+    {
+     "step": 2500,
+     "shared": 0.0132,
+     "cut": 0.0132
+    },
+    {
+     "step": 2750,
+     "shared": 0.0176,
+     "cut": 0.0176
+    },
+    {
+     "step": 3000,
+     "shared": 0.0137,
+     "cut": 0.0137
+    }
+   ]
+  },
+  {
+   "file": "relay_seed2.json",
+   "seed": 2,
+   "facts": 4,
+   "agents": 2,
+   "arm": "swarm",
+   "shared": 0.999,
+   "cut": 0.0137,
+   "curve": [
+    {
+     "step": 250,
+     "shared": 0.9883,
+     "cut": 0.0146
+    },
+    {
+     "step": 500,
+     "shared": 0.9829,
+     "cut": 0.0146
+    },
+    {
+     "step": 750,
+     "shared": 0.9863,
+     "cut": 0.0117
+    },
+    {
+     "step": 1000,
+     "shared": 0.9971,
+     "cut": 0.0122
+    },
+    {
+     "step": 1250,
+     "shared": 0.9951,
+     "cut": 0.0122
+    },
+    {
+     "step": 1500,
+     "shared": 0.9961,
+     "cut": 0.0161
+    },
+    {
+     "step": 1750,
+     "shared": 0.9961,
+     "cut": 0.0107
+    },
+    {
+     "step": 2000,
+     "shared": 0.9976,
+     "cut": 0.0146
+    },
+    {
+     "step": 2250,
+     "shared": 0.9985,
+     "cut": 0.0161
+    },
+    {
+     "step": 2500,
+     "shared": 0.9995,
+     "cut": 0.0161
+    },
+    {
+     "step": 2750,
+     "shared": 0.9971,
+     "cut": 0.0112
+    },
+    {
+     "step": 3000,
+     "shared": 0.999,
+     "cut": 0.0137
+    }
+   ]
+  },
+  {
+   "file": "relay_seed2.json",
+   "seed": 2,
+   "facts": 4,
+   "agents": 2,
+   "arm": "solo",
+   "shared": 0.0171,
+   "cut": 0.0171,
+   "curve": [
+    {
+     "step": 250,
+     "shared": 0.0151,
+     "cut": 0.0151
+    },
+    {
+     "step": 500,
+     "shared": 0.0142,
+     "cut": 0.0142
+    },
+    {
+     "step": 750,
+     "shared": 0.0176,
+     "cut": 0.0176
+    },
+    {
+     "step": 1000,
+     "shared": 0.0161,
+     "cut": 0.0161
+    },
+    {
+     "step": 1250,
+     "shared": 0.0112,
+     "cut": 0.0112
+    },
+    {
+     "step": 1500,
+     "shared": 0.0225,
+     "cut": 0.022
+    },
+    {
+     "step": 1750,
+     "shared": 0.0146,
+     "cut": 0.0146
+    },
+    {
+     "step": 2000,
+     "shared": 0.0146,
+     "cut": 0.0146
+    },
+    {
+     "step": 2250,
+     "shared": 0.0176,
+     "cut": 0.0176
+    },
+    {
+     "step": 2500,
+     "shared": 0.0181,
+     "cut": 0.0181
+    },
+    {
+     "step": 2750,
+     "shared": 0.0112,
+     "cut": 0.0112
+    },
+    {
+     "step": 3000,
+     "shared": 0.0171,
+     "cut": 0.0171
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,128 @@
+{
+ "pure_tonn": {
+  "rows": [
+   {
+    "name": "llama",
+    "params_M": 100.2,
+    "batch": 8,
+    "seq": 2048,
+    "secs_per_step": 1.438,
+    "tokens_per_sec": 11393
+   },
+   {
+    "name": "tonn, memory idle",
+    "params_M": 103.4,
+    "batch": 8,
+    "seq": 2048,
+    "secs_per_step": 2.209,
+    "tokens_per_sec": 7417
+   },
+   {
+    "name": "tonn, retrieval on",
+    "params_M": 103.4,
+    "batch": 8,
+    "seq": 2048,
+    "secs_per_step": 3.818,
+    "tokens_per_sec": 4291
+   },
+   {
+    "name": "tonn, retrieval on + swarms of 4",
+    "params_M": 103.4,
+    "batch": 8,
+    "seq": 2048,
+    "secs_per_step": 3.851,
+    "tokens_per_sec": 4255
+   }
+  ],
+  "refresh_secs": 1.66,
+  "source": "results/speed/speed_mps.json"
+ },
+ "hybrid_1to1": {
+  "rows": [
+   {
+    "name": "llama",
+    "params_M": 100.2,
+    "batch": 8,
+    "seq": 2048,
+    "secs_per_step": 1.362,
+    "tokens_per_sec": 12026
+   },
+   {
+    "name": "tonn, memory idle",
+    "params_M": 101.1,
+    "batch": 8,
+    "seq": 2048,
+    "secs_per_step": 1.541,
+    "tokens_per_sec": 10630
+   },
+   {
+    "name": "tonn, retrieval on",
+    "params_M": 101.1,
+    "batch": 8,
+    "seq": 2048,
+    "secs_per_step": 2.257,
+    "tokens_per_sec": 7259
+   },
+   {
+    "name": "tonn, retrieval on + swarms of 4",
+    "params_M": 101.1,
+    "batch": 8,
+    "seq": 2048,
+    "secs_per_step": 2.249,
+    "tokens_per_sec": 7285
+   }
+  ],
+  "refresh_secs": 1.59,
+  "source": "results/speed_hybrid/speed_mps.json"
+ },
+ "hybrid_2to1": {
+  "rows": [
+   {
+    "name": "llama",
+    "params_M": 100.2,
+    "batch": 8,
+    "seq": 2048,
+    "secs_per_step": 1.36,
+    "tokens_per_sec": 12047
+   },
+   {
+    "name": "tonn, memory idle",
+    "params_M": 101.1,
+    "batch": 8,
+    "seq": 2048,
+    "secs_per_step": 1.369,
+    "tokens_per_sec": 11967
+   },
+   {
+    "name": "tonn, retrieval on",
+    "params_M": 101.1,
+    "batch": 8,
+    "seq": 2048,
+    "secs_per_step": 2.033,
+    "tokens_per_sec": 8061
+   },
+   {
+    "name": "tonn, retrieval on + swarms of 4",
+    "params_M": 101.1,
+    "batch": 8,
+    "seq": 2048,
+    "secs_per_step": 2.034,
+    "tokens_per_sec": 8053
+   }
+  ],
+  "refresh_secs": 1.58,
+  "source": "results/speed_hybrid21/speed_mps.json"
+ },
+ "circuits_ms": {
+  "source": "docs/ideas.md (experiments/profile_circuits.py, width 256, one layer forward and backward)",
+  "attention": 18,
+  "before": {
+   "GI": 127,
+   "SM": 145
+  },
+  "after": {
+   "GI": 25,
+   "SM": 45
+  }
+ }
+}

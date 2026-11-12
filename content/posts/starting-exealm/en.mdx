@@ -1,0 +1,78 @@
+---
+title: "Starting ExeaLM"
+date: 2026-11-10
+order: 1
+day: 1
+summary: "ExeaLM is an open 0.1B language model built by high schoolers. Retrieval and agent-to-agent messaging are circuits inside its layers. Day 1 set the plan and pushed the code skeleton."
+tags: [plan, architecture]
+contributors: [AvnehSBhatia]
+numbers:
+  - { value: "0.1B", label: "parameters planned" }
+  - { value: "100B", label: "training tokens planned" }
+  - { value: "14", label: "circuit types a TONN layer can hold" }
+sources:
+  - { label: "ExeaLM README", href: "https://github.com/exea-labs/ExeaLM#readme" }
+  - { label: "DATA.md: token budget and mix", href: "https://github.com/exea-labs/ExeaLM/blob/main/DATA.md" }
+  - { label: "Commit 7a63ac9: the skeleton", href: "https://github.com/exea-labs/ExeaLM/commit/7a63ac9" }
+  - { label: "exealm/model/circuits.py: the circuit menu", href: "https://github.com/exea-labs/ExeaLM/blob/main/exealm/model/circuits.py" }
+  - { label: "TONN: Networks That Build Their Own Architecture from Data", href: "https://www.preprints.org/manuscript/202611.0994" }
+---
+
+ExeaLM is an open language model built by high schoolers at Exea Labs. It will have 0.1 billion parameters, train on about 100 billion tokens of English, Japanese and code, and then be post-trained into an assistant. The code, the data recipe, every result and these notes are public.
+
+## The bet
+
+A model of 0.1B parameters is small. On its own it can hold little knowledge and work on short problems only. ExeaLM tests whether two abilities, built into the architecture, change that:
+
+- **Its own retrieval.** The model learns its own embeddings, decides what to search for, and reads text from a read-only library. Its knowledge does not all have to fit in 100 million weights.
+- **Talking to copies of itself.** Several copies of the model, a <Term id="swarm">swarm</Term>, share a message board. A large problem can be split across the copies, and they pass what they find over the board.
+
+Both are trained from the first step of pretraining, end to end, with ordinary gradients. The headline test comes later: a swarm of 0.1B agents with retrieval against one larger open model, on the same tasks, at the same inference compute. This is a hypothesis. These notes will say so plainly if it fails.
+
+## Why 0.1B parameters and 100B tokens
+
+100B tokens on 0.1B parameters is 1,000 tokens per parameter, about 50 times the compute-optimal ratio of about 20. Small models are trained past that ratio on purpose, because they are cheap to run afterwards, and a swarm runs many copies.
+
+The returns fall quickly. By the loss fit of Hoffmann et al. (2022), predicted loss drops by about 0.19 going from 20B to 100B tokens, by about 0.06 from 100B to 200B, and by about 0.05 from 200B to 400B. At about 300 TFLOPs per GPU, 100B tokens on 0.1B parameters is about 56 GPU-hours.
+
+## The architecture: TONN
+
+ExeaLM is built on TONN (pronounced "tone"), the architecture from our paper. A <Term id="tonn">TONN</Term> layer replaces attention with a row of small <Term id="circuit">circuits</Term>:
+
+1. One input projection reads the residual stream (640 channels) into 20 slots. Each slot gets three <Term id="streams">streams</Term>, A, B and C, of 32 channels each.
+2. Each slot runs one circuit type: a delay, a short convolution, a running sum, a state space, a small attention head, and others.
+3. Each slot's output is divided by a running estimate of its size, so every slot speaks at the same volume.
+4. One output projection writes the 20 results back to the residual stream. A gated MLP follows, as in a transformer.
+
+<Figure n={1} caption="One TONN layer of the 0.1B model, from the residual stream in to the next layer. Point at a circuit to see which of the three streams it reads. The 20 circuits shown are one starting draw; training changes them.">
+  <TonnLayer />
+</Figure>
+
+Which circuit sits in which slot is not fixed by hand. During training, TONN's <Term id="search">search</Term> switches off one group of circuits at a time, measures how much the loss rises, and redraws the weakest slots. The network picks part of its own architecture from the data.
+
+<Figure n={2} caption="The 14 circuit types a slot can hold, each run on the same toy input. The faint bars are stream A; the line is the circuit's output, drawn as the playhead moves forward in time. No output looks ahead of the playhead: every circuit is causal.">
+  <CircuitMenu />
+</Figure>
+
+<Note title="Day 2 changed the layout">
+  <p>The day 1 plan was TONN in every layer. Overnight tests showed that a mix works better: every third layer TONN, the rest full attention. The post <a href="/posts/hybrid-beats-llama/">Pure TONN lost to Llama. The hybrid wins.</a> has the numbers.</p>
+</Note>
+
+## Two new circuits
+
+ExeaLM adds two circuit types to TONN's menu. Every TONN layer is guaranteed one of each, and the search cannot remove them.
+
+- **RG, retrieval.** Once per <Term id="chunk">chunk</Term> of 64 tokens, the circuit turns the chunk it just read into a query, searches the library with the model's own chunk encoder, takes the top 4 chunks and reads them.
+- **AG, the agent board.** After each chunk, every agent posts a message: a value, a key and a strength. In later chunks, every agent reads the earlier posts on the board with attention, its teammates' and its own, along with an empty entry for "nothing useful".
+
+In training, consecutive rows of a batch form swarms of 4 that share one board. Gradients flow through the board, so an agent learns what to post from how much its teammates' losses fall.
+
+## What went up on day 1
+
+- The repository, the Apache 2.0 license, the contributing guide and the code of conduct.
+- The skeleton (commit 7a63ac9): the TONN model with RG and AG, a datastore, a board, data download and packing, a pretraining loop, and SFT, DPO and GRPO losses, with 16 tests.
+- The plan: DATA.md with the token budget and two candidate mixes, and a to-do list in the README. Most items run on a laptop or a free Colab GPU.
+
+## What day 1 does not show
+
+Nothing in this post is tested yet. The skeleton runs and its 16 tests pass, but no model has been trained on real data, and the bet in the first section is a hypothesis. The next post tests both new circuits on tasks built so that they can only be solved through them.

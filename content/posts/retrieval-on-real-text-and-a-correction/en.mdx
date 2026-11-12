@@ -1,0 +1,105 @@
+---
+title: "Retrieval on real text, and a correction"
+date: 2026-11-11
+order: 3
+day: 2
+summary: "On real text, retrieval first exposed a bug, then gave nothing. A perfect search shows 0.040 bits per token is there to take; the model's own search finds the right article only 12% of the time. Rare-word keys raise that to 30%. A gain we reported on seed 0 did not hold on seed 1, and we corrected it."
+tags: [retrieval, correction]
+contributors: [AvnehSBhatia]
+numbers:
+  - { value: "0.040", label: "bits per token available with a perfect search" }
+  - { value: "12% → 30%", label: "search finds the right article, before and after rare-word keys" }
+  - { value: "Not yet", label: "a net gain on real text, after seed 1" }
+sources:
+  - { label: "results/README.md, section 6", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/README.md" }
+  - { label: "experiments/rag_text.py", href: "https://github.com/exea-labs/ExeaLM/blob/main/experiments/rag_text.py" }
+  - { label: "experiments/rag_wiki_split.py", href: "https://github.com/exea-labs/ExeaLM/blob/main/experiments/rag_wiki_split.py" }
+  - { label: "Commit 0b873ec: the search fix", href: "https://github.com/exea-labs/ExeaLM/commit/0b873ec" }
+  - { label: "Commit 3812731: the oracle diagnosis", href: "https://github.com/exea-labs/ExeaLM/commit/3812731" }
+  - { label: "Commit 6a5503b: rare-word keys", href: "https://github.com/exea-labs/ExeaLM/commit/6a5503b" }
+  - { label: "Commit ecaba1b: the correction", href: "https://github.com/exea-labs/ExeaLM/commit/ecaba1b" }
+---
+
+The retrieval circuit learned a synthetic lookup perfectly ([the previous post](/posts/agents-talk-and-the-model-builds-its-own-rag/)). The real question is whether a library of text helps the model predict new text. This post is that test, run four ways, with one diagnosis, one fix that worked, and one result we had to take back.
+
+## First run: a bug
+
+FineWeb-Edu bytes, a 5.2M model, a library of 200,000 chunks of 64 bytes from the training documents. Retrieval never returns chunks of the document being read.
+
+| Step | Library attached | Library removed |
+|---|---|---|
+| 1,000 | 1.935 | 1.929 |
+| 2,000 | 1.785 | 1.783 |
+| 3,000 | **6.122** | 1.727 |
+
+At step 3,000, scoring with the library attached blew up to 6.122 <Term id="bpb">bits per byte</Term>. The cause was a chain of three effects:
+
+1. The search fetched 16 candidates, then dropped those from the document being read.
+2. The nearest chunks are usually from that same document. So in training, the read often came back empty, and the circuit's running output scale settled low.
+3. Held-out documents are not in the library at all. At evaluation every read came back full, and divided by that low scale it swamped the model.
+
+The fix moves the same-document rule inside the search, so every query gets 4 results from other documents. A test now covers the case where the document being read fills most of the library.
+
+## Then: no gain
+
+With the fix, on the <Term id="hybrid">hybrid</Term>, training with retrieval is stable and no longer hurts. It does not help either:
+
+| Run | Library | Attached | Removed | Training time |
+|---|---|---|---|---|
+| Web text, hybrid with retrieval | training chunks | 1.615 | 1.614 | 1,002 s |
+| Web text, hybrid without (control) | | | **1.613** | 465 s |
+| Web text, hybrid with retrieval | 25,795 Wikipedia articles | 5.969 | 5.968 | 1,036 s |
+| Web text, hybrid without (control) | | | 5.970 | 571 s |
+
+The second pair is in <Term id="bpt">bits per token</Term>, with the 32k tokenizer. Random chunks of web text are rarely relevant to the next bytes of a new document. Even a Wikipedia library gave nothing on general text, at 1.8 times the training time.
+
+## A knowledge task, and the diagnosis
+
+So we built a task where the library is known to hold what the model needs. Each Wikipedia article is split in half. The first half goes into the library; the model reads and predicts the second half, which keeps mentioning names and facts from the first. The model trains on 90% of the articles and is scored on the other 10% with a fresh library of their first halves, so it has to retrieve, not memorize.
+
+Retrieval still gave nothing. To find out whether the search or the read was failing, we added an <Term id="oracle">oracle search</Term>: a diagnostic that always looks inside the right article and returns its 4 chunks closest to the query.
+
+<Figure n={1} caption="Three ways to search the same library. Each dot is one chunk of a held-out article's first half, placed by its retrieval key. Orange dots belong to the article being read; hollow dots belong to other articles. The ringed point is the query, and lines go to the 4 chunks the search returns. Switch the search to see how often it lands in the right article (the measured hit rates, seed 0). Positions are illustrative; hit rates are measured.">
+  <RetrievalFlow mode="search" />
+</Figure>
+
+- With the oracle, retrieval helps: 5.242 bits per token against 5.282 for a model trained without retrieval, a gain of 0.040. At step 1,000, reading with the library beats reading without it by 0.145.
+- The learned search finds a chunk of the right article among its top 4 only about 12% of the time. A REALM-style training loss for the search (each chunk should find its neighbour) did not raise it.
+
+**The read works. The search does not, yet.**
+
+## Rare-word keys
+
+A search that starts from nothing has to learn what "related" means from the language-model loss alone. Names, places and technical terms are the easiest signal of relatedness, and a search that knows nothing yet ignores them. So each retrieval key got a second part: a fixed random code for every token in the chunk, weighted by how rare that token is in the library (its inverse document frequency). Chunks that share rare words get similar keys from the first step. The learned part trains as before.
+
+<Figure n={2} caption="How often the search returns a chunk of the right article among its top 4, on held-out articles at step 3,000. Learned keys alone stay near 12% with or without the neighbour loss. Adding rare-word keys raises it to about 30% on both seeds. The oracle is 100% by construction.">
+  <HitRate />
+</Figure>
+
+On seed 0, this gave the first retrieval gain on real text: 5.256 bits per token against 5.282 for the no-retrieval model, 0.026 better, 65% of what the oracle gets. We reported that, and queued seed 1.
+
+## The correction
+
+<Correction title="Seed 1 does not confirm the gain">
+  <p>On seed 1, the model with rare-word keys and the library attached scored 5.281. A no-retrieval model trained with the same seed scored 5.279. The net effect against a separately trained model is 0.026 better on seed 0 and 0.002 worse on seed 1. Most of seed 0's lead was run-to-run variation, not retrieval.</p>
+  <p>We corrected the results page and the README the same afternoon (commit ecaba1b). The original claim stays in the git history.</p>
+</Correction>
+
+| Seed | Rare-word keys, library attached | Same model, library removed | No-retrieval model |
+|---|---|---|---|
+| 0 | **5.256** | 5.260 | 5.282 |
+| 1 | 5.281 | 5.285 | **5.279** |
+
+What holds on both seeds:
+- Rare-word keys raise the search's <Term id="hit-rate">hit rate</Term> from about 12% to about 30%.
+- The library helps the model it was trained with, by 0.004 bits per token at test time, on both seeds.
+
+What does not hold yet is a net gain over a model trained without retrieval. At 13M parameters and 3,000 steps, retrieval works mechanically and the search is much better, but the gain on real text is not established. The oracle shows 0.040 bits per token is there to take. Getting it means a search that finds the right article far more often than 30% of the time.
+
+## What we will try next
+
+These are on the [ExeaLM to-do list](https://github.com/exea-labs/ExeaLM#to-do-list), and anyone can pick one up:
+
+- A better search: better pooling of a chunk into its key, hard negatives (related but wrong chunks) when training the search, and a bigger encoder.
+- Larger models. Published retrieval gains on ordinary text came with much larger models and libraries.
+- A retrieval eval: questions whose answers are in the library but not in the prompt.

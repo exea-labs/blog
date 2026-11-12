@@ -1,0 +1,582 @@
+[
+ {
+  "file": "lookup_f1024_qlast_r0_seed0.json",
+  "facts": 1024,
+  "restate": 0,
+  "arm": "rag",
+  "attached": 1.0,
+  "removed": 0.0146,
+  "curve": [
+   {
+    "step": 500,
+    "kb": 32,
+    "attached": 0.4561,
+    "removed": 0.0195
+   },
+   {
+    "step": 1000,
+    "kb": 64,
+    "attached": 0.9297,
+    "removed": 0.0146
+   },
+   {
+    "step": 1500,
+    "kb": 128,
+    "attached": 0.9922,
+    "removed": 0.0205
+   },
+   {
+    "step": 2000,
+    "kb": 256,
+    "attached": 0.9961,
+    "removed": 0.0156
+   },
+   {
+    "step": 2500,
+    "kb": 1024,
+    "attached": 1.0,
+    "removed": 0.0137
+   },
+   {
+    "step": 3000,
+    "kb": 1024,
+    "attached": 1.0,
+    "removed": 0.0
+   },
+   {
+    "step": 3500,
+    "kb": 1024,
+    "attached": 1.0,
+    "removed": 0.0039
+   },
+   {
+    "step": 4000,
+    "kb": 1024,
+    "attached": 1.0,
+    "removed": 0.0146
+   }
+  ]
+ },
+ {
+  "file": "lookup_f1024_qlast_r0_seed0.json",
+  "facts": 1024,
+  "restate": 0,
+  "arm": "none",
+  "attached": 0.0234,
+  "removed": 0.0234,
+  "curve": [
+   {
+    "step": 500,
+    "kb": 32,
+    "attached": 0.0215,
+    "removed": 0.0215
+   },
+   {
+    "step": 1000,
+    "kb": 64,
+    "attached": 0.0195,
+    "removed": 0.0195
+   },
+   {
+    "step": 1500,
+    "kb": 128,
+    "attached": 0.0137,
+    "removed": 0.0137
+   },
+   {
+    "step": 2000,
+    "kb": 256,
+    "attached": 0.0215,
+    "removed": 0.0215
+   },
+   {
+    "step": 2500,
+    "kb": 1024,
+    "attached": 0.0127,
+    "removed": 0.0127
+   },
+   {
+    "step": 3000,
+    "kb": 1024,
+    "attached": 0.0146,
+    "removed": 0.0146
+   },
+   {
+    "step": 3500,
+    "kb": 1024,
+    "attached": 0.0137,
+    "removed": 0.0137
+   },
+   {
+    "step": 4000,
+    "kb": 1024,
+    "attached": 0.0234,
+    "removed": 0.0234
+   }
+  ]
+ },
+ {
+  "file": "lookup_f16_qlast_r0_seed0.json",
+  "facts": 16,
+  "restate": 0,
+  "arm": "rag",
+  "attached": 1.0,
+  "removed": 0.0088,
+  "curve": [
+   {
+    "step": 500,
+    "kb": 16,
+    "attached": 0.8789,
+    "removed": 0.0137
+   },
+   {
+    "step": 1000,
+    "kb": 16,
+    "attached": 0.9922,
+    "removed": 0.0098
+   },
+   {
+    "step": 1500,
+    "kb": 16,
+    "attached": 0.9971,
+    "removed": 0.0039
+   },
+   {
+    "step": 2000,
+    "kb": 16,
+    "attached": 1.0,
+    "removed": 0.0078
+   },
+   {
+    "step": 2500,
+    "kb": 16,
+    "attached": 1.0,
+    "removed": 0.0039
+   },
+   {
+    "step": 3000,
+    "kb": 16,
+    "attached": 1.0,
+    "removed": 0.0166
+   },
+   {
+    "step": 3500,
+    "kb": 16,
+    "attached": 1.0,
+    "removed": 0.0117
+   },
+   {
+    "step": 4000,
+    "kb": 16,
+    "attached": 1.0,
+    "removed": 0.0088
+   }
+  ]
+ },
+ {
+  "file": "lookup_f16_qlast_r0_seed0.json",
+  "facts": 16,
+  "restate": 0,
+  "arm": "none",
+  "attached": 0.0078,
+  "removed": 0.0078,
+  "curve": [
+   {
+    "step": 500,
+    "kb": 16,
+    "attached": 0.0146,
+    "removed": 0.0146
+   },
+   {
+    "step": 1000,
+    "kb": 16,
+    "attached": 0.0215,
+    "removed": 0.0215
+   },
+   {
+    "step": 1500,
+    "kb": 16,
+    "attached": 0.0234,
+    "removed": 0.0234
+   },
+   {
+    "step": 2000,
+    "kb": 16,
+    "attached": 0.0078,
+    "removed": 0.0078
+   },
+   {
+    "step": 2500,
+    "kb": 16,
+    "attached": 0.0107,
+    "removed": 0.0107
+   },
+   {
+    "step": 3000,
+    "kb": 16,
+    "attached": 0.0234,
+    "removed": 0.0234
+   },
+   {
+    "step": 3500,
+    "kb": 16,
+    "attached": 0.0117,
+    "removed": 0.0117
+   },
+   {
+    "step": 4000,
+    "kb": 16,
+    "attached": 0.0078,
+    "removed": 0.0078
+   }
+  ]
+ },
+ {
+  "file": "lookup_f16_qlast_r1_seed0.json",
+  "facts": 16,
+  "restate": 1,
+  "arm": "rag",
+  "attached": 1.0,
+  "removed": 0.0156,
+  "curve": [
+   {
+    "step": 500,
+    "kb": 16,
+    "attached": 0.9844,
+    "removed": 0.0137
+   },
+   {
+    "step": 1000,
+    "kb": 16,
+    "attached": 0.9912,
+    "removed": 0.0186
+   },
+   {
+    "step": 1500,
+    "kb": 16,
+    "attached": 0.9971,
+    "removed": 0.0078
+   },
+   {
+    "step": 2000,
+    "kb": 16,
+    "attached": 0.9971,
+    "removed": 0.0049
+   },
+   {
+    "step": 2500,
+    "kb": 16,
+    "attached": 0.9062,
+    "removed": 0.0244
+   },
+   {
+    "step": 3000,
+    "kb": 16,
+    "attached": 0.9893,
+    "removed": 0.0156
+   },
+   {
+    "step": 3500,
+    "kb": 16,
+    "attached": 0.998,
+    "removed": 0.0254
+   },
+   {
+    "step": 4000,
+    "kb": 16,
+    "attached": 1.0,
+    "removed": 0.0156
+   }
+  ]
+ },
+ {
+  "file": "lookup_f16_qlast_r1_seed0.json",
+  "facts": 16,
+  "restate": 1,
+  "arm": "none",
+  "attached": 0.0215,
+  "removed": 0.0215,
+  "curve": [
+   {
+    "step": 500,
+    "kb": 16,
+    "attached": 0.0146,
+    "removed": 0.0146
+   },
+   {
+    "step": 1000,
+    "kb": 16,
+    "attached": 0.0215,
+    "removed": 0.0215
+   },
+   {
+    "step": 1500,
+    "kb": 16,
+    "attached": 0.0234,
+    "removed": 0.0234
+   },
+   {
+    "step": 2000,
+    "kb": 16,
+    "attached": 0.0078,
+    "removed": 0.0078
+   },
+   {
+    "step": 2500,
+    "kb": 16,
+    "attached": 0.0107,
+    "removed": 0.0107
+   },
+   {
+    "step": 3000,
+    "kb": 16,
+    "attached": 0.0234,
+    "removed": 0.0234
+   },
+   {
+    "step": 3500,
+    "kb": 16,
+    "attached": 0.0117,
+    "removed": 0.0117
+   },
+   {
+    "step": 4000,
+    "kb": 16,
+    "attached": 0.0215,
+    "removed": 0.0215
+   }
+  ]
+ },
+ {
+  "file": "lookup_f4_qlast_r0_seed0.json",
+  "facts": 4,
+  "restate": 0,
+  "arm": "rag",
+  "attached": 0.8838,
+  "removed": 0.042,
+  "curve": [
+   {
+    "step": 500,
+    "kb": 4,
+    "attached": 0.0,
+    "removed": 0.0
+   },
+   {
+    "step": 1000,
+    "kb": 4,
+    "attached": 0.0928,
+    "removed": 0.0
+   },
+   {
+    "step": 1500,
+    "kb": 4,
+    "attached": 0.2119,
+    "removed": 0.0312
+   },
+   {
+    "step": 2000,
+    "kb": 4,
+    "attached": 0.5137,
+    "removed": 0.0195
+   },
+   {
+    "step": 2500,
+    "kb": 4,
+    "attached": 0.7871,
+    "removed": 0.0
+   },
+   {
+    "step": 3000,
+    "kb": 4,
+    "attached": 0.959,
+    "removed": 0.0
+   },
+   {
+    "step": 3500,
+    "kb": 4,
+    "attached": 0.9492,
+    "removed": 0.0127
+   },
+   {
+    "step": 4000,
+    "kb": 4,
+    "attached": 0.8838,
+    "removed": 0.042
+   }
+  ]
+ },
+ {
+  "file": "lookup_f4_qlast_r0_seed0.json",
+  "facts": 4,
+  "restate": 0,
+  "arm": "none",
+  "attached": 0.0537,
+  "removed": 0.0537,
+  "curve": [
+   {
+    "step": 500,
+    "kb": 4,
+    "attached": 0.0,
+    "removed": 0.0
+   },
+   {
+    "step": 1000,
+    "kb": 4,
+    "attached": 0.0342,
+    "removed": 0.0342
+   },
+   {
+    "step": 1500,
+    "kb": 4,
+    "attached": 0.0,
+    "removed": 0.0
+   },
+   {
+    "step": 2000,
+    "kb": 4,
+    "attached": 0.0186,
+    "removed": 0.0186
+   },
+   {
+    "step": 2500,
+    "kb": 4,
+    "attached": 0.0352,
+    "removed": 0.0352
+   },
+   {
+    "step": 3000,
+    "kb": 4,
+    "attached": 0.0352,
+    "removed": 0.0352
+   },
+   {
+    "step": 3500,
+    "kb": 4,
+    "attached": 0.0361,
+    "removed": 0.0361
+   },
+   {
+    "step": 4000,
+    "kb": 4,
+    "attached": 0.0537,
+    "removed": 0.0537
+   }
+  ]
+ },
+ {
+  "file": "lookup_f4_qlast_r1_seed0.json",
+  "facts": 4,
+  "restate": 1,
+  "arm": "rag",
+  "attached": 1.0,
+  "removed": 0.001,
+  "curve": [
+   {
+    "step": 500,
+    "kb": 4,
+    "attached": 0.9805,
+    "removed": 0.0693
+   },
+   {
+    "step": 1000,
+    "kb": 4,
+    "attached": 1.0,
+    "removed": 0.0
+   },
+   {
+    "step": 1500,
+    "kb": 4,
+    "attached": 0.9785,
+    "removed": 0.0166
+   },
+   {
+    "step": 2000,
+    "kb": 4,
+    "attached": 1.0,
+    "removed": 0.0254
+   },
+   {
+    "step": 2500,
+    "kb": 4,
+    "attached": 1.0,
+    "removed": 0.0039
+   },
+   {
+    "step": 3000,
+    "kb": 4,
+    "attached": 1.0,
+    "removed": 0.0049
+   },
+   {
+    "step": 3500,
+    "kb": 4,
+    "attached": 1.0,
+    "removed": 0.0049
+   },
+   {
+    "step": 4000,
+    "kb": 4,
+    "attached": 1.0,
+    "removed": 0.001
+   }
+  ]
+ },
+ {
+  "file": "lookup_f4_qlast_r1_seed0.json",
+  "facts": 4,
+  "restate": 1,
+  "arm": "none",
+  "attached": 0.1035,
+  "removed": 0.1025,
+  "curve": [
+   {
+    "step": 500,
+    "kb": 4,
+    "attached": 0.0,
+    "removed": 0.0
+   },
+   {
+    "step": 1000,
+    "kb": 4,
+    "attached": 0.0332,
+    "removed": 0.0332
+   },
+   {
+    "step": 1500,
+    "kb": 4,
+    "attached": 0.0,
+    "removed": 0.0
+   },
+   {
+    "step": 2000,
+    "kb": 4,
+    "attached": 0.0361,
+    "removed": 0.0361
+   },
+   {
+    "step": 2500,
+    "kb": 4,
+    "attached": 0.0322,
+    "removed": 0.0322
+   },
+   {
+    "step": 3000,
+    "kb": 4,
+    "attached": 0.0312,
+    "removed": 0.0312
+   },
+   {
+    "step": 3500,
+    "kb": 4,
+    "attached": 0.0537,
+    "removed": 0.0527
+   },
+   {
+    "step": 4000,
+    "kb": 4,
+    "attached": 0.1035,
+    "removed": 0.1025
+   }
+  ]
+ }
+]

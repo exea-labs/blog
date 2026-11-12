@@ -1,0 +1,302 @@
+[
+ {
+  "name": "hyb135",
+  "start": "2026-11-11T01:41:37",
+  "end": "2026-11-11T01:52:28",
+  "group": "Hybrid layers, random start"
+ },
+ {
+  "name": "rp4",
+  "start": "2026-11-11T01:52:28",
+  "end": "2026-11-11T02:06:11",
+  "group": "Hybrid layers, random start"
+ },
+ {
+  "name": "hyb135_s1",
+  "start": "2026-11-11T02:06:11",
+  "end": "2026-11-11T02:16:56",
+  "group": "Hybrid layers, random start"
+ },
+ {
+  "name": "hyb135_search",
+  "start": "2026-11-11T02:16:56",
+  "end": "2026-11-11T02:39:16",
+  "group": "Hybrid layers, random start"
+ },
+ {
+  "name": "hyb135_mem",
+  "start": "2026-11-11T02:39:16",
+  "end": "2026-11-11T02:49:47",
+  "group": "Hybrid layers, random start"
+ },
+ {
+  "name": "hyb135_conv",
+  "start": "2026-11-11T02:49:47",
+  "end": "2026-11-11T03:12:07",
+  "group": "Convolution-heavy start"
+ },
+ {
+  "name": "hyb135_s1_curve",
+  "start": "2026-11-11T03:12:07",
+  "end": "2026-11-11T03:23:00",
+  "group": "Hybrid layers, random start"
+ },
+ {
+  "name": "hconv_mem",
+  "start": "2026-11-11T03:23:00",
+  "end": "2026-11-11T03:45:08",
+  "group": "Convolution-heavy start"
+ },
+ {
+  "name": "hconv_search",
+  "start": "2026-11-11T03:45:08",
+  "end": "2026-11-11T04:08:45",
+  "group": "Convolution-heavy start"
+ },
+ {
+  "name": "hconv_6k",
+  "start": "2026-11-11T04:08:45",
+  "end": "2026-11-11T04:31:39",
+  "group": "Learning rates, longer runs"
+ },
+ {
+  "name": "llama_6k",
+  "start": "2026-11-11T04:31:39",
+  "end": "2026-11-11T04:49:01",
+  "group": "Learning rates, longer runs"
+ },
+ {
+  "name": "mid_hybrid",
+  "start": "2026-11-11T04:49:01",
+  "end": "2026-11-11T05:29:51",
+  "group": "Bigger models, equal steps"
+ },
+ {
+  "name": "mid_llama",
+  "start": "2026-11-11T05:29:51",
+  "end": "2026-11-11T05:59:58",
+  "group": "Bigger models, equal steps"
+ },
+ {
+  "name": "speed_hybrid",
+  "start": "2026-11-11T05:59:58",
+  "end": "2026-11-11T06:01:00",
+  "group": "Speed"
+ },
+ {
+  "name": "mid_llama_lr1e3",
+  "start": "2026-11-11T06:01:00",
+  "end": "2026-11-11T06:31:06",
+  "group": "Bigger models, equal steps"
+ },
+ {
+  "name": "mid_hybrid_lr1e3",
+  "start": "2026-11-11T06:31:06",
+  "end": "2026-11-11T06:48:58",
+  "group": "Bigger models, equal steps"
+ },
+ {
+  "name": "eqt_mid_llama",
+  "start": "2026-11-11T06:48:58",
+  "end": "2026-11-11T07:22:45",
+  "group": "Equal compute"
+ },
+ {
+  "name": "eqt_mid_hybrid",
+  "start": "2026-11-11T07:22:45",
+  "end": "2026-11-11T07:56:46",
+  "group": "Equal compute"
+ },
+ {
+  "name": "llama_lr1e3",
+  "start": "2026-11-11T07:56:47",
+  "end": "2026-11-11T08:05:16",
+  "group": "Learning rates, longer runs"
+ },
+ {
+  "name": "llama_lr3e3",
+  "start": "2026-11-11T08:05:16",
+  "end": "2026-11-11T08:13:46",
+  "group": "Learning rates, longer runs"
+ },
+ {
+  "name": "eqt_small_hybrid",
+  "start": "2026-11-11T08:13:46",
+  "end": "2026-11-11T08:34:14",
+  "group": "Equal compute"
+ },
+ {
+  "name": "eqt_small_llama",
+  "start": "2026-11-11T08:34:14",
+  "end": "2026-11-11T08:54:37",
+  "group": "Equal compute"
+ },
+ {
+  "name": "eqt_big_hybrid",
+  "start": "2026-11-11T08:54:37",
+  "end": "2026-11-11T09:28:17",
+  "group": "Equal compute"
+ },
+ {
+  "name": "eqt_big_llama",
+  "start": "2026-11-11T09:28:17",
+  "end": "2026-11-11T10:01:55",
+  "group": "Equal compute"
+ },
+ {
+  "name": "hconv_attn4",
+  "start": "2026-11-11T10:01:55",
+  "end": "2026-11-11T10:20:55",
+  "group": "Layouts"
+ },
+ {
+  "name": "eqt_big_hybrid_lr1e3",
+  "start": "2026-11-11T10:20:55",
+  "end": "2026-11-11T10:54:36",
+  "group": "Equal compute"
+ },
+ {
+  "name": "eqt_big_hybrid_lr15e4",
+  "start": "2026-11-11T10:54:36",
+  "end": "2026-11-11T11:28:17",
+  "group": "Equal compute"
+ },
+ {
+  "name": "big_hybrid_3k",
+  "start": "2026-11-11T11:28:17",
+  "end": "2026-11-11T11:57:03",
+  "group": "Bigger models, equal steps"
+ },
+ {
+  "name": "big_llama_3k",
+  "start": "2026-11-11T11:57:03",
+  "end": "2026-11-11T12:21:13",
+  "group": "Bigger models, equal steps"
+ },
+ {
+  "name": "eqt_big_attn6",
+  "start": "2026-11-11T12:21:13",
+  "end": "2026-11-11T12:54:50",
+  "group": "Equal compute"
+ },
+ {
+  "name": "ragtext_hybrid",
+  "start": "2026-11-11T12:54:50",
+  "end": "2026-11-11T13:19:29",
+  "group": "Retrieval and swarms"
+ },
+ {
+  "name": "eqt_big_attn6_s1",
+  "start": "2026-11-11T13:19:29",
+  "end": "2026-11-11T13:53:12",
+  "group": "Equal compute"
+ },
+ {
+  "name": "eqt_big_llama_s1",
+  "start": "2026-11-11T13:53:12",
+  "end": "2026-11-11T14:26:49",
+  "group": "Equal compute"
+ },
+ {
+  "name": "ragwiki_hybrid",
+  "start": "2026-11-11T14:26:49",
+  "end": "2026-11-11T14:53:50",
+  "group": "Retrieval and swarms"
+ },
+ {
+  "name": "speed_hybrid21",
+  "start": "2026-11-11T14:53:50",
+  "end": "2026-11-11T14:54:48",
+  "group": "Speed"
+ },
+ {
+  "name": "swarmtext_hybrid",
+  "start": "2026-11-11T14:54:48",
+  "end": "2026-11-11T15:09:31",
+  "group": "Retrieval and swarms"
+ },
+ {
+  "name": "ragwikisplit",
+  "start": "2026-11-11T15:09:31",
+  "end": "2026-11-11T15:21:50",
+  "group": "Retrieval and swarms"
+ },
+ {
+  "name": "ragwikisplit_ict",
+  "start": "2026-11-11T15:21:50",
+  "end": "2026-11-11T15:29:49",
+  "group": "Retrieval and swarms"
+ },
+ {
+  "name": "ragwikisplit_oracle",
+  "start": "2026-11-11T15:29:49",
+  "end": "2026-11-11T15:37:16",
+  "group": "Retrieval and swarms"
+ },
+ {
+  "name": "swarmtext_hybrid_s1",
+  "start": "2026-11-11T15:37:16",
+  "end": "2026-11-11T15:51:34",
+  "group": "Retrieval and swarms"
+ },
+ {
+  "name": "ragwikisplit_k128",
+  "start": "2026-11-11T15:51:34",
+  "end": "2026-11-11T15:59:39",
+  "group": "Retrieval and swarms"
+ },
+ {
+  "name": "ragwikisplit_k128_n1",
+  "start": "2026-11-11T15:59:39",
+  "end": "2026-11-11T16:07:44",
+  "group": "Retrieval and swarms"
+ },
+ {
+  "name": "ragwikisplit_lex",
+  "start": "2026-11-11T16:07:44",
+  "end": "2026-11-11T16:16:02",
+  "group": "Retrieval and swarms"
+ },
+ {
+  "name": "hconv_024",
+  "start": "2026-11-11T16:16:02",
+  "end": "2026-11-11T16:35:03",
+  "group": "Layouts"
+ },
+ {
+  "name": "ragwikisplit_lex_s1",
+  "start": "2026-11-11T16:35:03",
+  "end": "2026-11-11T16:47:50",
+  "group": "Retrieval and swarms"
+ },
+ {
+  "name": "hconv_25",
+  "start": "2026-11-11T16:47:50",
+  "end": "2026-11-11T17:07:32",
+  "group": "Layouts"
+ },
+ {
+  "name": "eqt_100m_hybrid",
+  "start": "2026-11-11T17:07:32",
+  "end": "2026-11-11T17:58:04",
+  "group": "Equal compute"
+ },
+ {
+  "name": "eqt_100m_llama",
+  "start": "2026-11-11T17:58:04",
+  "end": "2026-11-11T18:48:17",
+  "group": "Equal compute"
+ },
+ {
+  "name": "eqt_100m_hybrid_lr1e3",
+  "start": "2026-11-11T18:48:17",
+  "end": "2026-11-11T19:40:32",
+  "group": "Equal compute"
+ },
+ {
+  "name": "eqt_100m_hybrid_s1",
+  "start": "2026-11-11T19:40:32",
+  "end": null,
+  "group": "Equal compute"
+ }
+]

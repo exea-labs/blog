@@ -1,0 +1,154 @@
+[
+ {
+  "kind": "pure TONN",
+  "seed": 0,
+  "arm": "solo",
+  "shared": 1.6294,
+  "cut": 1.5926,
+  "shared_per_agent": [
+   1.6183,
+   1.6363,
+   1.6229,
+   1.6401
+  ],
+  "cut_per_agent": [
+   1.5809,
+   1.6022,
+   1.587,
+   1.6004
+  ]
+ },
+ {
+  "kind": "pure TONN",
+  "seed": 0,
+  "arm": "split",
+  "shared": 1.6072,
+  "cut": 1.6118,
+  "shared_per_agent": [
+   1.5932,
+   1.6186,
+   1.6012,
+   1.6157
+  ],
+  "cut_per_agent": [
+   1.5976,
+   1.6246,
+   1.6059,
+   1.6192
+  ]
+ },
+ {
+  "kind": "pure TONN",
+  "seed": 0,
+  "arm": "mixed",
+  "shared": 1.606,
+  "cut": 1.6073,
+  "shared_per_agent": [
+   1.5934,
+   1.6167,
+   1.6009,
+   1.6131
+  ],
+  "cut_per_agent": [
+   1.5947,
+   1.6182,
+   1.6021,
+   1.6142
+  ]
+ },
+ {
+  "kind": "pure TONN",
+  "seed": 0,
+  "arm": "split_solo",
+  "shared": 1.6314,
+  "cut": 1.6132,
+  "shared_per_agent": [
+   1.617,
+   1.643,
+   1.6261,
+   1.6393
+  ],
+  "cut_per_agent": [
+   1.5986,
+   1.6262,
+   1.609,
+   1.6188
+  ]
+ },
+ {
+  "kind": "hybrid",
+  "seed": 0,
+  "arm": "split",
+  "shared": 1.6232,
+  "cut": 1.6265,
+  "shared_per_agent": [
+   1.6079,
+   1.6295,
+   1.6234,
+   1.6318
+  ],
+  "cut_per_agent": [
+   1.6114,
+   1.6339,
+   1.6267,
+   1.634
+  ]
+ },
+ {
+  "kind": "hybrid",
+  "seed": 0,
+  "arm": "split_solo",
+  "shared": 1.6387,
+  "cut": 1.6385,
+  "shared_per_agent": [
+   1.6234,
+   1.649,
+   1.6382,
+   1.6443
+  ],
+  "cut_per_agent": [
+   1.6233,
+   1.6488,
+   1.6381,
+   1.6439
+  ]
+ },
+ {
+  "kind": "hybrid",
+  "seed": 1,
+  "arm": "split",
+  "shared": 1.6222,
+  "cut": 1.6256,
+  "shared_per_agent": [
+   1.6097,
+   1.6299,
+   1.6186,
+   1.6307
+  ],
+  "cut_per_agent": [
+   1.6134,
+   1.6336,
+   1.6221,
+   1.6332
+  ]
+ },
+ {
+  "kind": "hybrid",
+  "seed": 1,
+  "arm": "split_solo",
+  "shared": 1.6341,
+  "cut": 1.6341,
+  "shared_per_agent": [
+   1.6211,
+   1.6444,
+   1.6314,
+   1.6395
+  ],
+  "cut_per_agent": [
+   1.621,
+   1.6443,
+   1.6315,
+   1.6394
+  ]
+ }
+]

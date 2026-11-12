@@ -1,0 +1,1544 @@
+{
+ "reference_llama_13M": 1.5538,
+ "rows": [
+  {
+   "tag": "eqt_big_attn6",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     2,
+     4,
+     5,
+     7,
+     8
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.0015,
+   "seed": 0,
+   "params_M": 48.17,
+   "steps": 3611,
+   "secs": 2006.0,
+   "budget": 2000.0,
+   "bpb": {
+    "en": 1.3651,
+    "ja_wiki": 1.435,
+    "ja_web": 1.3265,
+    "code": 1.6552
+   },
+   "mean": 1.4455,
+   "source": "results/sweep/lm_compare_eqt_big_attn6.json",
+   "size": "{\"d\": 512, \"n_layers\": 10, \"slots\": 16, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_big_attn6_s1",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     2,
+     4,
+     5,
+     7,
+     8
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.0015,
+   "seed": 1,
+   "params_M": 48.17,
+   "steps": 3707,
+   "secs": 2012.3,
+   "budget": 2000.0,
+   "bpb": {
+    "en": 1.3674,
+    "ja_wiki": 1.437,
+    "ja_web": 1.3276,
+    "code": 1.6499
+   },
+   "mean": 1.4455,
+   "source": "results/sweep/lm_compare_eqt_big_attn6_s1.json",
+   "size": "{\"d\": 512, \"n_layers\": 10, \"slots\": 16, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_big_llama_s1",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.001,
+   "seed": 1,
+   "params_M": 48.16,
+   "steps": 4176,
+   "secs": 2006.8,
+   "budget": 2000.0,
+   "bpb": {
+    "en": 1.3687,
+    "ja_wiki": 1.4386,
+    "ja_web": 1.3331,
+    "code": 1.6654
+   },
+   "mean": 1.4514,
+   "source": "results/sweep/lm_compare_eqt_big_llama_s1.json",
+   "size": "{\"d\": 512, \"n_layers\": 10, \"slots\": 16, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_big_llama",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.001,
+   "seed": 0,
+   "params_M": 48.16,
+   "steps": 4183,
+   "secs": 2007.4,
+   "budget": 2000.0,
+   "bpb": {
+    "en": 1.3702,
+    "ja_wiki": 1.4391,
+    "ja_web": 1.3321,
+    "code": 1.6676
+   },
+   "mean": 1.4523,
+   "source": "results/sweep/lm_compare_eqt_big_llama.json",
+   "size": "{\"d\": 512, \"n_layers\": 10, \"slots\": 16, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_100m_hybrid_lr1e3",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     2,
+     4,
+     5,
+     7,
+     8,
+     10,
+     11,
+     13
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.001,
+   "seed": 0,
+   "params_M": 89.74,
+   "steps": 3152,
+   "secs": 3113.8,
+   "budget": 3000.0,
+   "bpb": {
+    "en": 1.373,
+    "ja_wiki": 1.4505,
+    "ja_web": 1.3391,
+    "code": 1.6918
+   },
+   "mean": 1.4636,
+   "source": "results/sweep/lm_compare_eqt_100m_hybrid_lr1e3.json",
+   "size": "{\"d\": 640, \"n_layers\": 14, \"slots\": 20, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_big_hybrid_lr15e4",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5,
+     7,
+     9
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.0015,
+   "seed": 0,
+   "params_M": 48.17,
+   "steps": 3521,
+   "secs": 2009.5,
+   "budget": 2000.0,
+   "bpb": {
+    "en": 1.3736,
+    "ja_wiki": 1.4531,
+    "ja_web": 1.3372,
+    "code": 1.6994
+   },
+   "mean": 1.4658,
+   "source": "results/sweep/lm_compare_eqt_big_hybrid_lr15e4.json",
+   "size": "{\"d\": 512, \"n_layers\": 10, \"slots\": 16, \"h\": 32}"
+  },
+  {
+   "tag": "hconv_6k",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 6000,
+   "secs": 1367.2,
+   "budget": null,
+   "bpb": {
+    "en": 1.3904,
+    "ja_wiki": 1.4546,
+    "ja_web": 1.3435,
+    "code": 1.6756
+   },
+   "mean": 1.466,
+   "source": "results/sweep/lm_compare_hconv_6k.json",
+   "size": "{}"
+  },
+  {
+   "tag": "eqt_big_hybrid",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5,
+     7,
+     9
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 48.17,
+   "steps": 3414,
+   "secs": 2008.3,
+   "budget": 2000.0,
+   "bpb": {
+    "en": 1.379,
+    "ja_wiki": 1.456,
+    "ja_web": 1.3406,
+    "code": 1.7116
+   },
+   "mean": 1.4718,
+   "source": "results/sweep/lm_compare_eqt_big_hybrid.json",
+   "size": "{\"d\": 512, \"n_layers\": 10, \"slots\": 16, \"h\": 32}"
+  },
+  {
+   "tag": "llama_6k",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 6000,
+   "secs": 1037.3,
+   "budget": null,
+   "bpb": {
+    "en": 1.3955,
+    "ja_wiki": 1.4592,
+    "ja_web": 1.3483,
+    "code": 1.6858
+   },
+   "mean": 1.4722,
+   "source": "results/sweep/lm_compare_llama_6k.json",
+   "size": "{}"
+  },
+  {
+   "tag": "eqt_100m_hybrid",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     2,
+     4,
+     5,
+     7,
+     8,
+     10,
+     11,
+     13
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.0015,
+   "seed": 0,
+   "params_M": 89.74,
+   "steps": 3151,
+   "secs": 3013.7,
+   "budget": 3000.0,
+   "bpb": {
+    "en": 1.3861,
+    "ja_wiki": 1.462,
+    "ja_web": 1.3468,
+    "code": 1.7016
+   },
+   "mean": 1.4741,
+   "source": "results/sweep/lm_compare_eqt_100m_hybrid.json",
+   "size": "{\"d\": 640, \"n_layers\": 14, \"slots\": 20, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_big_hybrid_lr1e3",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5,
+     7,
+     9
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.001,
+   "seed": 0,
+   "params_M": 48.17,
+   "steps": 3519,
+   "secs": 2009.0,
+   "budget": 2000.0,
+   "bpb": {
+    "en": 1.3771,
+    "ja_wiki": 1.4578,
+    "ja_web": 1.3412,
+    "code": 1.7226
+   },
+   "mean": 1.4747,
+   "source": "results/sweep/lm_compare_eqt_big_hybrid_lr1e3.json",
+   "size": "{\"d\": 512, \"n_layers\": 10, \"slots\": 16, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_100m_llama",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.001,
+   "seed": 0,
+   "params_M": 89.73,
+   "steps": 3491,
+   "secs": 2996.5,
+   "budget": 3000.0,
+   "bpb": {
+    "en": 1.3915,
+    "ja_wiki": 1.4679,
+    "ja_web": 1.352,
+    "code": 1.7129
+   },
+   "mean": 1.4811,
+   "source": "results/sweep/lm_compare_eqt_100m_llama.json",
+   "size": "{\"d\": 640, \"n_layers\": 14, \"slots\": 20, \"h\": 32}"
+  },
+  {
+   "tag": "mid_hybrid",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5,
+     7
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 26.75,
+   "steps": 3000,
+   "secs": 1214.1,
+   "budget": null,
+   "bpb": {
+    "en": 1.4125,
+    "ja_wiki": 1.4806,
+    "ja_web": 1.368,
+    "code": 1.7024
+   },
+   "mean": 1.4909,
+   "source": "results/sweep/lm_compare_mid_hybrid.json",
+   "size": "{\"d\": 384, \"n_layers\": 8, \"slots\": 12, \"h\": 32}"
+  },
+  {
+   "tag": "big_hybrid_3k",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5,
+     7,
+     9
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 48.17,
+   "steps": 3000,
+   "secs": 1714.1,
+   "budget": 0,
+   "bpb": {
+    "en": 1.3955,
+    "ja_wiki": 1.4774,
+    "ja_web": 1.36,
+    "code": 1.7348
+   },
+   "mean": 1.4919,
+   "source": "results/sweep/lm_compare_big_hybrid_3k.json",
+   "size": "{\"d\": 512, \"n_layers\": 10, \"slots\": 16, \"h\": 32}"
+  },
+  {
+   "tag": "mid_hybrid",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5,
+     7
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 26.75,
+   "steps": 3000,
+   "secs": 1218.9,
+   "budget": null,
+   "bpb": {
+    "en": 1.4119,
+    "ja_wiki": 1.4844,
+    "ja_web": 1.3729,
+    "code": 1.7018
+   },
+   "mean": 1.4928,
+   "source": "results/sweep/lm_compare_mid_hybrid.json",
+   "size": "{\"d\": 384, \"n_layers\": 8, \"slots\": 12, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_mid_hybrid",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5,
+     7
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 26.75,
+   "steps": 2854,
+   "secs": 1018.6,
+   "budget": 1000.0,
+   "bpb": {
+    "en": 1.4153,
+    "ja_wiki": 1.4856,
+    "ja_web": 1.3728,
+    "code": 1.7008
+   },
+   "mean": 1.4936,
+   "source": "results/sweep/lm_compare_eqt_mid_hybrid.json",
+   "size": "{\"d\": 384, \"n_layers\": 8, \"slots\": 12, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_mid_hybrid",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5,
+     7
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 26.75,
+   "steps": 2835,
+   "secs": 1008.3,
+   "budget": 1000.0,
+   "bpb": {
+    "en": 1.4184,
+    "ja_wiki": 1.4924,
+    "ja_web": 1.3763,
+    "code": 1.7194
+   },
+   "mean": 1.5016,
+   "source": "results/sweep/lm_compare_eqt_mid_hybrid.json",
+   "size": "{\"d\": 384, \"n_layers\": 8, \"slots\": 12, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_mid_llama",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.001,
+   "seed": 1,
+   "params_M": 26.75,
+   "steps": 3373,
+   "secs": 1006.9,
+   "budget": 1000.0,
+   "bpb": {
+    "en": 1.4181,
+    "ja_wiki": 1.4904,
+    "ja_web": 1.3797,
+    "code": 1.7196
+   },
+   "mean": 1.5019,
+   "source": "results/sweep/lm_compare_eqt_mid_llama.json",
+   "size": "{\"d\": 384, \"n_layers\": 8, \"slots\": 12, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_mid_llama",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.001,
+   "seed": 0,
+   "params_M": 26.75,
+   "steps": 3369,
+   "secs": 1007.6,
+   "budget": 1000.0,
+   "bpb": {
+    "en": 1.4169,
+    "ja_wiki": 1.4943,
+    "ja_web": 1.3793,
+    "code": 1.7295
+   },
+   "mean": 1.505,
+   "source": "results/sweep/lm_compare_eqt_mid_llama.json",
+   "size": "{\"d\": 384, \"n_layers\": 8, \"slots\": 12, \"h\": 32}"
+  },
+  {
+   "tag": "big_llama_3k",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.001,
+   "seed": 0,
+   "params_M": 48.16,
+   "steps": 3000,
+   "secs": 1439.9,
+   "budget": 0,
+   "bpb": {
+    "en": 1.4167,
+    "ja_wiki": 1.4964,
+    "ja_web": 1.3805,
+    "code": 1.7269
+   },
+   "mean": 1.5051,
+   "source": "results/sweep/lm_compare_big_llama_3k.json",
+   "size": "{\"d\": 512, \"n_layers\": 10, \"slots\": 16, \"h\": 32}"
+  },
+  {
+   "tag": "mid_llama_lr1e3",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.001,
+   "seed": 1,
+   "params_M": 26.75,
+   "steps": 3000,
+   "secs": 896.0,
+   "budget": null,
+   "bpb": {
+    "en": 1.4348,
+    "ja_wiki": 1.508,
+    "ja_web": 1.3965,
+    "code": 1.741
+   },
+   "mean": 1.5201,
+   "source": "results/sweep/lm_compare_mid_llama_lr1e3.json",
+   "size": "{\"d\": 384, \"n_layers\": 8, \"slots\": 12, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_small_hybrid",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3209,
+   "secs": 609.9,
+   "budget": 600.0,
+   "bpb": {
+    "en": 1.4453,
+    "ja_wiki": 1.5115,
+    "ja_web": 1.3954,
+    "code": 1.7379
+   },
+   "mean": 1.5225,
+   "source": "results/sweep/lm_compare_eqt_small_hybrid.json",
+   "size": "{}"
+  },
+  {
+   "tag": "eqt_small_llama",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3609,
+   "secs": 607.7,
+   "budget": 600.0,
+   "bpb": {
+    "en": 1.4398,
+    "ja_wiki": 1.5112,
+    "ja_web": 1.3937,
+    "code": 1.7453
+   },
+   "mean": 1.5225,
+   "source": "results/sweep/lm_compare_eqt_small_llama.json",
+   "size": "{}"
+  },
+  {
+   "tag": "mid_hybrid_lr1e3",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5,
+     7
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.001,
+   "seed": 0,
+   "params_M": 26.75,
+   "steps": 3000,
+   "secs": 1064.1,
+   "budget": 0,
+   "bpb": {
+    "en": 1.4262,
+    "ja_wiki": 1.5115,
+    "ja_web": 1.39,
+    "code": 1.7676
+   },
+   "mean": 1.5238,
+   "source": "results/sweep/lm_compare_mid_hybrid_lr1e3.json",
+   "size": "{\"d\": 384, \"n_layers\": 8, \"slots\": 12, \"h\": 32}"
+  },
+  {
+   "tag": "hyb135",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ]
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 644.2,
+   "budget": null,
+   "bpb": {
+    "en": 1.4491,
+    "ja_wiki": 1.5159,
+    "ja_web": 1.3986,
+    "code": 1.7359
+   },
+   "mean": 1.5249,
+   "source": "results/sweep/lm_compare_hyb135.json",
+   "size": ""
+  },
+  {
+   "tag": "hyb135_search",
+   "model": "tonn_core_search",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ]
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 663.5,
+   "budget": null,
+   "bpb": {
+    "en": 1.4484,
+    "ja_wiki": 1.5171,
+    "ja_web": 1.4003,
+    "code": 1.7336
+   },
+   "mean": 1.5249,
+   "source": "results/sweep/lm_compare_hyb135_search.json",
+   "size": ""
+  },
+  {
+   "tag": "mid_llama_lr1e3",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.001,
+   "seed": 0,
+   "params_M": 26.75,
+   "steps": 3000,
+   "secs": 897.9,
+   "budget": null,
+   "bpb": {
+    "en": 1.4338,
+    "ja_wiki": 1.514,
+    "ja_web": 1.3976,
+    "code": 1.754
+   },
+   "mean": 1.5249,
+   "source": "results/sweep/lm_compare_mid_llama_lr1e3.json",
+   "size": "{\"d\": 384, \"n_layers\": 8, \"slots\": 12, \"h\": 32}"
+  },
+  {
+   "tag": "hyb135_mem",
+   "model": "tonn",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ]
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.31,
+   "steps": 3000,
+   "secs": 625.4,
+   "budget": null,
+   "bpb": {
+    "en": 1.4494,
+    "ja_wiki": 1.5185,
+    "ja_web": 1.4016,
+    "code": 1.7336
+   },
+   "mean": 1.5258,
+   "source": "results/sweep/lm_compare_hyb135_mem.json",
+   "size": ""
+  },
+  {
+   "tag": "hconv_25",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     2,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 572.7,
+   "budget": 0,
+   "bpb": {
+    "en": 1.452,
+    "ja_wiki": 1.5167,
+    "ja_web": 1.3995,
+    "code": 1.7431
+   },
+   "mean": 1.5278,
+   "source": "results/sweep/lm_compare_hconv_25.json",
+   "size": "{}"
+  },
+  {
+   "tag": "hconv_attn4",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     2,
+     4,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 542.5,
+   "budget": 0,
+   "bpb": {
+    "en": 1.4483,
+    "ja_wiki": 1.5155,
+    "ja_web": 1.3988,
+    "code": 1.7487
+   },
+   "mean": 1.5278,
+   "source": "results/sweep/lm_compare_hconv_attn4.json",
+   "size": "{}"
+  },
+  {
+   "tag": "hconv_search",
+   "model": "tonn_core_search",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 680.3,
+   "budget": null,
+   "bpb": {
+    "en": 1.4484,
+    "ja_wiki": 1.5163,
+    "ja_web": 1.4006,
+    "code": 1.7511
+   },
+   "mean": 1.5291,
+   "source": "results/sweep/lm_compare_hconv_search.json",
+   "size": "{}"
+  },
+  {
+   "tag": "hconv_024",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     0,
+     2,
+     4
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 575.9,
+   "budget": 0,
+   "bpb": {
+    "en": 1.4509,
+    "ja_wiki": 1.5219,
+    "ja_web": 1.4053,
+    "code": 1.7412
+   },
+   "mean": 1.5298,
+   "source": "results/sweep/lm_compare_hconv_024.json",
+   "size": "{}"
+  },
+  {
+   "tag": "hyb135_conv",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 651.0,
+   "budget": null,
+   "bpb": {
+    "en": 1.4513,
+    "ja_wiki": 1.5189,
+    "ja_web": 1.4017,
+    "code": 1.7479
+   },
+   "mean": 1.5299,
+   "source": "results/sweep/lm_compare_hyb135_conv.json",
+   "size": ""
+  },
+  {
+   "tag": "eqt_small_hybrid",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3077,
+   "secs": 609.5,
+   "budget": 600.0,
+   "bpb": {
+    "en": 1.4501,
+    "ja_wiki": 1.524,
+    "ja_web": 1.4037,
+    "code": 1.7455
+   },
+   "mean": 1.5308,
+   "source": "results/sweep/lm_compare_eqt_small_hybrid.json",
+   "size": "{}"
+  },
+  {
+   "tag": "hconv_25",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     2,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 599.6,
+   "budget": 0,
+   "bpb": {
+    "en": 1.4507,
+    "ja_wiki": 1.5228,
+    "ja_web": 1.406,
+    "code": 1.7441
+   },
+   "mean": 1.5309,
+   "source": "results/sweep/lm_compare_hconv_25.json",
+   "size": "{}"
+  },
+  {
+   "tag": "hconv_search",
+   "model": "tonn_core_search",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 725.6,
+   "budget": null,
+   "bpb": {
+    "en": 1.4519,
+    "ja_wiki": 1.5225,
+    "ja_web": 1.406,
+    "code": 1.7437
+   },
+   "mean": 1.531,
+   "source": "results/sweep/lm_compare_hconv_search.json",
+   "size": "{}"
+  },
+  {
+   "tag": "hyb135_conv",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 677.3,
+   "budget": null,
+   "bpb": {
+    "en": 1.4522,
+    "ja_wiki": 1.5231,
+    "ja_web": 1.4063,
+    "code": 1.7447
+   },
+   "mean": 1.5316,
+   "source": "results/sweep/lm_compare_hyb135_conv.json",
+   "size": ""
+  },
+  {
+   "tag": "eqt_small_llama",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3608,
+   "secs": 607.2,
+   "budget": 600.0,
+   "bpb": {
+    "en": 1.4493,
+    "ja_wiki": 1.5226,
+    "ja_web": 1.4011,
+    "code": 1.7541
+   },
+   "mean": 1.5318,
+   "source": "results/sweep/lm_compare_eqt_small_llama.json",
+   "size": "{}"
+  },
+  {
+   "tag": "hconv_attn4",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     2,
+     4,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 588.9,
+   "budget": 0,
+   "bpb": {
+    "en": 1.4527,
+    "ja_wiki": 1.5266,
+    "ja_web": 1.4074,
+    "code": 1.7597
+   },
+   "mean": 1.5366,
+   "source": "results/sweep/lm_compare_hconv_attn4.json",
+   "size": "{}"
+  },
+  {
+   "tag": "mid_llama",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 26.75,
+   "steps": 3000,
+   "secs": 896.7,
+   "budget": null,
+   "bpb": {
+    "en": 1.4472,
+    "ja_wiki": 1.5221,
+    "ja_web": 1.4013,
+    "code": 1.777
+   },
+   "mean": 1.5369,
+   "source": "results/sweep/lm_compare_mid_llama.json",
+   "size": "{\"d\": 384, \"n_layers\": 8, \"slots\": 12, \"h\": 32}"
+  },
+  {
+   "tag": "mid_llama",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 26.75,
+   "steps": 3000,
+   "secs": 897.4,
+   "budget": null,
+   "bpb": {
+    "en": 1.4443,
+    "ja_wiki": 1.5239,
+    "ja_web": 1.4019,
+    "code": 1.7783
+   },
+   "mean": 1.5371,
+   "source": "results/sweep/lm_compare_mid_llama.json",
+   "size": "{\"d\": 384, \"n_layers\": 8, \"slots\": 12, \"h\": 32}"
+  },
+  {
+   "tag": "hconv_mem",
+   "model": "tonn",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.31,
+   "steps": 3000,
+   "secs": 654.9,
+   "budget": null,
+   "bpb": {
+    "en": 1.4556,
+    "ja_wiki": 1.532,
+    "ja_web": 1.4096,
+    "code": 1.7638
+   },
+   "mean": 1.5402,
+   "source": "results/sweep/lm_compare_hconv_mem.json",
+   "size": "{}"
+  },
+  {
+   "tag": "hconv_mem",
+   "model": "tonn",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.31,
+   "steps": 3000,
+   "secs": 662.3,
+   "budget": null,
+   "bpb": {
+    "en": 1.455,
+    "ja_wiki": 1.5282,
+    "ja_web": 1.4098,
+    "code": 1.7733
+   },
+   "mean": 1.5416,
+   "source": "results/sweep/lm_compare_hconv_mem.json",
+   "size": "{}"
+  },
+  {
+   "tag": "hconv_024",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     0,
+     2,
+     4
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 556.3,
+   "budget": 0,
+   "bpb": {
+    "en": 1.4607,
+    "ja_wiki": 1.5298,
+    "ja_web": 1.4108,
+    "code": 1.778
+   },
+   "mean": 1.5448,
+   "source": "results/sweep/lm_compare_hconv_024.json",
+   "size": "{}"
+  },
+  {
+   "tag": "arch",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 542.7,
+   "budget": null,
+   "bpb": {
+    "en": 1.4612,
+    "ja_wiki": 1.5339,
+    "ja_web": 1.4134,
+    "code": 1.7746
+   },
+   "mean": 1.5458,
+   "source": "results/arch/lm_compare.json",
+   "size": ""
+  },
+  {
+   "tag": "llama_lr3e3",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.003,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 505.0,
+   "budget": 0,
+   "bpb": {
+    "en": 1.4651,
+    "ja_wiki": 1.5385,
+    "ja_web": 1.4152,
+    "code": 1.7693
+   },
+   "mean": 1.547,
+   "source": "results/sweep/lm_compare_llama_lr3e3.json",
+   "size": "{}"
+  },
+  {
+   "tag": "llama_lr1e3",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.001,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 504.9,
+   "budget": 0,
+   "bpb": {
+    "en": 1.4681,
+    "ja_wiki": 1.5478,
+    "ja_web": 1.4255,
+    "code": 1.7763
+   },
+   "mean": 1.5544,
+   "source": "results/sweep/lm_compare_llama_lr1e3.json",
+   "size": "{}"
+  },
+  {
+   "tag": "arch",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 532.4,
+   "budget": null,
+   "bpb": {
+    "en": 1.4733,
+    "ja_wiki": 1.5453,
+    "ja_web": 1.4256,
+    "code": 1.8031
+   },
+   "mean": 1.5618,
+   "source": "results/arch/lm_compare.json",
+   "size": ""
+  },
+  {
+   "tag": "rp4",
+   "model": "tonn_core",
+   "cfg": {
+    "init_weights": {
+     "RP": 4
+    }
+   },
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 815.0,
+   "budget": null,
+   "bpb": {
+    "en": 1.4746,
+    "ja_wiki": 1.5552,
+    "ja_web": 1.4242,
+    "code": 1.8695
+   },
+   "mean": 1.5809,
+   "source": "results/sweep/lm_compare_rp4.json",
+   "size": ""
+  },
+  {
+   "tag": "hyb135_search",
+   "model": "tonn_core_search",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ]
+   },
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 664.8,
+   "budget": null,
+   "bpb": {
+    "en": 1.4553,
+    "ja_wiki": 1.5429,
+    "ja_web": 1.407,
+    "code": 1.9325
+   },
+   "mean": 1.5844,
+   "source": "results/sweep/lm_compare_hyb135_search.json",
+   "size": ""
+  },
+  {
+   "tag": "arch",
+   "model": "tonn",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.31,
+   "steps": 3000,
+   "secs": 806.1,
+   "budget": null,
+   "bpb": {
+    "en": 1.4754,
+    "ja_wiki": 1.5587,
+    "ja_web": 1.4213,
+    "code": 1.9063
+   },
+   "mean": 1.5904,
+   "source": "results/arch/lm_compare.json",
+   "size": ""
+  },
+  {
+   "tag": "hyb135_s1_curve",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ]
+   },
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 646.5,
+   "budget": null,
+   "bpb": {
+    "en": 1.4612,
+    "ja_wiki": 1.5513,
+    "ja_web": 1.412,
+    "code": 1.9488
+   },
+   "mean": 1.5933,
+   "source": "results/sweep/lm_compare_hyb135_s1_curve.json",
+   "size": ""
+  },
+  {
+   "tag": "hyb135_s1",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     3,
+     5
+    ]
+   },
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 639.5,
+   "budget": null,
+   "bpb": {
+    "en": 1.4614,
+    "ja_wiki": 1.5514,
+    "ja_web": 1.4118,
+    "code": 1.95
+   },
+   "mean": 1.5937,
+   "source": "results/sweep/lm_compare_hyb135_s1.json",
+   "size": ""
+  },
+  {
+   "tag": "",
+   "model": "tonn_core_search",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 887.1,
+   "budget": null,
+   "bpb": {
+    "en": 1.4786,
+    "ja_wiki": 1.5658,
+    "ja_web": 1.4222,
+    "code": 1.9479
+   },
+   "mean": 1.6036,
+   "source": "results/arch2/lm_compare.json",
+   "size": ""
+  },
+  {
+   "tag": "",
+   "model": "tonn_core",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 789.0,
+   "budget": null,
+   "bpb": {
+    "en": 1.4829,
+    "ja_wiki": 1.5699,
+    "ja_web": 1.4244,
+    "code": 1.9586
+   },
+   "mean": 1.609,
+   "source": "results/arch2/lm_compare.json",
+   "size": ""
+  },
+  {
+   "tag": "",
+   "model": "tonn_core_search",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 792.1,
+   "budget": null,
+   "bpb": {
+    "en": 1.4736,
+    "ja_wiki": 1.5625,
+    "ja_web": 1.4169,
+    "code": 1.9927
+   },
+   "mean": 1.6114,
+   "source": "results/arch2/lm_compare.json",
+   "size": ""
+  },
+  {
+   "tag": "",
+   "model": "tonn_core",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 1,
+   "params_M": 13.1,
+   "steps": 3000,
+   "secs": 736.2,
+   "budget": null,
+   "bpb": {
+    "en": 1.4768,
+    "ja_wiki": 1.5667,
+    "ja_web": 1.4195,
+    "code": 1.9995
+   },
+   "mean": 1.6156,
+   "source": "results/arch2/lm_compare.json",
+   "size": ""
+  },
+  {
+   "tag": "arch",
+   "model": "tonn",
+   "cfg": {},
+   "lr": 0.002,
+   "seed": 0,
+   "params_M": 13.31,
+   "steps": 3000,
+   "secs": 829.3,
+   "budget": null,
+   "bpb": {
+    "en": 1.4909,
+    "ja_wiki": 1.578,
+    "ja_web": 1.4333,
+    "code": 1.9636
+   },
+   "mean": 1.6164,
+   "source": "results/arch/lm_compare.json",
+   "size": ""
+  }
+ ]
+}
