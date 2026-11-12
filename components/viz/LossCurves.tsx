@@ -57,7 +57,7 @@ export function LossCurves({ lang = "en" }: { lang?: "en" | "ja" }) {
     return (
       <motion.g initial={{ opacity: 0 }} animate={show ? { opacity: 1 } : {}} transition={{ delay: 1.5 }}>
         <circle cx={x(p.secs)} cy={y(p.loss)} r={4} fill={color} />
-        <text x={x(p.secs) - 8} y={y(p.loss) + (color === C.exea ? 18 : -10)} textAnchor="end" fontSize={11} fill={color}>
+        <text x={x(p.secs) - 8} y={y(p.loss) + (color === C.exea ? 18 : -10)} textAnchor="end" fontSize="0.6875rem" fill={color}>
           {name} {p.loss.toFixed(3)}
         </text>
       </motion.g>
@@ -88,7 +88,7 @@ export function LossCurves({ lang = "en" }: { lang?: "en" | "ja" }) {
       >
         <Axis x={m.l} y={0} orient="left" ticks={y.ticks(5).map((v) => ({ v, p: y(v) }))} fmt={(v) => v.toFixed(1)} length={w - m.r - m.l} />
         <Axis x={0} y={h - m.b + 6} orient="bottom" ticks={x.ticks(6).map((v) => ({ v, p: x(v) }))} fmt={(v) => `${v}`} length={0} />
-        <text x={w - m.r} y={h - 4} textAnchor="end" fontSize={10.5} fill={C.faint}>{T.x}</text>
+        <text x={w - m.r} y={h - 4} textAnchor="end" fontSize="0.6562rem" fill={C.faint}>{T.x}</text>
         <motion.path key={`l-${set}`} d={mk(ll.points) ?? ""} fill="none" stroke={C.llama} strokeWidth={2} initial={{ pathLength: 0 }} animate={show ? { pathLength: 1 } : {}} transition={{ duration: 1.4, ease: "easeOut" }} />
         <motion.path key={`h-${set}`} d={mk(hy.points) ?? ""} fill="none" stroke={C.exea} strokeWidth={2.4} initial={{ pathLength: 0 }} animate={show ? { pathLength: 1 } : {}} transition={{ duration: 1.4, ease: "easeOut" }} />
         {end(hy, C.exea, T.hybrid)}

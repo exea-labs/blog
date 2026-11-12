@@ -43,7 +43,7 @@ export function useWidth<T extends HTMLElement>(fallback = 720) {
 
 export function Axis({ x, y, ticks, fmt, orient, length }: { x: number; y: number; ticks: { v: number; p: number }[]; fmt: (v: number) => string; orient: "bottom" | "left"; length: number }) {
   return (
-    <g transform={`translate(${x},${y})`} fill="var(--ink-3)" style={{ fontFamily: "var(--font-mono)", fontSize: 10.5 }}>
+    <g transform={`translate(${x},${y})`} fill="var(--ink-3)" style={{ fontFamily: "var(--font-mono)", fontSize: "0.6562rem" }}>
       {orient === "bottom" ? (
         <>
           {ticks.map((t) => (

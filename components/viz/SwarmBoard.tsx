@@ -80,13 +80,13 @@ export function SwarmBoard({ lang = "en" }: { lang?: "en" | "ja" }) {
       <svg ref={ref} width={w} height={h} className="block max-w-full" role="img" aria-label={T.step.join(" ")}>
         {/* the board */}
         <rect x={bx} y={top - 30} width={boardW} height={4 * rowH + 34} rx={0} fill="var(--paper)" stroke={cut ? "color-mix(in srgb, var(--ink) 45%, transparent)" : "color-mix(in srgb, var(--signal) 35%, transparent)"} strokeDasharray={cut ? "4 4" : undefined} />
-        <text x={bx + 14} y={h - 6} fontSize={11} fill={C.mute}>{T.board}</text>
+        <text x={bx + 14} y={h - 6} fontSize="0.6875rem" fill={C.mute}>{T.board}</text>
         <circle cx={bx + 22} cy={emptyY} r={6} fill="none" stroke={C.mute} strokeDasharray="2 2" />
-        <text x={bx + 34} y={emptyY + 4} fontSize={10.5} fill={C.faint}>{T.empty}</text>
+        <text x={bx + 34} y={emptyY + 4} fontSize="0.6562rem" fill={C.faint}>{T.empty}</text>
 
         {T.agents.map((name, i) => (
           <g key={i}>
-            <text x={0} y={rowY(i) + 4} fontSize={narrow ? 10.5 : 12} fill={i === 3 ? C.exea : C.text}>
+            <text x={0} y={rowY(i) + 4} fontSize={`${(narrow ? 10.5 : 12) / 16}rem`} fill={i === 3 ? C.exea : C.text}>
               {name}
             </text>
             {[0, 1].map((k) => {
@@ -95,11 +95,11 @@ export function SwarmBoard({ lang = "en" }: { lang?: "en" | "ja" }) {
               return (
                 <g key={k}>
                   <rect x={laneX + k * (chunkW + 8)} y={rowY(i) - 16} width={chunkW} height={32} rx={0} fill={active ? "color-mix(in srgb, var(--signal) 10%, transparent)" : "transparent"} stroke={active ? "var(--signal)" : "var(--line-2)"} />
-                  <text x={laneX + k * (chunkW + 8) + 12} y={rowY(i) + 4} fontSize={narrow ? 9.5 : 11} fontFamily="var(--font-mono)" fill={C.text} style={{ fontStretch: "80%" }}>
+                  <text x={laneX + k * (chunkW + 8) + 12} y={rowY(i) + 4} fontSize={`${(narrow ? 9.5 : 11) / 16}rem`} fontFamily="var(--font-mono)" fill={C.text} style={{ fontStretch: "80%" }}>
                     {isAns ? (phase >= 2 ? (cut ? "ANS ?" : "ANS 42") : "ANS …") : k === 0 ? FACTS[i] : SECOND[i]}
                   </text>
                   {isAns && phase >= 2 && (
-                    <motion.text key={mode} x={laneX + k * (chunkW + 8) + chunkW - 10} y={rowY(i) + 4} textAnchor="end" fontSize={10} fill={cut ? C.control : C.exea} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <motion.text key={mode} x={laneX + k * (chunkW + 8) + chunkW - 10} y={rowY(i) + 4} textAnchor="end" fontSize="0.625rem" fill={cut ? C.control : C.exea} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                       {cut ? (narrow ? "1/64" : T.chance) : "✓"}
                     </motion.text>
                   )}
@@ -121,7 +121,7 @@ export function SwarmBoard({ lang = "en" }: { lang?: "en" | "ja" }) {
               )}
             </AnimatePresence>
             {phase >= 1 && !narrow && (
-              <text x={postX + 14} y={rowY(i) + 4} fontSize={10} fill={C.faint} fontFamily="var(--font-mono)" style={{ fontStretch: "80%" }}>
+              <text x={postX + 14} y={rowY(i) + 4} fontSize="0.625rem" fill={C.faint} fontFamily="var(--font-mono)" style={{ fontStretch: "80%" }}>
                 {i === 0 ? "k7: 42" : i === 1 ? "k3: 19" : i === 2 ? "k5: 8" : ""}
               </text>
             )}
@@ -152,7 +152,7 @@ export function SwarmBoard({ lang = "en" }: { lang?: "en" | "ja" }) {
             })}
         </AnimatePresence>
         {[0, 1].map((k) => (
-          <text key={k} x={laneX + k * (chunkW + 8) + chunkW / 2} y={top - 12} textAnchor="middle" fontSize={10.5} fill={C.faint}>
+          <text key={k} x={laneX + k * (chunkW + 8) + chunkW / 2} y={top - 12} textAnchor="middle" fontSize="0.6562rem" fill={C.faint}>
             {T.chunk(k + 1)}
           </text>
         ))}

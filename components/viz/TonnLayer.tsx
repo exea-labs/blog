@@ -160,7 +160,7 @@ export function TonnLayer({ lang = "en", layer = 6 }: { lang?: "en" | "ja"; laye
                 style={{ transformOrigin: `${cx}px ${Y.cell + Y.cellH / 2}px` }}
               />
               {g > 22 && (
-                <motion.text x={cx} y={Y.cell + Y.cellH / 2 + 3.5} textAnchor="middle" fontSize={g > 30 ? 10 : 8.5} fontWeight={600} fill={cc.family === "memory" || cc.family === "local" ? "var(--panel)" : "var(--ink)"} fontFamily="var(--font-mono)" initial={{ opacity: 0 }} animate={{ opacity: lit(3) ? 0.85 : 0 }} style={{ fontStretch: "80%" }}>
+                <motion.text x={cx} y={Y.cell + Y.cellH / 2 + 3.5} textAnchor="middle" fontSize={`${(g > 30 ? 10 : 8.5) / 16}rem`} fontWeight={600} fill={cc.family === "memory" || cc.family === "local" ? "var(--panel)" : "var(--ink)"} fontFamily="var(--font-mono)" initial={{ opacity: 0 }} animate={{ opacity: lit(3) ? 0.85 : 0 }} style={{ fontStretch: "80%" }}>
                   {id}
                 </motion.text>
               )}
@@ -183,7 +183,7 @@ export function TonnLayer({ lang = "en", layer = 6 }: { lang?: "en" | "ja"; laye
         <motion.rect x={x0 + U * 0.18} y={Y.mlp} width={U * 0.64} height={Y.mlpH} rx={0} fill="color-mix(in srgb, var(--ink) 05%, transparent)" stroke={lit(8) ? "color-mix(in srgb, var(--ink) 70%, transparent)" : "color-mix(in srgb, var(--ink) 15%, transparent)"} animate={{ opacity: lit(8) ? 1 : 0.4 }} />
         <line x1={x0 + U / 2} x2={x0 + U / 2} y1={Y.add + 6} y2={Y.mlp} stroke="color-mix(in srgb, var(--ink) 25%, transparent)" />
         <line x1={x0 + U / 2} x2={x0 + U / 2} y1={Y.mlp + Y.mlpH} y2={Y.next - 8} stroke="color-mix(in srgb, var(--ink) 25%, transparent)" />
-        <text x={x0 + U / 2} y={Y.next + 6} textAnchor="middle" fontSize={11} fill="var(--ink-3)">{T.next}</text>
+        <text x={x0 + U / 2} y={Y.next + 6} textAnchor="middle" fontSize="0.6875rem" fill="var(--ink-3)">{T.next}</text>
 
         {/* stage labels */}
         {T.stages.map((s, i) => (
@@ -193,10 +193,10 @@ export function TonnLayer({ lang = "en", layer = 6 }: { lang?: "en" | "ja"; laye
             y={i === 8 ? Y.mlp + Y.mlpH / 2 + 4 : [Y.res - 12, Y.inTop - 6, Y.lanesTop - 8, Y.cell - 8, Y.scale + 4, Y.mask + 4, Y.outTop - 6, Y.add - 12][i]}
             dx={i === 4 || i === 5 ? U * 0 : 0}
             textAnchor={i === 8 ? "middle" : "start"}
-            fontSize={11.5}
+            fontSize="0.7188rem"
             fill={stage === i ? "var(--ink)" : "var(--ink-3)"}
             animate={{ opacity: i === 4 || i === 5 ? 0 : lit(i) ? 1 : 0.35 }}
-            style={{ paintOrder: "stroke", stroke: "var(--panel)", strokeWidth: 4, fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: "0.04em" }}
+            style={{ paintOrder: "stroke", stroke: "var(--panel)", strokeWidth: 4, fontFamily: "var(--font-mono)", fontSize: "0.6562rem", letterSpacing: "0.04em" }}
             pointerEvents="none"
           >
             {s}

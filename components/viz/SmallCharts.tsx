@@ -56,11 +56,11 @@ export function RelayChart({ lang = "en" }: { lang?: Lang }) {
         <Axis x={m.l} y={0} orient="left" ticks={[0, 0.25, 0.5, 0.75, 1].map((v) => ({ v, p: y(v) }))} fmt={pct} length={w - m.r - m.l} />
         <Axis x={0} y={h - m.b + 6} orient="bottom" ticks={x.ticks(6).map((v) => ({ v, p: x(v) }))} fmt={(v) => v.toLocaleString()} length={0} />
         <line x1={m.l} x2={w - m.r} y1={y(relay.chance)} y2={y(relay.chance)} stroke={C.mute} strokeDasharray="2 4" />
-        <text x={w - m.r} y={y(relay.chance) - 6} textAnchor="end" fontSize={10.5} fill={C.mute}>{T.chance}</text>
+        <text x={w - m.r} y={y(relay.chance) - 6} textAnchor="end" fontSize="0.6562rem" fill={C.mute}>{T.chance}</text>
         {series.map((s, i) => (
           <motion.path key={i} d={mk(s.pts) ?? ""} fill="none" stroke={s.color} strokeWidth={s.w} strokeDasharray={s.dash} initial={s.dash ? { opacity: 0 } : { pathLength: 0 }} animate={show ? (s.dash ? { opacity: 1 } : { pathLength: 1 }) : {}} transition={{ duration: 1.3, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }} />
         ))}
-        <text x={w - m.r} y={y(sw.shared) + 16} textAnchor="end" fontSize={11} fill={C.exea}>{pct(sw.shared)}</text>
+        <text x={w - m.r} y={y(sw.shared) + 16} textAnchor="end" fontSize="0.6875rem" fill={C.exea}>{pct(sw.shared)}</text>
       </svg>
     </div>
   );
@@ -110,7 +110,7 @@ export function SwarmTextChart({ lang = "en" }: { lang?: Lang }) {
             ))}
           </g>
         ))}
-        <text x={w - m.r} y={m.t + 10} textAnchor="end" fontSize={11} fill={C.mute}>
+        <text x={w - m.r} y={m.t + 10} textAnchor="end" fontSize="0.6875rem" fill={C.mute}>
           {lang === "ja" ? "対照との差" : "gain over control"}: <tspan fill={C.exea}>{(mean(s.ctrl) - mean(s.shared)).toFixed(3)}</tspan>
         </text>
       </svg>
@@ -146,7 +146,7 @@ export function LookupChart({ lang = "en" }: { lang?: Lang }) {
           i === 0 || c.kb !== rag.curve[i - 1].kb ? (
             <motion.g key={c.step} initial={{ opacity: 0 }} animate={show ? { opacity: 1 } : {}} transition={{ delay: 0.3 + i * 0.12 }}>
               <line x1={x(c.step)} x2={x(c.step)} y1={m.t - 6} y2={h - m.b} stroke={C.grid} />
-              <text x={x(c.step)} y={m.t - 12} textAnchor="middle" fontSize={10} fill={C.faint} fontFamily="var(--font-mono)" style={{ fontStretch: "80%" }}>
+              <text x={x(c.step)} y={m.t - 12} textAnchor="middle" fontSize="0.625rem" fill={C.faint} fontFamily="var(--font-mono)" style={{ fontStretch: "80%" }}>
                 {T.lib(c.kb ?? 0)}
               </text>
             </motion.g>

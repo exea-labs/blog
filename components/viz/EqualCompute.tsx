@@ -110,8 +110,8 @@ export function EqualCompute({ lang = "en" }: { lang?: "en" | "ja" }) {
       <svg ref={ref} width={w} height={h} role="img" aria-label={T.y} className="block max-w-full overflow-visible">
         <Axis x={m.l} y={0} orient="left" ticks={ticks} fmt={(v) => (v > 0 ? `+${v.toFixed(2)}` : v.toFixed(2))} length={w - m.r - m.l} />
         <line x1={m.l} x2={w - m.r} y1={y(0)} y2={y(0)} stroke="color-mix(in srgb, var(--ink) 35%, transparent)" />
-        <text x={w - m.r} y={y(0) - 7} textAnchor="end" fontSize={10.5} fill={C.mute}>{T.better} ↑</text>
-        <text x={w - m.r} y={y(0) + 15} textAnchor="end" fontSize={10.5} fill={C.mute}>{T.worse} ↓</text>
+        <text x={w - m.r} y={y(0) - 7} textAnchor="end" fontSize="0.6562rem" fill={C.mute}>{T.better} ↑</text>
+        <text x={w - m.r} y={y(0) + 15} textAnchor="end" fontSize="0.6562rem" fill={C.mute}>{T.worse} ↓</text>
         <Axis x={0} y={h - m.b + 6} orient="bottom" ticks={sizes.map((s, i) => ({ v: i, p: x(s)! }))} fmt={(i) => sizes[i]} length={0} />
         <motion.path d={path(steps) ?? ""} fill="none" stroke={C.oracle} strokeWidth={1.8} strokeDasharray="4 5" initial={{ opacity: 0 }} animate={show ? { opacity: 1 } : {}} transition={{ duration: 0.9 }} />
         <motion.path d={path(time) ?? ""} fill="none" stroke={C.exea} strokeWidth={2.4} initial={{ pathLength: 0 }} animate={show ? { pathLength: 1 } : {}} transition={{ duration: 1.3, delay: 0.2, ease: [0.22, 1, 0.36, 1] }} />

@@ -51,14 +51,14 @@ export function SweepTimeline({ lang = "en" }: { lang?: "en" | "ja" }) {
         {ticks.map((t) => (
           <g key={t.getTime()}>
             <line x1={x(t)} x2={x(t)} y1={m.t} y2={h - m.b} stroke={C.grid} />
-            <text x={x(t)} y={h - 8} textAnchor="middle" fontFamily="var(--font-mono)" fontSize={10.5} fill={C.faint} style={{ fontStretch: "80%" }}>
+            <text x={x(t)} y={h - 8} textAnchor="middle" fontFamily="var(--font-mono)" fontSize="0.6562rem" fill={C.faint} style={{ fontStretch: "80%" }}>
               {fmtTime(t)}
             </text>
           </g>
         ))}
         {used.map((g, gi) => (
           <g key={g.id} transform={`translate(0, ${m.t + gi * lane})`}>
-            <text x={m.l} y={11} fontSize={11} fill={C.mute}>
+            <text x={m.l} y={11} fontSize="0.6875rem" fill={C.mute}>
               {g[lang]}
             </text>
             {runs

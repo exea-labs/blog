@@ -65,7 +65,7 @@ export function Leaderboard({ lang = "en" }: { lang?: "en" | "ja" }) {
         <p className="max-w-[46ch] text-[0.76rem] text-ink-3">{T.note}</p>
       </div>
       <div className="overflow-x-auto  border border-[var(--line-2)]">
-        <table className="w-full min-w-[860px] border-collapse text-[0.8rem]">
+        <table className="w-full min-w-[66rem] border-collapse text-[0.8rem]">
           <thead>
             <tr className="text-left text-ink-2">
               <th className="px-3 py-2.5 font-[560]">#</th>

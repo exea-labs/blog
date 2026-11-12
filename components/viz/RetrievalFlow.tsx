@@ -221,7 +221,7 @@ function Search({ lang }: { lang: Lang }) {
           <motion.circle key={k} r={top.includes(p) ? 6 : 4.5} fill={p.a === q.a ? "var(--signal)" : "var(--panel)"} stroke={p.a === q.a ? "var(--signal)" : "var(--ink-2)"} strokeWidth={1.2} animate={{ cx: X(p.x), cy: Y(p.y), opacity: mode === "oracle" && p.a !== q.a ? 0.15 : top.includes(p) ? 1 : 0.7 }} transition={{ type: "spring", stiffness: 120, damping: 18 }} />
         ))}
         <motion.circle r={9} fill="none" stroke="var(--ink)" strokeWidth={2} animate={{ cx: X(q.x), cy: Y(q.y) }} transition={{ type: "spring", stiffness: 120, damping: 18 }} />
-        <motion.text fontSize={11} fill="var(--ink)" animate={{ x: X(q.x) + 13, y: Y(q.y) - 10 }} transition={{ type: "spring", stiffness: 120, damping: 18 }}>
+        <motion.text fontSize="0.6875rem" fill="var(--ink)" animate={{ x: X(q.x) + 13, y: Y(q.y) - 10 }} transition={{ type: "spring", stiffness: 120, damping: 18 }}>
           {T.query}
         </motion.text>
       </svg>
