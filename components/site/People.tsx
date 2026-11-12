@@ -13,11 +13,11 @@ export function People({ lang }: { lang: Lang }) {
           <span key={p.name}>
             {i > 0 && (ja ? "、" : ", ")}
             {p.url ? <a href={p.url}>{p.name}</a> : p.name}
-            <span className="mono">
-              {p.login ? `@${p.login}` : ""}
-              {p.role === "maintainer" ? (p.login ? " · " : "") + d.maintainer : ""}
-              {p.commits ? ` · ${d.commits(p.commits)}` : ""}
-            </span>
+            {(p.login || p.role === "maintainer" || p.commits) && (
+              <span className="mono">
+                {[p.login ? `@${p.login}` : "", p.role === "maintainer" ? d.maintainer : "", p.commits ? d.commits(p.commits) : ""].filter(Boolean).join(" · ")}
+              </span>
+            )}
           </span>
         ))}
       </p>

@@ -16,11 +16,15 @@ export function Header({ lang, altHref, current }: { lang: Lang; altHref: string
   ];
   return (
     <header className="topbar no-print">
-      <Link className="brand" href={href(lang, "/")} aria-label={`Exea Labs Blog, ${d.home}`}>
-        <ExeaMark height={13} />
-        <span className="mono">Exea Labs</span>
-        <span className="brand__name">Blog</span>
-      </Link>
+      <span className="brand">
+        <a href="https://exealabs.org" className="brand__lab" aria-label="Exea Labs, exealabs.org">
+          <ExeaMark height={13} />
+          <span className="mono">Exea Labs</span>
+        </a>
+        <Link href={href(lang, "/")} className="brand__name" aria-label={`Exea Labs Blog, ${d.home}`}>
+          Blog
+        </Link>
+      </span>
       <nav className="topbar__nav" aria-label="Main">
         {links.map((l) => (
           <Link key={l.k} href={l.href} aria-current={current === l.k ? "page" : undefined}>

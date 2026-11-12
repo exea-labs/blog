@@ -503,3 +503,9 @@ html[lang="ja"] .cardlist li strong { font-weight: 600; font-size: 1.1rem; line-
 .bar-grow { transform-origin: 0 50%; transition: transform 0.9s var(--ease-out) 0.2s; }
 .bar-rise { transform-origin: 50% 100%; transition: transform 0.8s var(--ease-out) 0.2s; }
 .seam-path { stroke-dasharray: 260; stroke-dashoffset: 0; transition: stroke-dashoffset 1.2s var(--ease-out) 0.3s; }
+
+.brand__lab { display: inline-flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--ink); transition: color var(--t); }
+.brand__lab:hover { color: var(--signal-ink); }
+a.brand__name { text-decoration: none; color: var(--ink); transition: color var(--t); }
+a.brand__name:hover { color: var(--signal-ink); }
+.credits .mono { text-transform: none; letter-spacing: 0.02em; }
