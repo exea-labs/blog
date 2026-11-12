@@ -13,7 +13,7 @@ export function GlossaryPage({ lang }: { lang: Lang }) {
           title={lang === "ja" ? "用語集" : "Glossary"}
           lead={lang === "ja" ? "記事で使う用語を、一度ずつ定義します。" : "Every term the posts use, defined once."}
         />
-        <dl data-reveal="stagger" className="mt-16 grid border-t border-[var(--line-2)] md:grid-cols-2 md:gap-x-12">
+        <dl data-reveal="stagger" className="wide mt-16 grid border-t border-[var(--line-2)] md:grid-cols-2 md:gap-x-12">
           {sorted.map((g) => (
             <div key={g.id} id={g.id} className="scroll-mt-28 border-b border-[var(--line-2)] py-5">
               <dt className="text-[1.3rem] font-light leading-snug tracking-[-0.01em]">

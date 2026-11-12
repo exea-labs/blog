@@ -49,10 +49,14 @@ That evening a queue of runs started on the Mac, one idea at a time, each agains
 
 What we tried, in order:
 
+<CardList>
+
 1. **Hybrid with a random start.** TONN layers alternate with full attention layers (attention at layers 1, 3 and 5). Seed 0 beat Llama. Seed 1 did not: close on prose, 1.950 on code. The seed also picks the TONN layers' starting circuits. Seed 0 drew 7 short convolutions. Seed 1 drew only 3, plus per-position gated units, which duplicate what the MLP already does.
 2. **The search** helped seed 1 a little (1.594 to 1.585) but did not fix it.
 3. **More attention circuits inside pure TONN** cut the code gap from 0.17 to 0.08 and stayed behind Llama. Full attention layers do better than many small attention circuits.
 4. **A <Term id="conv-start">convolution-heavy start</Term>** fixed seed 1. Code went from 1.950 to 1.748.
+
+</CardList>
 
 The hybrid with the convolution-heavy start beat Llama on every kind of text, with both seeds:
 
@@ -68,6 +72,9 @@ Its two seeds land within 0.002 of each other. With the retrieval and board circ
 ## Bigger models, same steps
 
 At 27M parameters (width 384, 8 layers, two seeds) the hybrid's lead doubled, from 0.023 to 0.045. Llama does better at this size with a lower learning rate, so we checked each model at its best rate. The hybrid still leads by 0.031, on every kind of text. At 48M, with the same 3,000 steps, it leads by 0.013.
+
+<Stat value="0.045" label="bits per byte, the hybrid's lead over Llama at 27M, double its lead at 13M" />
+
 
 ## Equal compute: the speed problem
 

@@ -81,18 +81,6 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-/* hairline sheet grid (96 px major, 24 px minor) on its own fixed layer, so scrolling never repaints it */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px),
-    linear-gradient(var(--grid-minor) 1px, transparent 1px), linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px);
-  background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px;
-}
 body::before { content: ""; position: fixed; inset: 0; background: var(--grain); opacity: var(--grain-op); pointer-events: none; z-index: 90; will-change: transform; }
 html[lang="ja"] body { line-height: 1.85; letter-spacing: 0.01em; }
 em, i, cite, dfn, var { font-style: normal; }
@@ -131,7 +119,9 @@ a { color: inherit; }
   display: flex; align-items: flex-start; gap: 1rem;
   padding: 1.25rem 1.5rem 0 var(--gutter-l);
   pointer-events: none;
-  background: linear-gradient(var(--paper) 0, color-mix(in srgb, var(--paper) 88%, transparent) 55%, transparent);
+  height: 4.25rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
 }
 .topbar > * { pointer-events: auto; }
 .brand { display: inline-flex; align-items: center; gap: 0.75rem; text-decoration: none; min-height: 2rem; color: var(--ink); }
@@ -464,3 +454,50 @@ html[lang="ja"] .feature__title { font-weight: 500; line-height: 1.3; letter-spa
 
 /* Japanese headings break at punctuation, never inside a word */
 html[lang="ja"] :is(.h-display, .feature__title, .card__title, .section__title, .reg-post__title, .result__t h3, .prose h2) { word-break: keep-all; overflow-wrap: anywhere; line-break: strict; }
+
+
+/* ==========================================================================
+   Centered layout: every page sits in the middle of the window. Text keeps a 38rem column, centered; figures,
+   tables and visuals center on it at up to 56rem.
+   ========================================================================== */
+.sheet { margin-inline: auto; padding-left: var(--gutter-l); padding-right: var(--gutter-l); box-sizing: border-box; max-width: calc(76rem + 2 * var(--gutter-l)); }
+@media (max-width: 1100px) and (min-width: 901px) { .sheet { padding-right: 2rem; } }
+.prose { margin-inline: auto; }
+.prose > .figure, .prose > .table-wrap, .prose > figure, .prose > .cardlist {
+  width: min(56rem, calc(100vw - 2 * var(--gutter-r)));
+  margin-left: calc(50% - min(28rem, 50vw - var(--gutter-r)));
+}
+.prose > .figure--small { width: min(46rem, calc(100vw - 2 * var(--gutter-r))); margin-left: calc(50% - min(23rem, 50vw - var(--gutter-r))); }
+.prose > .note, .prose > .stat { margin-inline: auto; }
+.wide { width: min(56rem, 100%); margin-inline: auto; }
+.col { width: min(38rem, 100%); margin-inline: auto; }
+.page-center > * { margin-inline: auto; }
+
+/* a number between paragraphs */
+.stat { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.4rem 1.5rem; align-items: center; padding: 1.25rem 0; border-top: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); margin: var(--s4) auto; max-width: var(--measure); }
+.stat__v { font: 300 clamp(2.6rem, 1.8rem + 2.6vw, 3.8rem)/1 var(--font-serif); letter-spacing: -0.035em; color: var(--signal); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stat__l { font-size: 1.05rem; line-height: 1.4; color: var(--ink-2); }
+html[lang="ja"] .stat__l { font-size: 1rem; line-height: 1.7; }
+@media (max-width: 560px) { .stat { grid-template-columns: 1fr; } }
+
+.sketch { aspect-ratio: 16 / 7; overflow: hidden; background: var(--paper); }
+.sketch svg { width: 100%; height: 100%; display: block; }
+
+/* lists shown as cards */
+.cardlist ol, .cardlist ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: 1rem; padding: 0 !important; margin: 0; counter-reset: n; }
+.cardlist li { margin: 0 !important; padding: 1.1rem 1.1rem 1.2rem 1.1rem; background: var(--panel); border: 1px solid var(--line-2); font-size: 0.98rem; line-height: 1.5; color: var(--ink-2); transition: border-color var(--t), transform var(--t) var(--ease-out), box-shadow var(--t) var(--ease-out); }
+.cardlist li:hover { border-color: var(--ink); transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--line-2); }
+.cardlist ol > li::before { position: static; display: block; margin-bottom: 0.6rem; font-size: 0.75rem; }
+.cardlist ul > li::before { display: none; }
+.cardlist li strong { display: block; font: 400 1.25rem/1.2 var(--font-serif); letter-spacing: -0.015em; color: var(--ink); margin-bottom: 0.35rem; }
+html[lang="ja"] .cardlist li strong { font-weight: 600; font-size: 1.1rem; line-height: 1.5; letter-spacing: 0; }
+
+/* bars grow when their figure is revealed */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal]:not(.is-revealed) .bar-grow { transform: scaleX(0); }
+  html.js [data-reveal]:not(.is-revealed) .bar-rise { transform: scaleY(0); }
+  html.js [data-reveal]:not(.is-revealed) .seam-path { stroke-dashoffset: 260; }
+}
+.bar-grow { transform-origin: 0 50%; transition: transform 0.9s var(--ease-out) 0.2s; }
+.bar-rise { transform-origin: 50% 100%; transition: transform 0.8s var(--ease-out) 0.2s; }
+.seam-path { stroke-dasharray: 260; stroke-dashoffset: 0; transition: stroke-dashoffset 1.2s var(--ease-out) 0.3s; }

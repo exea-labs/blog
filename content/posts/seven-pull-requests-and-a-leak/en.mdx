@@ -30,6 +30,8 @@ Aaron (<a href="https://github.com/aarochu">@aarochu</a>) opened seven pull requ
 
 ## What the seven pull requests add
 
+<CardList>
+
 1. **Exact checkpoint resume** (PR #1). A checkpoint now holds the optimizer, the searched architecture, every random-generator state, the search's own state and the retrieval library's keys. It is written atomically. A run stopped and resumed ends with weights bit-identical to a run that never stopped. His test stops one between two search rounds to prove it. The main run will span many free Colab sessions, which time out after a few hours. This is what makes that possible.
 2. **Near-duplicate removal across sources** (PR #6). `exealm/data/dedup.py` finds near-duplicate documents with MinHash, on a CPU, with numpy only. It uses FineWeb's settings: word 5-grams, 112 hashes in 14 bands of 8. Japanese gets character 5-grams. Before it drops anything, it checks the signatures exactly. It reports which source each duplicate matched, so we can see where the overlap comes from.
 3. **A speed benchmark with generation** (PR #2). `python -m exealm.eval.speed` times training and greedy generation in tokens per second. It compares ExeaLM with a same-size Llama on any preset, with retrieval and swarms on or off. It is the repository's first measurement of generation speed.
@@ -38,9 +40,13 @@ Aaron (<a href="https://github.com/aarochu">@aarochu</a>) opened seven pull requ
 6. **A swarm-vs-solo harness** (PR #5). `exealm/eval/swarm_vs_solo.py` scores the same held-out text three ways: as a <Term id="swarm">swarm</Term>, as agents reading alone, and with a separately trained solo model. It does this on split swarms and on random swarms as the control, by position in the swarm. Building it is how he found the leak.
 7. **The seam leak fix** (PR #7). The rest of this post.
 
+</CardList>
+
 ## The leak
 
 A split swarm is 4 agents reading 4 consecutive windows of one stretch of text (from [the swarm post](/posts/agents-talk-and-the-model-builds-its-own-rag/)). Each agent predicts the next byte at every position of its window. Two facts about that layout combine:
+
+<SeamDiagram />
 
 - The last byte agent 1 must predict is the first byte agent 2 reads. Agents 2 and 3 share a seam the same way. So do agents 3 and 4.
 - After each <Term id="chunk">chunk</Term> of 64 bytes, every agent posts the average of what it read to the board. Any agent can read posts from earlier chunks. Agent 2's first post is computed from a chunk that starts with the seam byte. Agent 1 can read that post while it predicts its last byte.
@@ -54,6 +60,8 @@ So agents 1 to 3 could, in principle, read one target each off the board: 1 targ
   <p>Measured from the data, it is about 0.001: agents 1 to 3 gain about 0.001 more from the board than agent 4, which has no seam. Agent 4 alone, with no leak and no look-ahead, beats the control by 0.012 on seed 0 and 0.009 on seed 1.</p>
   <p>The pure-TONN gain is the most exposed: a ceiling of 0.002 is a third of 0.006. The gain that remains with the board cut (0.010) cannot use the leak at evaluation. The correction is on the results page (commit 37f4f44); the original numbers stay in the record until the reruns replace them.</p>
 </Correction>
+
+<AgentGain />
 
 The swarm result holds at about 0.012 bits per byte or more on the hybrid. The number we published was a little too high. The pure-TONN result is weaker than it looked.
 

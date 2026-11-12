@@ -32,11 +32,19 @@ A model of 0.1B parameters is small. On its own it can hold little knowledge and
 
 Both are trained from the first step of pretraining, end to end, with ordinary gradients. The headline test comes later: a swarm of 0.1B agents with retrieval against one larger open model, on the same tasks, at the same inference compute. This is a hypothesis. These notes will say so plainly if it fails.
 
+<Sketch kind="board" caption="Copies of one small model share a message board and a library. The bet is that together they take on problems no single copy could." />
+
+
 ## Why 0.1B parameters and 100B tokens
 
 100B tokens on 0.1B parameters is 1,000 tokens per parameter, about 50 times the compute-optimal ratio of about 20. Small models are trained past that ratio on purpose, because they are cheap to run afterwards. A swarm runs many copies, so that matters even more here.
 
+<Stat value="1,000" label="tokens per parameter, about 50 times the compute-optimal ratio" />
+
 The returns fall quickly. By the loss fit of Hoffmann et al. (2022), predicted loss drops by about 0.19 going from 20B to 100B tokens. From 100B to 200B it drops by about 0.06; from 200B to 400B, by about 0.05. At about 300 TFLOPs per GPU, 100B tokens on 0.1B parameters is about 56 GPU-hours.
+
+<TokenReturns />
+
 
 ## The architecture: TONN
 
@@ -69,6 +77,9 @@ ExeaLM adds two circuit types to TONN's menu. Every TONN layer is guaranteed one
 - **AG, the agent board.** After each chunk, every agent posts a message: a value, a key and a strength. In later chunks, every agent reads the earlier posts on the board with attention, its teammates' and its own. An empty entry stands for "nothing useful".
 
 In training, consecutive rows of a batch form swarms of 4 that share one board. Gradients flow through the board, so an agent learns what to post from how much its teammates' losses fall.
+
+<Stat value="2" label="memory circuits in every TONN layer, which the search cannot remove: retrieval and the agent board" />
+
 
 ## What went up on day 1
 

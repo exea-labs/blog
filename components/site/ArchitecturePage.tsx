@@ -78,7 +78,7 @@ export function ArchitecturePage({ lang }: { lang: Lang }) {
     <Shell lang={lang} altHref={href(other, "/architecture/")} current="architecture" beam={[{ id: "stack", label: c.stack }, { id: "layer", label: c.layer }, { id: "circuits", label: c.menu }, { id: "retrieval", label: c.rg }, { id: "board", label: c.ag }, { id: "numbers", label: c.specs }]}>
       <article className="sheet [--fig-w:60rem]" data-pagefind-body>
         <PageHead title={c.title} lead={c.lead} />
-        <div id="stack" className="plate enter mt-10 w-[min(60rem,100%)] scroll-mt-28">
+        <div id="stack" className="plate enter mx-auto mt-10 w-[min(60rem,100%)] scroll-mt-28">
           <div className="plate__head mono">
             <b>{lang === "ja" ? "図 01" : "Fig. 01"}</b>
             <span>ExeaLM 0.1B</span>
@@ -110,7 +110,7 @@ export function ArchitecturePage({ lang }: { lang: Lang }) {
           </Figure>
         </Section>
         <Section n={5} id="numbers" title={c.specs}>
-          <dl className="grid w-[min(46rem,100%)] border-t border-[var(--line-2)] sm:grid-cols-2 sm:gap-x-10" data-reveal="stagger">
+          <dl className="mx-auto grid w-[min(56rem,100%)] border-t border-[var(--line-2)] sm:grid-cols-2 sm:gap-x-10" data-reveal="stagger">
             {c.rows.map(([k, v]) => (
               <div key={k} className="flex items-baseline justify-between gap-4 border-b border-[var(--line)] py-3">
                 <dt className="mono text-ink-3">{k}</dt>

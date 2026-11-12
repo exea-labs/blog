@@ -47,7 +47,7 @@ export function ResultsPage({ lang }: { lang: Lang }) {
     <Shell lang={lang} altHref={href(other, "/results/")} current="results" beam={[{ id: "equal-compute", label: c.eq }, { id: "leaderboard", label: c.board }, { id: "curves", label: c.loss }, { id: "speed", label: c.speed }, { id: "sweep", label: c.sweep }]}>
       <article className="sheet [--fig-w:64rem]" data-pagefind-body>
         <PageHead title={c.title} lead={c.lead} />
-        <div id="top" className="enter mt-10 grid w-[min(64rem,100%)] items-end gap-8 border-y border-[var(--line-2)] py-8 md:grid-cols-[auto_auto_minmax(0,1fr)]">
+        <div id="top" className="enter mx-auto mt-10 grid w-[min(56rem,100%)] items-end gap-8 border-y border-[var(--line-2)] py-8 md:grid-cols-[auto_auto_minmax(0,1fr)]">
           <div>
             <div className="mono text-signal-ink">ExeaLM</div>
             <div className="result__v mt-2">{cmp.equal_time.find((x) => x.size === "90M")!.hybrid.mean.toFixed(3)}</div>

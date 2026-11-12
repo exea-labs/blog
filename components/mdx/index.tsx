@@ -1,5 +1,6 @@
 import { Figure, Note, Correction, makeH2, H3, Table } from "./Blocks";
 import { Term } from "./Term";
+import { Stat, Sketch, CardList, TokenReturns, KeySplit, SeamDiagram, AgentGain } from "@/components/viz/Inline";
 import dynamic from "next/dynamic";
 
 // Each figure is its own chunk: a post downloads only the figures it uses.
@@ -34,6 +35,13 @@ export function mdxComponents(lang: Lang, order: string[] = []) {
     Note,
     Correction,
     Term: withLang(Term),
+    Stat,
+    Sketch,
+    CardList,
+    TokenReturns: withLang(TokenReturns),
+    KeySplit: withLang(KeySplit),
+    SeamDiagram: withLang(SeamDiagram),
+    AgentGain: withLang(AgentGain),
     HybridStack: withLang(HybridStack),
     TonnLayer: withLang(TonnLayer),
     CircuitMenu: withLang(CircuitMenu),

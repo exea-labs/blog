@@ -32,12 +32,12 @@ export async function PostPage({ slug, lang }: { slug: string; lang: Lang }) {
     <Shell lang={lang} altHref={href(other, `/posts/${slug}/`)} current="posts" beam={beam}>
       <div className="progress no-print" aria-hidden="true" />
       <article className="sheet" data-pagefind-body data-pagefind-meta={`date:${meta.date}`}>
-        <header className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_19rem]">
+        <header className="wide grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_17rem]">
           <div className="enter">
             <p className="mono text-ink-3">
               <span className="text-signal-ink">{d.day(meta.day)}</span> · <time dateTime={meta.date}>{d.dateFmt(meta.date)}</time>
             </p>
-            <h1 className="h-display mt-5 max-w-[15em]">{meta.title}</h1>
+            <h1 className="h-display mt-5">{meta.title}</h1>
             <p className="mt-6 max-w-[34rem] text-[1.35rem] font-light leading-snug text-ink-2">{meta.dek}</p>
           </div>
           <dl className="titleblock enter" data-pagefind-ignore>
@@ -49,7 +49,7 @@ export async function PostPage({ slug, lang }: { slug: string; lang: Lang }) {
         </header>
 
         {meta.numbers.length > 0 && (
-          <div className="results mt-14" data-pagefind-ignore data-reveal="stagger">
+          <div className="results wide mt-14" data-pagefind-ignore data-reveal="stagger">
             {meta.numbers.map((n) => (
               <div key={n.label} className="result result--compact">
                 <div className="result__v">{/^\d+(\.\d+)?$/.test(n.value) ? <span data-count={n.value} className="!m-0 !text-[1em] !tracking-[inherit] !text-signal">{n.value}</span> : n.value}</div>
@@ -61,10 +61,10 @@ export async function PostPage({ slug, lang }: { slug: string; lang: Lang }) {
           </div>
         )}
 
-        <div className="prose mt-16 [--fig-w:56rem]">{content}</div>
+        <div className="prose mt-16">{content}</div>
 
         {meta.credits.length > 0 && (
-          <section id="credits" className="section" aria-labelledby="credits-h">
+          <section id="credits" className="section wide" aria-labelledby="credits-h">
             <div className="section__head">
               <span className="section__num mono">{String(meta.toc.length + 1).padStart(2, "0")}</span>
               <h2 id="credits-h" className="section__title" data-reveal="clip">{ja ? "作業した人" : "Who did the work"}</h2>
@@ -89,7 +89,7 @@ export async function PostPage({ slug, lang }: { slug: string; lang: Lang }) {
           </section>
         )}
 
-        <section id="sources" className="section" aria-labelledby="sources-h">
+        <section id="sources" className="section wide" aria-labelledby="sources-h">
           <div className="section__head">
             <span className="section__num mono">{String(meta.toc.length + (meta.credits.length ? 2 : 1)).padStart(2, "0")}</span>
             <h2 id="sources-h" className="section__title" data-reveal="clip">{d.sources}</h2>
@@ -106,7 +106,7 @@ export async function PostPage({ slug, lang }: { slug: string; lang: Lang }) {
           </ul>
         </section>
 
-        <nav className="section grid gap-px border border-[var(--line-2)] bg-[var(--line-2)] sm:grid-cols-2" aria-label={ja ? "前後の記事" : "More posts"} data-pagefind-ignore>
+        <nav className="section wide grid gap-px border border-[var(--line-2)] bg-[var(--line-2)] sm:grid-cols-2" aria-label={ja ? "前後の記事" : "More posts"} data-pagefind-ignore>
           {[
             { p: older, label: d.prev },
             { p: newer, label: d.next },

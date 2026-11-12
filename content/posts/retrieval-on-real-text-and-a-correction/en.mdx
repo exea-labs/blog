@@ -29,6 +29,8 @@ The retrieval circuit learned a synthetic lookup perfectly ([the previous post](
 
 FineWeb-Edu bytes, a 5.2M model, a library of 200,000 chunks of 64 bytes from the training documents. Retrieval never returns chunks of the document being read.
 
+<Stat value="6.122" label="bits per byte at step 3,000 with the library attached. Without it, 1.727." />
+
 | Step | Library attached | Library removed |
 |---|---|---|
 | 1,000 | 1.935 | 1.929 |
@@ -74,6 +76,8 @@ Retrieval still gave nothing. To find out whether the search or the read was fai
 ## Rare-word keys
 
 A search that starts from nothing has to learn what "related" means from the language-model loss alone. Names, places and technical terms are the easiest signal of relatedness. A search that knows nothing yet ignores them. So each retrieval key got a second part: a fixed random code for every token in the chunk, weighted by how rare that token is in the library (its inverse document frequency). Chunks that share rare words get similar keys from the first step. The learned part trains as before.
+
+<KeySplit />
 
 <Figure n={2} caption="How often the search returns a chunk of the right article among its top 4, on held-out articles at step 3,000. Learned keys alone stay near 12% with or without the neighbour loss. Adding rare-word keys raises it to about 30% on both seeds. The oracle is 100% by construction.">
   <HitRate />
