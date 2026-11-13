@@ -9,6 +9,7 @@ cover: board
 tags: [swarms, retrieval, architecture]
 credits:
   - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "両方のメモリスキルを持つ 17M モデルという目標を立てました。この記事のすべての実行を Mac Studio で回しました。3 つのレシピ、スケジュールの確認、それぞれ 2 シード、そしてステップ数と計算量をそろえた Llama のベースラインです。" }
+  - { login: jaztulsi, name: "Jasraj Tulsi", what: "探索が各層に残す回路を記録して描く experiments/plot_search.py を書きました（PR #36）。--seed が実行の最初の回路を変えていなかったことも見つけました。小さなモデルと中継タスクをノート PC の CPU で 5 分以内に学習する初心者向けノートブックを書きました（PR #37）。" }
 numbers:
   - { value: "94%", label: "見たことのない 1,024 件の事実での検索の正答率、ライブラリあり、両シード（ライブラリなしでは 1.6%）" }
   - { value: "100%", label: "掲示板を通じた中継の正答率、両シード（掲示板を切ると 1%）" }
@@ -140,6 +141,14 @@ ExeaLM は、Mac で 1 ステップあたり 1.30 倍の時間がかかります
 - **Llama との比較**では、ExeaLM は 17M の言語で互角、0.1B ではメモリ回路なしで上回ります。メモリ回路ありの 0.1B は、まだ学習していません。
 
 </CardList>
+
+## Jasraj からの 2 つのプルリクエスト
+
+今日、Jasraj Tulsi の最初の 2 つのプルリクエストが入りました。
+
+**探索が何を残すか**（[PR #36](https://github.com/exea-labs/ExeaLM/pull/36)、[#11](https://github.com/exea-labs/ExeaLM/issues/11) を解決）。<Term id="search">アーキテクチャ探索</Term>は学習の前半で回路を入れ替えますが、これまでは実行の最初と最後しか記録していませんでした。いまは探索の記録ごとに、その時点のアーキテクチャが残ります。`experiments/plot_search.py` がそれを層ごとに[積み上げグラフ](https://github.com/exea-labs/ExeaLM/blob/main/results/search_arch/search_arch.png)として描きます。`tiny` プリセット（合成データ、2,000 ステップ、3 シード）では、探索は 1 回の実行で 16 スロット中 2 つか 3 つを入れ替え、すべてステップ 700 までに終わりました。誘導ヘッドに似たメモリ（MIM）は、3 回とも第 0 層から外れました。合成データは 1 トークン前を見ることしか報いないので、長い距離を見る回路が外れたのはそのためかもしれません。実際のテキストで同じ図を描くのが次の確認です。その途中で、`pretrain.py` の `--seed` が最初の回路を変えていないこと、つまりどのシードも同じ回路から始まっていたことも見つけました。
+
+**新しい貢献者のためのツアー**（[PR #37](https://github.com/exea-labs/ExeaLM/pull/37)、[#14](https://github.com/exea-labs/ExeaLM/issues/14) を解決）。`notebooks/tiny_tour.ipynb` は、`tiny` モデルを CPU で学習し、第 0 層の回路とそれぞれの計算内容を表示し、回路のグループを止めてそれぞれの価値を示し、中継タスクを 300 ステップ学習します。掲示板ありでは偶然から約 97% まで上がり、切断したままでは偶然のままです。GPU なしで、上から下まで 2.5 分から 4.3 分で動きます。
 
 ## この記事が示していないこと
 

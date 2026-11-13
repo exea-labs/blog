@@ -9,6 +9,7 @@ cover: board
 tags: [swarms, retrieval, architecture]
 credits:
   - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Set the goal of a 17M model that keeps both memory skills. Ran every run in this post on the Mac Studio: three recipes, the schedule checks, two seeds of each and the Llama baselines at equal steps and equal compute." }
+  - { login: jaztulsi, name: "Jasraj Tulsi", what: "Wrote experiments/plot_search.py (PR #36), which logs and draws the circuits the search keeps in every layer, and found that --seed never changed a run's starting circuits. Wrote the beginner notebook (PR #37) that trains the tiny model and the relay task on a laptop CPU in under five minutes." }
 numbers:
   - { value: "94%", label: "lookup accuracy on 1,024 unseen facts with the library attached, both seeds (1.6% with it removed)" }
   - { value: "100%", label: "relay accuracy through the board, both seeds (1% with the board cut)" }
@@ -140,6 +141,14 @@ At the size we plan to train, the picture is better for ExeaLM on language. With
 - **Against Llama**, ExeaLM ties at 17M on language and leads at 0.1B without the memory circuits. It has not yet been trained at 0.1B with them.
 
 </CardList>
+
+## Two pull requests from Jasraj
+
+Jasraj Tulsi's first two pull requests went in today.
+
+**What the search keeps** ([PR #36](https://github.com/exea-labs/ExeaLM/pull/36), closes [#11](https://github.com/exea-labs/ExeaLM/issues/11)). The <Term id="search">architecture search</Term> swaps circuits during the first half of training, but until now only the start and the end of a run were logged. Every search record now carries the architecture it leaves behind. `experiments/plot_search.py` draws it layer by layer as a [stacked chart](https://github.com/exea-labs/ExeaLM/blob/main/results/search_arch/search_arch.png). On the `tiny` preset (synthetic data, 2,000 steps, three seeds), the search replaced 2 or 3 of 16 slots per run, all by step 700. The induction-like memory (MIM) left layer 0 in all three runs. The synthetic data only rewards looking one token back, which may explain why the longer-range circuits went; the same plot on real text is the next test. Along the way he found that `pretrain.py`'s `--seed` never changed the starting circuits, so every seed began from the same ones.
+
+**A tour for new contributors** ([PR #37](https://github.com/exea-labs/ExeaLM/pull/37), closes [#14](https://github.com/exea-labs/ExeaLM/issues/14)). `notebooks/tiny_tour.ipynb` trains the `tiny` model on a CPU, prints layer 0's circuits with what each one computes, switches groups of circuits off to show what each is worth, and trains the relay task for 300 steps: from chance to about 97% with the board shared, still at chance with it cut. It runs top to bottom in 2.5 to 4.3 minutes, with no GPU.
 
 ## What this does not show
 
