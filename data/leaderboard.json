@@ -70,6 +70,43 @@
    "size": "{\"d\": 512, \"n_layers\": 10, \"slots\": 16, \"h\": 32}"
   },
   {
+   "tag": "eqt_100m_hybrid_lr1e3_s1",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     2,
+     4,
+     5,
+     7,
+     8,
+     10,
+     11,
+     13
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.001,
+   "seed": 1,
+   "params_M": 89.74,
+   "steps": 3206,
+   "secs": 3001.7,
+   "budget": 3000.0,
+   "bpb": {
+    "en": 1.3682,
+    "ja_wiki": 1.4382,
+    "ja_web": 1.3305,
+    "code": 1.648
+   },
+   "mean": 1.4462,
+   "source": "results/sweep/lm_compare_eqt_100m_hybrid_lr1e3_s1.json",
+   "size": "{\"d\": 640, \"n_layers\": 14, \"slots\": 20, \"h\": 32}"
+  },
+  {
    "tag": "eqt_big_llama_s1",
    "model": "llama",
    "cfg": {},
@@ -211,6 +248,43 @@
    "size": "{}"
   },
   {
+   "tag": "eqt_100m_hybrid_s1_rerun",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     2,
+     4,
+     5,
+     7,
+     8,
+     10,
+     11,
+     13
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.0015,
+   "seed": 1,
+   "params_M": 89.74,
+   "steps": 3217,
+   "secs": 3009.6,
+   "budget": 3000.0,
+   "bpb": {
+    "en": 1.3844,
+    "ja_wiki": 1.4529,
+    "ja_web": 1.3436,
+    "code": 1.6856
+   },
+   "mean": 1.4666,
+   "source": "results/sweep/lm_compare_eqt_100m_hybrid_s1_rerun.json",
+   "size": "{\"d\": 640, \"n_layers\": 14, \"slots\": 20, \"h\": 32}"
+  },
+  {
    "tag": "eqt_big_hybrid",
    "model": "tonn_core",
    "cfg": {
@@ -334,6 +408,26 @@
    "size": "{\"d\": 512, \"n_layers\": 10, \"slots\": 16, \"h\": 32}"
   },
   {
+   "tag": "eqt_100m_llama_s1_rerun",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.001,
+   "seed": 1,
+   "params_M": 89.73,
+   "steps": 3581,
+   "secs": 3006.2,
+   "budget": 3000.0,
+   "bpb": {
+    "en": 1.3894,
+    "ja_wiki": 1.4621,
+    "ja_web": 1.3449,
+    "code": 1.7103
+   },
+   "mean": 1.4767,
+   "source": "results/sweep/lm_compare_eqt_100m_llama_s1_rerun.json",
+   "size": "{\"d\": 640, \"n_layers\": 14, \"slots\": 20, \"h\": 32}"
+  },
+  {
    "tag": "eqt_100m_llama",
    "model": "llama",
    "cfg": {},
@@ -351,6 +445,43 @@
    },
    "mean": 1.4811,
    "source": "results/sweep/lm_compare_eqt_100m_llama.json",
+   "size": "{\"d\": 640, \"n_layers\": 14, \"slots\": 20, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_100m_hybrid_s1",
+   "model": "tonn_core",
+   "cfg": {
+    "attn_layers": [
+     1,
+     2,
+     4,
+     5,
+     7,
+     8,
+     10,
+     11,
+     13
+    ],
+    "init_weights": {
+     "C": 4,
+     "G": 0.25,
+     "D": 0.25
+    }
+   },
+   "lr": 0.0015,
+   "seed": 1,
+   "params_M": 89.74,
+   "steps": 2902,
+   "secs": 2947.3,
+   "budget": 3000.0,
+   "bpb": {
+    "en": 1.3984,
+    "ja_wiki": 1.4685,
+    "ja_web": 1.3586,
+    "code": 1.7025
+   },
+   "mean": 1.482,
+   "source": "results/sweep/lm_compare_eqt_100m_hybrid_s1.json",
    "size": "{\"d\": 640, \"n_layers\": 14, \"slots\": 20, \"h\": 32}"
   },
   {
@@ -481,6 +612,26 @@
    "mean": 1.4936,
    "source": "results/sweep/lm_compare_eqt_mid_hybrid.json",
    "size": "{\"d\": 384, \"n_layers\": 8, \"slots\": 12, \"h\": 32}"
+  },
+  {
+   "tag": "eqt_100m_llama_s1",
+   "model": "llama",
+   "cfg": {},
+   "lr": 0.001,
+   "seed": 1,
+   "params_M": 89.73,
+   "steps": 3231,
+   "secs": 2845.0,
+   "budget": 3000.0,
+   "bpb": {
+    "en": 1.4059,
+    "ja_wiki": 1.481,
+    "ja_web": 1.3648,
+    "code": 1.7411
+   },
+   "mean": 1.4982,
+   "source": "results/sweep/lm_compare_eqt_100m_llama_s1.json",
+   "size": "{\"d\": 640, \"n_layers\": 14, \"slots\": 20, \"h\": 32}"
   },
   {
    "tag": "eqt_mid_hybrid",

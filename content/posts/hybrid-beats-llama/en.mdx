@@ -125,6 +125,12 @@ At the same learning rate as Llama, the hybrid leads by 0.017 bits per byte. It 
 ## What this does not show
 
 - **One seed at 0.1B.** Seed 1 is running: Llama now, the hybrid at 1e-3 next. A seed-1 hybrid at 1.5e-3 has finished at 1.482, behind seed 0's 1.474. It took 2,902 steps against 3,151, because the Mac ran slower during that run. There is no seed-1 Llama to compare it with yet. From 13M to 48M, every equal-compute result held on two seeds.
+
+<Note title="Seed 1, added November 12">
+  <p>Seed 1 has finished at 0.1B, every run at normal speed. The first seed-1 Llama and 1.5e-3 hybrid ran on a slowed Mac and were rerun. Same 3,000 seconds:</p>
+  <p>Hybrid at lr 1e-3: 1.446 bits per byte (3,206 steps). Hybrid at lr 1.5e-3: 1.467 (3,217 steps). Llama at lr 1e-3: 1.477 (3,581 steps).</p>
+  <p>The hybrid leads on every kind of text on both seeds. Over the two seeds the lead is 0.024 at lr 1e-3 (1.455 against 1.479) and 0.009 at lr 1.5e-3. The equal-compute chart above now shows the two-seed means. Results in results/README.md, section 8.</p>
+</Note>
 - **Llama ran at one learning rate at 0.1B** (1e-3, its best rate at 27M and 48M). A better rate could narrow the gap.
 - **Both models are badly under-trained**: 50M to 57M tokens for 90M parameters, against the 100B tokens planned. Margins can shrink with longer training. At 13M, doubling the steps cut the lead from 0.014 to 0.006.
 - **Speed was measured on one Mac GPU, uncompiled.** `torch.compile` speeds up Llama by 20% and the hybrid by 8% on this GPU, so a compiled comparison would favour Llama today. A compile-friendly TONN layer is on the to-do list.

@@ -1,0 +1,156 @@
+---
+title: "One small model learns its board and its library. On language it ties Llama."
+date: 2026-11-12
+order: 1
+day: 3
+summary: "An 18M-parameter ExeaLM trained mostly on real text also learned to pass facts to another agent through its board (100% of answers, 1% with the board cut) and to look facts up in a library it had never seen (94%, 1.6% without it), on both seeds. That took teaching the two skills together from the first step. Taught one after the other, lookup formed on one seed of two. On language the model is about even with a same-size Llama. The library still does not help on real Wikipedia text."
+dek: "Relay and lookup both form when they are taught together. Language is a tie."
+cover: board
+tags: [swarms, retrieval, architecture]
+credits:
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Set the goal of a 17M model that keeps both memory skills. Ran every run in this post on the Mac Studio: three recipes, the schedule checks, two seeds of each and the Llama baselines at equal steps and equal compute." }
+numbers:
+  - { value: "94%", label: "lookup accuracy on 1,024 unseen facts with the library attached, both seeds (1.6% with it removed)" }
+  - { value: "100%", label: "relay accuracy through the board, both seeds (1% with the board cut)" }
+  - { value: "0.011", label: "bits per byte ExeaLM leads a same-size Llama at equal steps, mean of 2 seeds; a tie at equal compute" }
+sources:
+  - { label: "results/README.md, sections 9 and 10", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/README.md" }
+  - { label: "results/full_small/ (every run in this post)", href: "https://github.com/exea-labs/ExeaLM/tree/main/results/full_small" }
+  - { label: "experiments/full_small.py", href: "https://github.com/exea-labs/ExeaLM/blob/main/experiments/full_small.py" }
+  - { label: "experiments/show_skills.py", href: "https://github.com/exea-labs/ExeaLM/blob/main/experiments/show_skills.py" }
+  - { label: "Issue #26: the 17M full model", href: "https://github.com/exea-labs/ExeaLM/issues/26" }
+  - { label: "Commit 5bccdc3: both skills on both seeds", href: "https://github.com/exea-labs/ExeaLM/commit/5bccdc3" }
+---
+
+Yesterday the <Term id="board">agent board</Term> and the <Term id="retrieval">library</Term> each worked on a toy task, in a tiny model trained for that task alone. ExeaLM is meant to be one model that reads text, talks to other agents and looks things up. Today we trained that model at small size, mostly on real text, with both memory circuits switched on. Then we checked whether it can still do the two things the circuits were built for.
+
+It can, on both <Term id="seed">seeds</Term>, once the two skills are taught together. Getting there took three recipes. On language the model ties a same-size <Term id="llama">Llama</Term>.
+
+## One model, four kinds of batches
+
+The model is the small <Term id="hybrid">hybrid</Term>: width 320, six layers, with <Term id="tonn">TONN</Term> layers at 0 and 3 and attention in the other four. Each TONN layer holds 10 <Term id="circuit">circuits</Term>, one of them a retrieval circuit and one a board circuit. That comes to 18.08M parameters. The Llama it is compared with has 17.83M, with the same width, depth, vocabulary and MLPs.
+
+Each training step uses one kind of batch:
+
+- **text**: English, Japanese and code, read in <Term id="swarm">swarms</Term> of 4;
+- **Wikipedia**: the second halves of articles, with their first halves in the library;
+- **relay**: the <Term id="relay">relay task</Term>, where agent A holds facts and agent B can answer only through the board;
+- **lookup**: the <Term id="lookup">lookup task</Term>, where the answers sit in a fresh library of facts.
+
+Every run is 24,000 steps of 32 × 512 tokens, 393M tokens in all, on one Mac Studio. The Llama sees the same batches in the same order. Language is scored in <Term id="bpb">bits per byte</Term> on held-out English, Japanese Wikipedia, Japanese web text and code. Relay is scored with the board shared and with it cut. Lookup is scored on 1,024 facts the model has never seen, with the library attached and removed. Chance on both tasks is 1 in 64.
+
+## The first recipe learned language and nothing else
+
+The first recipe spent 80% of its steps on text, 15% on Wikipedia and 5% on the relay. The board posted once every 64 tokens. After 24,000 steps English reached 1.294 bits per byte. The relay stayed at chance (1.0%). The library made held-out Wikipedia worse by 0.040 bits per token.
+
+The board turns each stretch of tokens into one post by averaging it. A relay fact is 3 tokens long. In a 64-token average it is mostly filler. In the tiny relay model, the board learned in 250 steps with 8-token posts (97.4% with the board shared, 1.4% cut). With 16, 32 or 64-token posts it stayed at chance. Lookup behaved the same way with one fact per 64-token chunk. With dense chunks, each a table of 16 facts, it reached 89.6% in 2,000 steps.
+
+So the next recipes post to the board every 8 tokens and store lookup facts as dense tables. They also attach the Wikipedia library only on Wikipedia batches, as the short checks before them did.
+
+## Which skill comes first decides whether the other forms
+
+The second recipe taught the relay alone for the first 400 steps. A warm mix followed until step 2,000. After that it settled at 70% text, 15% Wikipedia, 7.5% relay and 7.5% lookup.
+
+On seed 0 both skills formed: 100% relay with the board shared (0.5% cut), 90.3% lookup with the library attached (0.6% removed). Lookup came late, between steps 6,000 and 9,000. On seed 1 the relay formed but lookup stayed at chance for all 24,000 steps.
+
+The seed-1 model finds the table but cannot read it. With 64 tables in the library, the right one is among the search's top 4 for 70% of questions, against 6% at random. With a single table, which is always retrieved, it still gets none of the values right.
+
+Short checks to step 2,000, changing only the first 400 steps, showed why:
+
+| First 400 steps | Relay, shared / cut | Lookup, attached / removed |
+|---|---|---|
+| Relay alone | **99.95%** / 1.6% | 1.4% / 1.4% |
+| Lookup alone, then relay alone | 2.1% / 2.1% | **74.6%** / 1.4% |
+| Both together | 94.2% / 1.0% | 67.9% / 1.5% |
+
+Whichever skill is learned alone first blocks the other. After lookup, the relay never started. After the relay, lookup started late on one seed and never on the other. Taught together, both start within 1,000 steps.
+
+<Figure n={1} caption="Accuracy over training for the two recipes, two seeds each, on held-out relay and lookup batches. Orange: both skills taught together from the first step. Grey: the relay taught alone first. Dashed lines are seed 1. Switch between the two skills above the chart. Taught one after the other, lookup forms late on seed 0 and never on seed 1; taught together it is above 77% by step 3,000 on both seeds.">
+  <SkillCurves />
+</Figure>
+
+The third recipe teaches both together from step 0, with everything else as in the second. Both skills formed on both seeds:
+
+| Recipe | Seed | Relay, shared / cut | Lookup, attached / removed | English | Code |
+|---|---|---|---|---|---|
+| Relay first | 0 | 100.0% / 0.5% | 90.3% / 0.6% | 1.316 | 1.606 |
+| Relay first | 1 | 100.0% / 1.8% | 1.4% / 1.4% | 1.326 | 1.644 |
+| **Both together** | 0 | **100.0%** / 0.9% | **94.0%** / 1.5% | 1.320 | 1.612 |
+| **Both together** | 1 | **100.0%** / 1.0% | **94.3%** / 1.7% | 1.328 | 1.636 |
+
+Lookup reached 77% (seed 0) and 80% (seed 1) by step 3,000, where the relay-first recipe was still at chance. Language is the same as the relay-first recipe's within seed noise. This is the recipe to use: `--schedule "400:0,0,0.5,0.5;2000:0.3,0.2,0.25,0.25"`.
+
+## What the trained model does
+
+`experiments/show_skills.py` prints both skills in a form a person can read. This is the seed-0 model from the third recipe. Keys and values are synthetic tokens, shown as K and V numbers.
+
+```
+RELAY: agent A reads the facts, agent B is asked for them. Only the board connects them.
+  agent A reads:  K01 -> V39   K57 -> V35   K24 -> V60   K27 -> V26
+  agent B is asked     answer   board shared   board cut
+  K27 ?                V26      V26 ok         V32 --
+  K01 ?                V39      V39 ok         V13 --
+  K24 ?                V60      V60 ok         V26 --
+  K57 ?                V35      V35 ok         V26 --
+
+LOOKUP: a library of 64 tables (1024 facts) the model has never seen.
+  key        answer   library attached   library removed
+  K02 K46    V63      V11 --             V30 --
+  K46 K14    V15      V15 ok             V48 --
+  K61 K56    V00      V00 ok             V59 --
+  K17 K40    V25      V08 --             V48 --
+  K39 K60    V10      V10 ok             V52 --
+  K29 K23    V63      V63 ok             V57 --
+  K07 K39    V15      V15 ok             V46 --
+  K01 K29    V21      V21 ok             V59 --
+  ... 8 more keys in this list
+
+over 50 more examples of each (chance is 1 in 64):
+  relay:  board shared 100.0%, board cut 2.5%
+  lookup: library attached 94.6%, library removed 1.9%
+```
+
+With the board cut, agent B guesses. Twice it repeats V26, the answer that followed its first question in its own text. With the library removed, the model still answers with value tokens, but not the right ones. The output is from `results/full_small/show_skills_exealm_skillsA_seed0.txt`.
+
+## Language: about even with a same-size Llama
+
+At equal steps, on the same batches, two seeds each:
+
+| Model | Seed | English | Japanese wiki | Japanese web | Code | Mean |
+|---|---|---|---|---|---|---|
+| ExeaLM | 0 | **1.320** | **1.422** | **1.322** | **1.612** | **1.419** |
+| Llama | 0 | 1.339 | 1.444 | 1.336 | 1.641 | 1.440 |
+| ExeaLM | 1 | **1.328** | 1.428 | **1.318** | **1.636** | **1.427** |
+| Llama | 1 | 1.332 | **1.426** | 1.319 | 1.637 | 1.428 |
+
+ExeaLM leads by 0.021 bits per byte on seed 0 and by 0.001 on seed 1, 0.011 on average. The Llama's seed 1 is 0.012 better than its seed 0; ExeaLM's is 0.008 worse.
+
+This comparison also flatters ExeaLM. 15% of the steps are relay and lookup batches. ExeaLM learns from them; for the Llama they are noise. In the first recipe, where neither model learned a skill, the Llama matched or beat ExeaLM at equal steps: 1.294 against 1.294 on English, 1.558 against 1.581 on code (Llama first, one seed).
+
+ExeaLM also takes 1.30 times as long per step on the Mac (6,414 seconds against 4,942). We gave the Llama the same time instead of the same steps: 31,200 steps against ExeaLM's 24,000, seed 0, with the relay-first recipe. The two tie: 1.414 bits per byte for the Llama against 1.416 for ExeaLM. We have not profiled where the extra 30% goes. The likely places are the board posts every 8 tokens and the search, both plain PyTorch, while attention runs as one fused kernel.
+
+At the size we plan to train, the picture is better for ExeaLM on language. Without the memory circuits, the 0.1B hybrid leads a same-size Llama at equal compute by 0.024 bits per byte over two seeds ([the 0.1B results](/posts/hybrid-beats-llama/)). Those runs are short, about 50M tokens each.
+
+## Where the project stands
+
+<CardList>
+
+- **The board** works at 17M on the relay: 100% against 1% with it cut, both seeds. On real text, the gain from training as a swarm has not held up. Yesterday we reported 0.012 bits per byte over a matched control. Rerun with the seam fix, the swarm came out 0.033 to 0.035 worse than its control, on both seeds. Rerun with the fix switched off, the two tie (1.628 against 1.627, one seed). Hiding one target in 512 cannot explain swings that large. We are checking whether the same run gives the same answer twice on the Mac's GPU. Until then the real-text swarm gain is unproven; a correction to yesterday's post will follow.
+- **The library** works on facts it has never seen: 94% against 1.6%, both seeds. On real Wikipedia it gives nothing yet: -0.072 and -0.011 bits per token at the end, after swinging to -0.48 at step 21,000 on seed 0. The search finds the right article 26% of the time. That is [issue #22](https://github.com/exea-labs/ExeaLM/issues/22).
+- **Against Llama**, ExeaLM ties at 17M on language and leads at 0.1B without the memory circuits. It has not yet been trained at 0.1B with them.
+
+</CardList>
+
+## What this does not show
+
+- **That the skills help on real problems.** Relay and lookup use random keys and values. They show the circuits work inside a model trained on text. Whether agents gain from each other on real documents is still open (the board, above).
+- **Scale.** One size (18M), two seeds, 393M tokens. Equal compute was run on one seed.
+- **A clean language comparison.** The synthetic batches cost the Llama more than ExeaLM. A Llama trained on text and Wikipedia only is queued; it measures what the two skills cost in language.
+- **Speed.** ExeaLM is 1.30 times slower per step, measured on one Mac GPU, uncompiled.
+
+## Next
+
+- **The same recipe at 0.1B**, 3,000 steps, to see whether both skills form at full size. It is queued on the Mac Studio.
+- **The circuit search**, switched on and scoring circuits on the training mix, so it cannot drop a circuit the skills need. Queued after it.
+- **Stronger baselines.** The text-only Llama, then a Qwen3.5-style hybrid with Gated DeltaNet layers, the strongest small open design that mixes recurrent layers with attention.
+- **Real-text retrieval** ([#22](https://github.com/exea-labs/ExeaLM/issues/22)): a search that finds the right article.

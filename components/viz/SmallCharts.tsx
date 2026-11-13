@@ -8,6 +8,7 @@ import lookup from "@/data/lookup.json";
 import swarm from "@/data/swarm_text.json";
 import tok from "@/data/tokenizer.json";
 import wiki from "@/data/rag_wiki.json";
+import full from "@/data/full_small.json";
 import { Axis, C, DOMAIN_NAMES, Swatch, Toggle, useReveal, useWidth } from "./chart";
 
 type Lang = "en" | "ja";
@@ -154,6 +155,49 @@ export function LookupChart({ lang = "en" }: { lang?: Lang }) {
         )}
         <motion.path d={mk([start, ...none.curve.map((c) => ({ step: c.step, v: c.attached }))]) ?? ""} fill="none" stroke={C.llama} strokeWidth={2} initial={{ pathLength: 0 }} animate={show ? { pathLength: 1 } : {}} transition={{ duration: 1.2 }} />
         <motion.path d={mk([start, ...rag.curve.map((c) => ({ step: c.step, v: c.attached }))]) ?? ""} fill="none" stroke={C.exea} strokeWidth={2.4} initial={{ pathLength: 0 }} animate={show ? { pathLength: 1 } : {}} transition={{ duration: 1.4, delay: 0.2 }} />
+      </svg>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------- the 17M full model: skills over training */
+
+export function SkillCurves({ lang = "en" }: { lang?: Lang }) {
+  const T = lang === "ja"
+    ? { lookup: "検索（ライブラリの事実）", relay: "中継（掲示板）", together: "両方を同時に", first: "中継を先に", seed: "シード", chance: "偶然（1.6%）", x: "学習ステップ", y: "正答率", skill: "スキル" }
+    : { lookup: "Lookup (library)", relay: "Relay (board)", together: "Both together", first: "Relay first", seed: "seed", chance: "chance (1.6%)", x: "training step", y: "accuracy", skill: "Skill" };
+  const [skill, setSkill] = useState<"lookup" | "relay">("lookup");
+  const { ref: box, w } = useWidth<HTMLDivElement>();
+  const { ref, show } = useReveal<SVGSVGElement>();
+  type Row = { step: number; relay_shared?: number; lookup_attached?: number | null };
+  const runs = (full.runs as { recipe: string; seed: number; curve: Row[] }[]).filter((r) => r.recipe === "together" || r.recipe === "relay_first");
+  const h = 290;
+  const m = { t: 14, r: 16, b: 36, l: 48 };
+  const x = scaleLinear().domain([0, 24000]).range([m.l, w - m.r]);
+  const y = scaleLinear().domain([0, 1]).range([h - m.b, m.t]);
+  type P = { step: number; v: number };
+  const mk = line<P>().x((p) => x(p.step)).y((p) => y(p.v)).curve(curveMonotoneX);
+  const val = (c: Row) => (skill === "lookup" ? c.lookup_attached ?? 0 : c.relay_shared ?? 0);
+  const order = [...runs].sort((a, b) => (a.recipe === b.recipe ? a.seed - b.seed : a.recipe === "relay_first" ? -1 : 1));
+  const style = (r: { recipe: string; seed: number }) => ({ color: r.recipe === "together" ? C.exea : C.llama, dash: r.seed === 1 ? "5 4" : undefined });
+  return (
+    <div ref={box} className="p-2 sm:p-4">
+      <div className="mb-1 flex flex-wrap items-start justify-between gap-3">
+        <Legend items={[{ color: C.exea, label: `${T.together}, ${T.seed} 0` }, { color: C.exea, label: `${T.together}, ${T.seed} 1`, dashed: true }, { color: C.llama, label: `${T.first}, ${T.seed} 0` }, { color: C.llama, label: `${T.first}, ${T.seed} 1`, dashed: true }]} />
+        <Toggle label={T.skill} value={skill} onChange={setSkill} options={[{ v: "lookup", label: T.lookup }, { v: "relay", label: T.relay }]} />
+      </div>
+      <svg ref={ref} width={w} height={h} className="block max-w-full" role="img" aria-label={`${T.y} / ${T.x}`}>
+        <Axis x={m.l} y={0} orient="left" ticks={[0, 0.25, 0.5, 0.75, 1].map((v) => ({ v, p: y(v) }))} fmt={pct} length={w - m.r - m.l} />
+        <Axis x={0} y={h - m.b + 6} orient="bottom" ticks={[0, 6000, 12000, 18000, 24000].map((v) => ({ v, p: x(v) }))} fmt={(v) => v.toLocaleString()} length={0} />
+        <line x1={m.l} x2={w - m.r} y1={y(full.chance)} y2={y(full.chance)} stroke={C.mute} strokeDasharray="2 4" />
+        <text x={w - m.r} y={y(full.chance) - 6} textAnchor="end" fontSize="0.6562rem" fill={C.mute}>{T.chance}</text>
+        {order.map((r) => {
+          const st = style(r);
+          const d = mk([{ step: 0, v: full.chance }, ...r.curve.map((c) => ({ step: c.step, v: val(c) }))]) ?? "";
+          return (
+            <path key={`${r.recipe}${r.seed}`} d={d} fill="none" stroke={st.color} strokeWidth={r.recipe === "together" ? 2.4 : 2} strokeDasharray={st.dash} style={{ opacity: show ? 1 : 0, transition: "opacity 0.6s ease" }} />
+          );
+        })}
       </svg>
     </div>
   );

@@ -14,6 +14,7 @@ const SwarmTextChart = dynamic(() => import("@/components/viz/SmallCharts").then
 const LookupChart = dynamic(() => import("@/components/viz/SmallCharts").then((m) => m.LookupChart));
 const TokenizerChart = dynamic(() => import("@/components/viz/SmallCharts").then((m) => m.TokenizerChart));
 const HitRate = dynamic(() => import("@/components/viz/SmallCharts").then((m) => m.HitRate));
+const SkillCurves = dynamic(() => import("@/components/viz/SmallCharts").then((m) => m.SkillCurves));
 const EqualCompute = dynamic(() => import("@/components/viz/EqualCompute").then((m) => m.EqualCompute));
 const LossCurves = dynamic(() => import("@/components/viz/LossCurves").then((m) => m.LossCurves));
 const SpeedBars = dynamic(() => import("@/components/viz/SpeedBars").then((m) => m.SpeedBars));
@@ -52,6 +53,7 @@ export function mdxComponents(lang: Lang, order: string[] = []) {
     LookupChart: withLang(LookupChart),
     TokenizerChart: withLang(TokenizerChart),
     HitRate: withLang(HitRate),
+    SkillCurves: withLang(SkillCurves),
     EqualCompute: withLang(EqualCompute),
     LossCurves: withLang(LossCurves),
     SpeedBars: withLang(SpeedBars),

@@ -71,6 +71,11 @@ def leaderboard(rows):
     return dict(reference_llama_13M=round(ref, 4), rows=keep)
 
 
+def LLAMA_90M(rows):
+    """The 0.1B Llama at 3,000 s: seed 0, and seed 1 as rerun at normal speed (the first seed-1 run was on a slowed Mac)."""
+    return avg(pick(rows, "eqt_100m_llama") + pick(rows, "eqt_100m_llama_s1_rerun"))
+
+
 def comparisons(rows):
     """Hybrid vs a same-size Llama, at equal steps and at equal training time, by model size."""
     L = lambda tag, model=None, lr=None: avg(pick(rows, tag, model, lr))
@@ -84,13 +89,13 @@ def comparisons(rows):
         dict(size="27M", budget=1000, hybrid=L("eqt_mid_hybrid"), llama=L("eqt_mid_llama"), note="1,000 s, 2 seeds"),
         dict(size="48M", budget=2000, hybrid=avg(pick(rows, "eqt_big_attn6") + pick(rows, "eqt_big_attn6_s1")),
              llama=avg(pick(rows, "eqt_big_llama") + pick(rows, "eqt_big_llama_s1")), note="2,000 s, 2 seeds, 6 attention + 4 TONN"),
-        dict(size="90M", budget=3000, hybrid=avg(pick(rows, "eqt_100m_hybrid_lr1e3") or pick(rows, "eqt_100m_hybrid")),
-             llama=avg(pick(rows, "eqt_100m_llama") + pick(rows, "eqt_100m_llama_s1")), note="3,000 s, the 0.1B design, both at lr 1e-3, seed 0"),
+        dict(size="90M", budget=3000, hybrid=avg(pick(rows, "eqt_100m_hybrid_lr1e3") + pick(rows, "eqt_100m_hybrid_lr1e3_s1")),
+             llama=LLAMA_90M(rows), note="3,000 s, the 0.1B design, both at lr 1e-3, 2 seeds"),
     ]
     big_first = dict(size="48M", budget=2000, hybrid=L("eqt_big_hybrid"), llama=L("eqt_big_llama"),
                      note="2,000 s, seed 0, first try: 5 attention + 5 TONN at lr 2e-3")
-    lr_90m = dict(size="90M", budget=3000, hybrid=L("eqt_100m_hybrid"), llama=L("eqt_100m_llama"),
-                  note="3,000 s, hybrid at lr 1.5e-3, Llama at 1e-3, seed 0")
+    lr_90m = dict(size="90M", budget=3000, hybrid=avg(pick(rows, "eqt_100m_hybrid") + pick(rows, "eqt_100m_hybrid_s1_rerun")),
+                  llama=LLAMA_90M(rows), note="3,000 s, hybrid at lr 1.5e-3, Llama at 1e-3, 2 seeds")
     return dict(equal_steps=[c for c in eq_steps if c["hybrid"] and c["llama"]],
                 equal_time=[c for c in eq_time if c["hybrid"] and c["llama"]], first_48M=big_first, alt_90M=lr_90m)
 
@@ -98,7 +103,7 @@ def comparisons(rows):
 def curves(rows):
     """Training loss against wall-clock seconds for the 0.1B equal-compute pair (and any seed-1 runs)."""
     out = []
-    for tag in ("eqt_100m_hybrid_lr1e3", "eqt_100m_hybrid", "eqt_100m_llama", "eqt_100m_hybrid_s1", "eqt_100m_llama_s1", "eqt_big_attn6", "eqt_big_llama"):
+    for tag in ("eqt_100m_hybrid_lr1e3", "eqt_100m_hybrid", "eqt_100m_llama", "eqt_100m_hybrid_lr1e3_s1", "eqt_100m_hybrid_s1_rerun", "eqt_100m_llama_s1_rerun", "eqt_big_attn6", "eqt_big_llama"):
         for r in pick(rows, tag):
             tl = r.get("train_loss_every_250") or []
             spp = r["secs"] / r["steps"]
@@ -153,6 +158,33 @@ def swarm_text(res):
                 out.append(dict(kind=kind, seed=j["args"]["seed"], arm=r["arm"], shared=fin["shared"]["bpb"], cut=fin["cut"]["bpb"],
                                 shared_per_agent=fin["shared"].get("per_agent"), cut_per_agent=fin["cut"].get("per_agent")))
     return out
+
+
+FULL_SMALL = {  # result file tag -> recipe name (24,000-step runs only; the short checks live in the README)
+    "exealm": "first", "llama": "llama_first", "exealm_skills": "relay_first", "exealm_skillsA": "together",
+    "llama_skills": "llama", "llama_skills_eqc": "llama_same_time", "llama_textonly": "llama_text_only",
+}
+
+
+def full_small(res):
+    """The 17M full model (experiments/full_small.py): skill and language curves for every 24,000-step run."""
+    runs = []
+    for f in sorted(glob.glob(os.path.join(res, "full_small", "full_small_*_seed*.json"))):
+        m = re.match(r"full_small_(.+)_seed(\d+)\.json", os.path.basename(f))
+        if not m or m.group(1) not in FULL_SMALL:
+            continue
+        j = load(f)
+        curve = []
+        for c in j["curve"]:
+            row = dict(step=c["step"], secs=c["secs"], **{d: c[f"val_{d}"]["removed"] for d in DOMS})
+            if "relay" in c:
+                row.update(relay_shared=c["relay"]["shared"], relay_cut=c["relay"]["cut"])
+            if "lookup" in c:
+                row.update(lookup_attached=c["lookup"].get("attached"), lookup_removed=c["lookup"]["removed"])
+            curve.append(row)
+        runs.append(dict(recipe=FULL_SMALL[m.group(1)], model=j["model"], seed=int(m.group(2)), params=j["params"],
+                         steps=j["args"]["steps"], source=f"results/full_small/{os.path.basename(f)}", curve=curve))
+    return dict(chance=1 / 64, runs=runs)
 
 
 def rag_wiki(res):
@@ -238,7 +270,7 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     rows = lm_rows(res)
     files = dict(leaderboard=leaderboard(rows), comparisons=comparisons(rows), curves=curves(rows), speed=speed(res),
-                 relay=relay(res), lookup=lookup(res), swarm_text=swarm_text(res), rag_wiki=rag_wiki(res),
+                 relay=relay(res), lookup=lookup(res), swarm_text=swarm_text(res), rag_wiki=rag_wiki(res), full_small=full_small(res),
                  tokenizer=tokenizer(res), timeline=timeline(os.path.join(OUT, "raw")))
     c = contributors("exea-labs/ExeaLM")
     if c is not None:

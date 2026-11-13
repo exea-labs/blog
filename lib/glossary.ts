@@ -68,6 +68,16 @@ export const GLOSSARY: Term[] = [
     ja: { term: "エージェント掲示板（AG）", def: "エージェント同士が話すための回路。各チャンクのあとにメッセージ（値・キー・強さ）を投稿します。後のチャンクで、掲示板にある前の投稿（仲間の投稿と自分の投稿）をアテンションで読みます。" },
   },
   {
+    id: "relay",
+    en: { term: "Relay task", def: "A test of the board. Agent A reads facts of the form key, value. Agent B is asked for the values and never sees the facts, so it can answer only through the board. Keys and values are random tokens, so chance is 1 in 64." },
+    ja: { term: "中継タスク", def: "掲示板のテストです。エージェント A が「キー、値」の形の事実を読みます。エージェント B は値を聞かれますが、事実を見ることはありません。答えるには掲示板を使うしかありません。キーと値はランダムなトークンなので、偶然の正答率は 64 分の 1 です。" },
+  },
+  {
+    id: "lookup",
+    en: { term: "Lookup task", def: "A test of retrieval. A fresh library of facts, never seen in training, is attached. The model reads a list of keys and must give each value, which exists only in the library. Chance is 1 in 64." },
+    ja: { term: "検索タスク", def: "検索のテストです。学習で一度も見ていない事実のライブラリを新しく付けます。モデルはキーの一覧を読み、それぞれの値を答えます。値はライブラリの中にしかありません。偶然の正答率は 64 分の 1 です。" },
+  },
+  {
     id: "retrieval",
     en: { term: "Retrieval (RG)", def: "The circuit that searches a read-only library of text chunks, using embeddings the model learns itself, and reads the chunks it finds." },
     ja: { term: "検索（RG）", def: "モデル自身が学んだ埋め込みで、テキストチャンクの読み取り専用ライブラリを検索し、見つけたチャンクを読む回路です。" },

@@ -237,38 +237,42 @@
    "size": "90M",
    "budget": 3000,
    "hybrid": {
-    "en": 1.373,
-    "ja_wiki": 1.4505,
-    "ja_web": 1.3391,
-    "code": 1.6918,
-    "mean": 1.4636,
-    "steps": 3152,
-    "secs": 3114,
+    "en": 1.3706,
+    "ja_wiki": 1.4444,
+    "ja_web": 1.3348,
+    "code": 1.6699,
+    "mean": 1.4549,
+    "steps": 3179,
+    "secs": 3058,
     "seeds": [
-     0
+     0,
+     1
     ],
     "params_M": 89.74,
     "sources": [
-     "results/sweep/lm_compare_eqt_100m_hybrid_lr1e3.json"
+     "results/sweep/lm_compare_eqt_100m_hybrid_lr1e3.json",
+     "results/sweep/lm_compare_eqt_100m_hybrid_lr1e3_s1.json"
     ]
    },
    "llama": {
-    "en": 1.3915,
-    "ja_wiki": 1.4679,
-    "ja_web": 1.352,
-    "code": 1.7129,
-    "mean": 1.4811,
-    "steps": 3491,
-    "secs": 2996,
+    "en": 1.3904,
+    "ja_wiki": 1.465,
+    "ja_web": 1.3485,
+    "code": 1.7116,
+    "mean": 1.4789,
+    "steps": 3536,
+    "secs": 3001,
     "seeds": [
-     0
+     0,
+     1
     ],
     "params_M": 89.73,
     "sources": [
-     "results/sweep/lm_compare_eqt_100m_llama.json"
+     "results/sweep/lm_compare_eqt_100m_llama.json",
+     "results/sweep/lm_compare_eqt_100m_llama_s1_rerun.json"
     ]
    },
-   "note": "3,000 s, the 0.1B design, both at lr 1e-3, seed 0"
+   "note": "3,000 s, the 0.1B design, both at lr 1e-3, 2 seeds"
   }
  ],
  "first_48M": {
@@ -312,37 +316,41 @@
   "size": "90M",
   "budget": 3000,
   "hybrid": {
-   "en": 1.3861,
-   "ja_wiki": 1.462,
-   "ja_web": 1.3468,
-   "code": 1.7016,
-   "mean": 1.4741,
-   "steps": 3151,
-   "secs": 3014,
+   "en": 1.3853,
+   "ja_wiki": 1.4575,
+   "ja_web": 1.3452,
+   "code": 1.6936,
+   "mean": 1.4704,
+   "steps": 3184,
+   "secs": 3012,
    "seeds": [
-    0
+    0,
+    1
    ],
    "params_M": 89.74,
    "sources": [
-    "results/sweep/lm_compare_eqt_100m_hybrid.json"
+    "results/sweep/lm_compare_eqt_100m_hybrid.json",
+    "results/sweep/lm_compare_eqt_100m_hybrid_s1_rerun.json"
    ]
   },
   "llama": {
-   "en": 1.3915,
-   "ja_wiki": 1.4679,
-   "ja_web": 1.352,
-   "code": 1.7129,
-   "mean": 1.4811,
-   "steps": 3491,
-   "secs": 2996,
+   "en": 1.3904,
+   "ja_wiki": 1.465,
+   "ja_web": 1.3485,
+   "code": 1.7116,
+   "mean": 1.4789,
+   "steps": 3536,
+   "secs": 3001,
    "seeds": [
-    0
+    0,
+    1
    ],
    "params_M": 89.73,
    "sources": [
-    "results/sweep/lm_compare_eqt_100m_llama.json"
+    "results/sweep/lm_compare_eqt_100m_llama.json",
+    "results/sweep/lm_compare_eqt_100m_llama_s1_rerun.json"
    ]
   },
-  "note": "3,000 s, hybrid at lr 1.5e-3, Llama at 1e-3, seed 0"
+  "note": "3,000 s, hybrid at lr 1.5e-3, Llama at 1e-3, 2 seeds"
  }
 }
