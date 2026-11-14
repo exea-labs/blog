@@ -1,9 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 
-/** Runs before paint (inline in <head>) so the page never flashes the wrong palette. Night is the default. */
-export const THEME_SCRIPT = `document.documentElement.classList.add("js");try{var t=localStorage.getItem("theme");document.documentElement.dataset.theme=t==="day"?"day":"night"}catch(e){document.documentElement.dataset.theme="night"}`;
-
 export function ThemeButton({ label }: { label: { day: string; night: string } }) {
   const [theme, setTheme] = useState<"day" | "night">("night");
   useEffect(() => setTheme(document.documentElement.dataset.theme === "day" ? "day" : "night"), []);

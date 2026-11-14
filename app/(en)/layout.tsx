@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "../globals.css";
 import { fontVars } from "@/lib/fonts";
 import { SITE, t } from "@/lib/i18n";
-import { THEME_SCRIPT } from "@/components/site/Theme";
+import { THEME_SCRIPT } from "@/lib/theme-script";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),

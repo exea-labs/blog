@@ -2,7 +2,7 @@ import "./globals.css";
 import { fontVars } from "@/lib/fonts";
 import { ExeaMark } from "@/components/site/Logo";
 import { Frame } from "@/components/site/Frame";
-import { THEME_SCRIPT } from "@/components/site/Theme";
+import { THEME_SCRIPT } from "@/lib/theme-script";
 
 export const metadata = { title: "Not found | Exea Labs Blog" };
 
