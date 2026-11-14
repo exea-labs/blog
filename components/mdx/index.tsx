@@ -1,6 +1,7 @@
 import { Figure, Note, Correction, makeH2, H3, Table } from "./Blocks";
 import { Term } from "./Term";
 import { Stat, Sketch, CardList, TokenReturns, KeySplit, SeamDiagram, AgentGain } from "@/components/viz/Inline";
+import { LayerStacks, MemoryTest, NotesTrust } from "@/components/viz/Day4Diagrams";
 import dynamic from "next/dynamic";
 
 // Each figure is its own chunk: a post downloads only the figures it uses.
@@ -17,6 +18,9 @@ const HitRate = dynamic(() => import("@/components/viz/SmallCharts").then((m) =>
 const SkillCurves = dynamic(() => import("@/components/viz/SmallCharts").then((m) => m.SkillCurves));
 const EqualCompute = dynamic(() => import("@/components/viz/EqualCompute").then((m) => m.EqualCompute));
 const QwenCompare = dynamic(() => import("@/components/viz/QwenCompare").then((m) => m.QwenCompare));
+const GateCurves = dynamic(() => import("@/components/viz/Day4Charts").then((m) => m.GateCurves));
+const IrlGains = dynamic(() => import("@/components/viz/Day4Charts").then((m) => m.IrlGains));
+const SwarmReruns = dynamic(() => import("@/components/viz/Day4Charts").then((m) => m.SwarmReruns));
 const LossCurves = dynamic(() => import("@/components/viz/LossCurves").then((m) => m.LossCurves));
 const SpeedBars = dynamic(() => import("@/components/viz/SpeedBars").then((m) => m.SpeedBars));
 const SweepTimeline = dynamic(() => import("@/components/viz/SweepTimeline").then((m) => m.SweepTimeline));
@@ -57,6 +61,12 @@ export function mdxComponents(lang: Lang, order: string[] = []) {
     SkillCurves: withLang(SkillCurves),
     EqualCompute: withLang(EqualCompute),
     QwenCompare: withLang(QwenCompare),
+    GateCurves: withLang(GateCurves),
+    IrlGains: withLang(IrlGains),
+    SwarmReruns: withLang(SwarmReruns),
+    LayerStacks: withLang(LayerStacks),
+    MemoryTest: withLang(MemoryTest),
+    NotesTrust: withLang(NotesTrust),
     LossCurves: withLang(LossCurves),
     SpeedBars: withLang(SpeedBars),
     SweepTimeline: withLang(SweepTimeline),

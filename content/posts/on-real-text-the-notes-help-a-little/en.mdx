@@ -43,6 +43,10 @@ The first half reaches the model by one of three paths, each through a different
 
 For scale there are two ordinary baselines: the end of the first half pasted into the context, and BM25's top 4 chunks pasted into the context, which is ordinary RAG. The test is `experiments/irl_eval.py`.
 
+<Figure n={1} caption="The real-text test. Each held-out article is split in half. A rare word from the first half that comes back in the second half is a re-mention, and the model is scored on those. The first half reaches the model by one of three paths: the library, searched by the retrieval circuit; a second agent reading it live, heard through the board circuit; or notes a reader wrote ahead of time, read through the board circuit.">
+  <MemoryTest />
+</Figure>
+
 ## Before practice, no path helps
 
 The starting checkpoints are yesterday's 18M models, both seeds. Gain in bits per re-mention against no memory; higher is better:
@@ -62,16 +66,16 @@ None of the paths help. A perfect search makes seed 0 a full bit worse. The libr
 
 Each fine-tune starts from the seed-0 checkpoint. Real-text practice means two changes to the training mix. Half of the Wikipedia batches get the right article from the search. Article-pair batches add a reader of the first half whose board posts are visible from the first token, the way stored notes are read.
 
-Gain in bits per re-mention against no memory; the first 256 positions in brackets:
+Gain in bits per re-mention against no memory. "Library" is the model's own search; "perfect" hands it the right article:
 
-| Fine-tune | Steps | No memory (bits) | Library, own search | Library, perfect search | Board, live | Notes, own article | Notes, all articles |
-|---|---|---|---|---|---|---|---|
-| Control: the old mix, more steps | 4,000 | 8.546 | -0.347 | -2.386 | +0.002 | -0.005 | -0.010 |
-| Real-text practice | 4,000 | 8.351 | -0.007 | -0.007 | +0.004 | +0.023 (+0.036) | +0.001 |
-| The same, BM25 search in training | 4,000 | 8.334 | -0.015 | -0.001 | +0.005 | +0.022 (+0.035) | -0.003 |
-| The same, with a read-nothing entry | 4,000 | 8.353 | -0.005 | +0.001 | +0.004 | +0.023 (+0.036) | +0.002 |
-| The same, 3 retrieval and 3 board circuits per TONN layer | 2,000 | 8.532 | -0.052 | -0.136 | **+0.011** | **+0.039 (+0.059)** | **+0.014** |
-| The same, 3 and 3, longer | 8,000 | **8.181** | -0.009 | -0.012 | +0.006 | +0.024 (+0.040) | -7.924 |
+| Fine-tune | No memory (bits) | Library | Library, perfect | Board, live | Notes, own | Notes, all |
+|---|---|---|---|---|---|---|
+| Control: the old mix, 4,000 steps | 8.546 | -0.347 | -2.386 | +0.002 | -0.005 | -0.010 |
+| Real-text practice, 4,000 steps | 8.351 | -0.007 | -0.007 | +0.004 | +0.023 | +0.001 |
+| The same, BM25 search in training | 8.334 | -0.015 | -0.001 | +0.005 | +0.022 | -0.003 |
+| The same, with a read-nothing entry | 8.353 | -0.005 | +0.001 | +0.004 | +0.023 | +0.002 |
+| The same, 3 retrieval and 3 board circuits per TONN layer, 2,000 steps | 8.532 | -0.052 | -0.136 | **+0.011** | **+0.039** | **+0.014** |
+| The same, 3 and 3, 8,000 steps | **8.181** | -0.009 | -0.012 | +0.006 | +0.024 | -7.924 |
 
 For scale, the end of the first half in the context gains 0.98 to 1.05 bits (first 256 positions). BM25 RAG gains 0.32 to 0.36 (positions 64 to 255).
 
@@ -79,7 +83,13 @@ For scale, the end of the first half in the context gains 0.98 to 1.05 bits (fir
 - With real-text practice the library is harmless (about -0.01) but not helpful. The model learns to ignore it.
 - A read-nothing entry, which lets the retrieval read attend to nothing, changes nothing. The read's problem on prose is not that it cannot abstain.
 
+<Figure n={2} caption="The same gains as a chart, one memory path at a time, with the starting checkpoint at the top. Bars to the right of zero are gains. Pick a path above the chart; each path has its own scale. Notes on the right article give the largest gains. Notes from all articles show the 8,000-step model's collapse. Point at a bar for the four-choice score.">
+  <IrlGains />
+</Figure>
+
 ## Notes from a reader are the one path that helps
+
+<Stat value="+0.039" label="bits per re-mentioned rare word from a reader's notes, the best built-in path. Ordinary BM25 RAG gains 0.34." />
 
 Notes written by a reader of the article gain 0.022 to 0.023 bits after 4,000 steps of practice, and 0.035 to 0.036 in the first 256 positions. Three board circuits per TONN layer instead of one raised the gain to 0.039 (0.059 in the first 256) in 2,000 steps. A live second agent went from +0.004 to +0.011. A board post is 32 numbers per 8 tokens per board circuit, so capacity seemed to be the limit.
 
@@ -93,21 +103,21 @@ With the notes of all 256 articles on the board at once, it fails. Re-mentions g
 
 The likely cause is the practice itself. In every article-pair batch, the board held notes on the right article and nothing else. The model learned to trust whatever is on its board. It never had to ignore a note on the wrong article. The fix is to train with distractors: notes from other articles next to the right ones, so the read has to select. A second fix bounds the problem from the other side. Search the stored notes by key and put only the top few on the board ([#28](https://github.com/exea-labs/ExeaLM/issues/28)).
 
+<Figure n={3} caption="Why the notes broke. In practice, the board only ever held notes on the right article, so the model learned to trust whatever the board holds. At test time the board holds the notes of 256 articles, one of them right, and the model trusts the wrong ones too.">
+  <NotesTrust />
+</Figure>
+
 ## A correction: the swarm gain on real text is unproven
 
 <Correction title="Reruns did not confirm the swarm gain on real text">
   <p>On day 2 we reported that the hybrid trained as a swarm beats a matched control on real text by 0.014 bits per byte, then 0.012 after the seam leak Aaron found. Reruns range from 0.015 better to 0.035 worse than the control. Runs of the same configuration differ by up to 0.012. For the hybrid, the swarm gain on real text is unproven.</p>
 </Correction>
 
-We reran it with the seam targets hidden (the fix) and with them kept. Swarm minus control in bits per byte; below zero, the swarm is better:
+We reran it with the seam targets hidden (the fix) and with them kept.
 
-| Model | Seam targets | Seed 0 | Seed 1 |
-|---|---|---|---|
-| Pure TONN | kept (the original run) | -0.006 | |
-| Pure TONN | hidden | -0.007 | |
-| Hybrid | kept (the original run) | -0.015 | -0.012 |
-| Hybrid | hidden | +0.035 | +0.033 |
-| Hybrid | kept, rerun | +0.001 | -0.014 |
+<Figure n={4} caption="Swarm minus its matched control, bits per byte, for every run. Left of zero, the swarm is better. Filled dots are seed 0, hollow dots seed 1. Orange rows are the hybrid. The grey band is the largest difference between two runs of the same setup on the Mac's GPU. The original hybrid runs sat just outside it. The reruns land on both sides of zero. Hiding the seams pushes the swarm well past the band on the wrong side. Point at a dot for both scores.">
+  <SwarmReruns />
+</Figure>
 
 - Runs of the same configuration differ by up to 0.012. The hybrid's control with seam targets kept scored 1.639, then 1.627, on seed 0. The seam-hidden swarm scored 1.654, then 1.647. Training on the Mac's GPU is not deterministic. With two seeds per arm, differences under about 0.015 cannot be told apart from that noise.
 - Hiding the seam targets makes the hybrid swarm worse than its control by 0.033 to 0.035 on both seeds. Hiding one target in 512 should not do that. We have not found why.

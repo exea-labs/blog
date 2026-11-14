@@ -289,6 +289,68 @@ def team(org):
         return None
 
 
+IRL = [  # (key, result file): the real-text memory test (experiments/irl_eval.py), results/README.md section 13
+    ("start", "full_small/irl_exealm_skillsA_seed0.json"),
+    ("control", "irl/irl_exealm_ft_ctrl_seed0.json"),
+    ("practice", "irl/irl_exealm_ft_irl_seed0.json"),
+    ("practice_bm25", "irl/irl_exealm_ft_lex_seed0.json"),
+    ("practice_null", "irl/irl_exealm_ft_null_seed0.json"),
+    ("wide_2k", "irl/irl_exealm_ft_wide_seed0.json"),
+    ("wide_8k", "irl/irl_exealm_ft_wide_long_seed0.json"),
+]
+IRL_PATHS = ("library", "library, perfect search", "board, live (swarm of 2)", "notes, own article", "notes, all articles")
+
+
+def irl(res):
+    """Gain in bits per re-mention against no memory, per fine-tune and memory path, plus the ordinary baselines."""
+    rows = []
+    for key, f in IRL:
+        fp = os.path.join(res, f)
+        if not os.path.exists(fp):
+            continue
+        r = load(fp)["results"]
+        none = r["none"]["re-mention"]
+        gain = {k: round(none - r[k]["re-mention"], 4) for k in IRL_PATHS if k in r}
+        four = {k: r[k].get("re-mention 4-choice") for k in ("none", *IRL_PATHS) if k in r}
+        base = {}
+        if "in context (first 256)" in r:
+            base["in_context_first256"] = round(r["none (first 256)"]["re-mention"] - r["in context (first 256)"]["re-mention"], 4)
+        if "BM25 top-4 in context (64-255)" in r:
+            base["bm25_rag_64_255"] = round(r["none (64-255)"]["re-mention"] - r["BM25 top-4 in context (64-255)"]["re-mention"], 4)
+        rows.append(dict(key=key, none=round(none, 4), gain=gain, four_choice=four, baselines=base, source=f"results/{f}"))
+    return rows
+
+
+SWARM_RERUNS = [  # (model, seam targets, swarm dir, control dir): results/README.md section 2
+    ("pure TONN", "kept", "swarm_text", "swarm_text/ctrl_split_solo"),
+    ("pure TONN", "hidden", "swarm_text_fix", "swarm_text_fix"),
+    ("hybrid", "kept", "swarm_text_hybrid", "swarm_text_hybrid"),
+    ("hybrid", "hidden", "swarm_text_hybrid_fix", "swarm_text_hybrid_fix"),
+    ("hybrid", "kept, rerun", "swarm_text_hybrid_nomask", "swarm_text_hybrid_nomask"),
+]
+
+
+def swarm_reruns(res):
+    """Swarm (board shared) minus the matched control, per setting and seed; and the repeats of identical setups."""
+    out = []
+    for model, seam, sd, cd in SWARM_RERUNS:
+        for f in sorted(glob.glob(os.path.join(res, sd, "text_seed*.json"))):
+            seed = load(f)["args"]["seed"]
+            sw = {r["arm"]: r["final"] for r in load(f)["runs"]}.get("split")
+            cf = os.path.join(res, cd, os.path.basename(f))
+            ct = {r["arm"]: r["final"] for r in load(cf)["runs"]}.get("split_solo") if os.path.exists(cf) else None
+            if sw and ct:
+                out.append(dict(model=model, seam=seam, seed=seed, swarm=sw["shared"]["bpb"], control=ct["cut"]["bpb"],
+                                diff=round(sw["shared"]["bpb"] - ct["cut"]["bpb"], 4), source=f"results/{sd}/{os.path.basename(f)}"))
+    rep = load(os.path.join(res, "swarm_text_hybrid_fix_repeat", "text_seed0.json"))["runs"][0]["final"]["shared"]["bpb"]
+    first = next(r["swarm"] for r in out if r["model"] == "hybrid" and r["seam"] == "hidden" and r["seed"] == 0)
+    ctrl = {(r["seam"], r["seed"]): r["control"] for r in out if r["model"] == "hybrid"}
+    repeats = [dict(what="hybrid swarm, seams hidden, seed 0", a=first, b=rep),
+               dict(what="hybrid control, seams kept, seed 0", a=ctrl[("kept", 0)], b=ctrl[("kept, rerun", 0)]),
+               dict(what="hybrid control, seams kept, seed 1", a=ctrl[("kept", 1)], b=ctrl[("kept, rerun", 1)])]
+    return dict(rows=out, repeats=repeats, noise=round(max(abs(r["a"] - r["b"]) for r in repeats), 4))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--exealm", default=os.path.join(os.path.dirname(__file__), "..", "..", "ExeaLM"))
@@ -297,7 +359,7 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     rows = lm_rows(res)
     files = dict(leaderboard=leaderboard(rows), comparisons=comparisons(rows), curves=curves(rows), speed=speed(res),
-                 relay=relay(res), lookup=lookup(res), swarm_text=swarm_text(res), rag_wiki=rag_wiki(res), full_small=full_small(res), qwen=qwen(rows),
+                 relay=relay(res), lookup=lookup(res), swarm_text=swarm_text(res), rag_wiki=rag_wiki(res), full_small=full_small(res), qwen=qwen(rows), irl=irl(res), swarm_reruns=swarm_reruns(res),
                  tokenizer=tokenizer(res), timeline=timeline(os.path.join(OUT, "raw")))
     c = contributors("exea-labs/ExeaLM")
     if c is not None:

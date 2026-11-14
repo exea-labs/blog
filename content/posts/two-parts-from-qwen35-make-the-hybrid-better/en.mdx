@@ -43,6 +43,10 @@ Gated DeltaNet is in `exealm/model/delta.py`, in plain PyTorch, with a test that
 
 The **Qwen3.5-style baseline** is a Llama with Gated DeltaNet at layers 0, 1, 2 and 4, and gated attention with QK-norm at layers 3 and 5. That is the small Qwen3.5 models' pattern, three DeltaNet layers before each attention layer, cut to six layers. Everything else matches our other baselines: width, depth, vocabulary, MLPs and training. A [figure in the repository](https://github.com/exea-labs/ExeaLM/blob/main/docs/figures/arch_compare.png) draws all three models block by block.
 
+<Figure n={1} caption="The three 13M models, layer 0 at the bottom. Grey outlines are plain attention, orange outlines are gated attention with QK-norm, hatched plates are Gated DeltaNet and plates with dots are TONN layers. Right: inside one gated attention layer. The attention output is multiplied, channel by channel, by a gate computed from the layer's input. The queries and keys are normalised before they are compared.">
+  <LayerStacks />
+</Figure>
+
 **Setup.** 13M parameters: width 256, six layers, the 32k vocabulary. 3,000 steps of 32 sequences of 512 tokens (49M tokens), learning rate 2e-3, on the Mac Studio's GPU. The hybrid is the default 2:1 layout, with <Term id="tonn">TONN</Term> layers at 0 and 3 and attention in the other four, without memory circuits. Every model is scored in <Term id="bpb">bits per byte</Term> on held-out English, Japanese Wikipedia, Japanese web text and code. The tables give the mean of the four.
 
 ## At equal steps, the gate and QK-norm help both models
@@ -61,13 +65,15 @@ The **Qwen3.5-style baseline** is a Llama with Gated DeltaNet at layers 0, 1, 2 
 - With them the hybrid leads the Qwen3.5-style model by 0.009 on both seeds. Its lead is largest on code (1.708 against 1.728 on seed 0).
 - The two parts help Llama as well, by 0.019 on seed 0. They are not specific to the hybrid. Against the gated Llama the hybrid leads by 0.014.
 
-<Figure n={1} caption="Mean bits per byte at 13M on held-out English, Japanese and code, lower is better. Each dot is one training run, filled for seed 0 and hollow for seed 1. The vertical mark is the mean of the seeds run. Switch between equal steps and equal training time, or pick one kind of text, above the chart. ExeaLM's rows are orange, and the bold row is the new default. At equal steps the gated hybrid leads every baseline on both seeds. At equal time it leads the gated Llama by 0.006.">
+<Figure n={2} caption="Mean bits per byte at 13M on held-out English, Japanese and code, lower is better. Each dot is one training run, filled for seed 0 and hollow for seed 1. The vertical mark is the mean of the seeds run. Switch between equal steps and equal training time, or pick one kind of text, above the chart. ExeaLM's rows are orange, and the bold row is the new default. At equal steps the gated hybrid leads every baseline on both seeds. At equal time it leads the gated Llama by 0.006.">
   <QwenCompare />
 </Figure>
 
 ## At equal training time the lead shrinks to 0.006
 
 <Term id="equal-compute">Equal compute</Term> gives each model the same training time: 600 seconds on the Mac Studio, one model at a time with nothing else on the GPU, seed 0. Each takes as many steps as it can, with its learning-rate schedule stretched to fit.
+
+<Stat value="0.006" label="bits per byte the gated hybrid leads the gated Llama by at equal training time (600 s, one seed). Llama without the gate is 0.033 behind." />
 
 | Model | Steps in 600 s | English | Japanese wiki | Japanese web | Code | Mean |
 |---|---|---|---|---|---|---|
@@ -92,22 +98,31 @@ We tried two more things on top of the gated hybrid, on seed 0.
 
 The 18M model from yesterday's post is the hybrid at width 320, with a retrieval circuit and a board circuit in each TONN layer. It trains for 24,000 steps on text, Wikipedia, <Term id="relay">relay</Term> and <Term id="lookup">lookup</Term> batches. We trained it again with the gate and QK-norm, seed 0.
 
-| Model | Parameters | English | Japanese wiki | Japanese web | Code | Mean | Relay, shared / cut | Lookup, attached / removed |
-|---|---|---|---|---|---|---|---|---|
-| ExeaLM | 18.08M | 1.320 | 1.422 | 1.322 | 1.612 | 1.419 | 100.0% / 0.9% | 94.0% / 1.5% |
-| **ExeaLM + gate + QK-norm** | 18.49M | **1.303** | **1.399** | **1.302** | **1.566** | **1.393** | 100.0% / 1.4% | 93.1% / 1.5% |
-| Llama, same batches, no gate | 17.83M | 1.339 | 1.444 | 1.336 | 1.641 | 1.440 | | |
+Bits per byte, then the two skills: relay with the board shared and cut, lookup with the library attached and removed.
+
+| Model | English | Japanese wiki | Japanese web | Code | Mean | Relay | Lookup |
+|---|---|---|---|---|---|---|---|
+| ExeaLM (18.08M) | 1.320 | 1.422 | 1.322 | 1.612 | 1.419 | 100.0% / 0.9% | 94.0% / 1.5% |
+| **ExeaLM + gate + QK-norm (18.49M)** | **1.303** | **1.399** | **1.302** | **1.566** | **1.393** | 100.0% / 1.4% | 93.1% / 1.5% |
+| Llama, same batches, no gate (17.83M) | 1.339 | 1.444 | 1.336 | 1.641 | 1.440 | | |
 
 - The gain is 0.026, the same as at 13M without memory circuits. Code gains the most (0.046).
+- The gain shrinks with training, from 0.099 at step 3,000 to 0.026 at step 24,000. Part of the gate's help is faster early learning.
 - Both skills hold: the relay at 100% and lookup at 93.1%, against 94.0% without the gate.
 - The lead over Llama grows from 0.021 to 0.047. That Llama has no gate. At 13M the same parts gave Llama 0.019, so most of the wider lead is probably the parts themselves. We have not run a gated Llama on these batches.
 - With the circuit search on for the first half of the run, the same model scored 1.431, 0.012 worse. The search gave layer 0 four more board circuits and took them from language. On the training mix, switching off a memory circuit breaks the relay and lookup batches, so the search ranks memory circuits far above language ones.
+
+<Figure n={3} caption="How far each ExeaLM run is ahead of the Llama trained on the same batches, over the 24,000 steps, seed 0. Above zero, ExeaLM is better. The shaded band between the two orange lines is what the gate and QK-norm add: 0.099 bits per byte at step 3,000, 0.026 at the end. The grey dotted line is the run with the circuit search. This Llama has no gate. Pick a kind of text above the chart.">
+  <GateCurves />
+</Figure>
 
 The two full runs shared the GPU with other runs, so their times are not comparable.
 
 ## The default is now gated
 
 Since [commit d34fb9d](https://github.com/exea-labs/ExeaLM/commit/d34fb9d), the `100m` and `small` presets turn on `attn_gate` and `qk_norm`.
+
+<Stat value="104.8M" label="parameters in the 0.1B model with the gate and the planned vocabulary, up from 101.1M" />
 
 - The 0.1B model grows from 101.1M to 104.8M <Term id="params">parameters</Term> with the planned vocabulary (about 90.6M to 94.3M with the 32k tokenizer). The gate is one extra projection of width by width in each of the nine attention layers.
 - The Llama baseline stays plain. `llama_baseline(cfg)` turns both parts off unless a run asks for them. Every script that builds a Llama from a preset goes through it.

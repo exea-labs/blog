@@ -1,0 +1,94 @@
+{
+ "rows": [
+  {
+   "model": "pure TONN",
+   "seam": "kept",
+   "seed": 0,
+   "swarm": 1.6072,
+   "control": 1.6132,
+   "diff": -0.006,
+   "source": "results/swarm_text/text_seed0.json"
+  },
+  {
+   "model": "pure TONN",
+   "seam": "hidden",
+   "seed": 0,
+   "swarm": 1.6069,
+   "control": 1.614,
+   "diff": -0.0071,
+   "source": "results/swarm_text_fix/text_seed0.json"
+  },
+  {
+   "model": "hybrid",
+   "seam": "kept",
+   "seed": 0,
+   "swarm": 1.6232,
+   "control": 1.6385,
+   "diff": -0.0153,
+   "source": "results/swarm_text_hybrid/text_seed0.json"
+  },
+  {
+   "model": "hybrid",
+   "seam": "kept",
+   "seed": 1,
+   "swarm": 1.6222,
+   "control": 1.6341,
+   "diff": -0.0119,
+   "source": "results/swarm_text_hybrid/text_seed1.json"
+  },
+  {
+   "model": "hybrid",
+   "seam": "hidden",
+   "seed": 0,
+   "swarm": 1.6541,
+   "control": 1.619,
+   "diff": 0.0351,
+   "source": "results/swarm_text_hybrid_fix/text_seed0.json"
+  },
+  {
+   "model": "hybrid",
+   "seam": "hidden",
+   "seed": 1,
+   "swarm": 1.6522,
+   "control": 1.6196,
+   "diff": 0.0326,
+   "source": "results/swarm_text_hybrid_fix/text_seed1.json"
+  },
+  {
+   "model": "hybrid",
+   "seam": "kept, rerun",
+   "seed": 0,
+   "swarm": 1.6282,
+   "control": 1.6268,
+   "diff": 0.0014,
+   "source": "results/swarm_text_hybrid_nomask/text_seed0.json"
+  },
+  {
+   "model": "hybrid",
+   "seam": "kept, rerun",
+   "seed": 1,
+   "swarm": 1.6246,
+   "control": 1.6383,
+   "diff": -0.0137,
+   "source": "results/swarm_text_hybrid_nomask/text_seed1.json"
+  }
+ ],
+ "repeats": [
+  {
+   "what": "hybrid swarm, seams hidden, seed 0",
+   "a": 1.6541,
+   "b": 1.6469
+  },
+  {
+   "what": "hybrid control, seams kept, seed 0",
+   "a": 1.6385,
+   "b": 1.6268
+  },
+  {
+   "what": "hybrid control, seams kept, seed 1",
+   "a": 1.6341,
+   "b": 1.6383
+  }
+ ],
+ "noise": 0.0117
+}

@@ -1,0 +1,167 @@
+[
+ {
+  "key": "start",
+  "none": 8.5083,
+  "gain": {
+   "library": -0.0969,
+   "library, perfect search": -0.9968,
+   "board, live (swarm of 2)": 0.0026,
+   "notes, own article": -0.0089,
+   "notes, all articles": -0.0138
+  },
+  "four_choice": {
+   "none": null,
+   "library": null,
+   "library, perfect search": null,
+   "board, live (swarm of 2)": null,
+   "notes, own article": null,
+   "notes, all articles": null
+  },
+  "baselines": {},
+  "source": "results/full_small/irl_exealm_skillsA_seed0.json"
+ },
+ {
+  "key": "control",
+  "none": 8.5459,
+  "gain": {
+   "library": -0.3465,
+   "library, perfect search": -2.3858,
+   "board, live (swarm of 2)": 0.0017,
+   "notes, own article": -0.0053,
+   "notes, all articles": -0.01
+  },
+  "four_choice": {
+   "none": 0.8782,
+   "library": 0.8755,
+   "library, perfect search": 0.8327,
+   "board, live (swarm of 2)": 0.8775,
+   "notes, own article": 0.8785,
+   "notes, all articles": 0.8787
+  },
+  "baselines": {
+   "in_context_first256": 1.0174,
+   "bm25_rag_64_255": 0.3641
+  },
+  "source": "results/irl/irl_exealm_ft_ctrl_seed0.json"
+ },
+ {
+  "key": "practice",
+  "none": 8.351,
+  "gain": {
+   "library": -0.0075,
+   "library, perfect search": -0.0072,
+   "board, live (swarm of 2)": 0.004,
+   "notes, own article": 0.0227,
+   "notes, all articles": 0.001
+  },
+  "four_choice": {
+   "none": 0.8851,
+   "library": 0.8846,
+   "library, perfect search": 0.8858,
+   "board, live (swarm of 2)": 0.8845,
+   "notes, own article": 0.8851,
+   "notes, all articles": 0.8838
+  },
+  "baselines": {
+   "in_context_first256": 0.9939,
+   "bm25_rag_64_255": 0.3401
+  },
+  "source": "results/irl/irl_exealm_ft_irl_seed0.json"
+ },
+ {
+  "key": "practice_bm25",
+  "none": 8.3341,
+  "gain": {
+   "library": -0.015,
+   "library, perfect search": -0.0012,
+   "board, live (swarm of 2)": 0.0045,
+   "notes, own article": 0.022,
+   "notes, all articles": -0.0034
+  },
+  "four_choice": {
+   "none": 0.8895,
+   "library": 0.89,
+   "library, perfect search": 0.8893,
+   "board, live (swarm of 2)": 0.8906,
+   "notes, own article": 0.8906,
+   "notes, all articles": 0.8916
+  },
+  "baselines": {
+   "in_context_first256": 0.9761,
+   "bm25_rag_64_255": 0.3413
+  },
+  "source": "results/irl/irl_exealm_ft_lex_seed0.json"
+ },
+ {
+  "key": "practice_null",
+  "none": 8.3527,
+  "gain": {
+   "library": -0.0046,
+   "library, perfect search": 0.001,
+   "board, live (swarm of 2)": 0.0041,
+   "notes, own article": 0.0227,
+   "notes, all articles": 0.002
+  },
+  "four_choice": {
+   "none": 0.8879,
+   "library": 0.8879,
+   "library, perfect search": 0.8883,
+   "board, live (swarm of 2)": 0.8883,
+   "notes, own article": 0.889,
+   "notes, all articles": 0.8883
+  },
+  "baselines": {
+   "in_context_first256": 0.9882,
+   "bm25_rag_64_255": 0.3385
+  },
+  "source": "results/irl/irl_exealm_ft_null_seed0.json"
+ },
+ {
+  "key": "wide_2k",
+  "none": 8.5317,
+  "gain": {
+   "library": -0.0522,
+   "library, perfect search": -0.1358,
+   "board, live (swarm of 2)": 0.0106,
+   "notes, own article": 0.039,
+   "notes, all articles": 0.0136
+  },
+  "four_choice": {
+   "none": 0.8853,
+   "library": 0.8851,
+   "library, perfect search": 0.8832,
+   "board, live (swarm of 2)": 0.8854,
+   "notes, own article": 0.8866,
+   "notes, all articles": 0.8865
+  },
+  "baselines": {
+   "in_context_first256": 1.0518,
+   "bm25_rag_64_255": 0.3392
+  },
+  "source": "results/irl/irl_exealm_ft_wide_seed0.json"
+ },
+ {
+  "key": "wide_8k",
+  "none": 8.1813,
+  "gain": {
+   "library": -0.0095,
+   "library, perfect search": -0.0123,
+   "board, live (swarm of 2)": 0.006,
+   "notes, own article": 0.024,
+   "notes, all articles": -7.924
+  },
+  "four_choice": {
+   "none": 0.8814,
+   "library": 0.882,
+   "library, perfect search": 0.8819,
+   "board, live (swarm of 2)": 0.8827,
+   "notes, own article": 0.8812,
+   "notes, all articles": 0.6577
+  },
+  "baselines": {
+   "in_context_first256": 0.9934,
+   "bm25_rag_64_255": 0.3187
+  },
+  "source": "results/irl/irl_exealm_ft_wide_long_seed0.json"
+ }
+]
