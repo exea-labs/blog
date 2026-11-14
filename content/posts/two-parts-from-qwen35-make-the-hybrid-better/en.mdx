@@ -1,0 +1,128 @@
+---
+title: "Two parts from Qwen3.5 make the hybrid better. They are now the default."
+date: 2026-11-13
+order: 1
+day: 4
+summary: "We built a Qwen3.5-style model at 13M parameters and tried its parts inside ExeaLM's hybrid. Two of them, an output gate on attention and QK-norm, improve the hybrid by 0.025 bits per byte. With them it leads the Qwen3.5-style model at equal steps, averaged over two seeds (1.511 against 1.521), and at equal training time on one seed (1.509 against 1.542). The same parts also help Llama, so the fair baseline from here on is a gated Llama."
+dek: "Gated attention and QK-norm help the hybrid more than any change since the convolution-heavy start."
+cover: stack
+tags: [architecture, speed]
+credits:
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Asked for a benchmark against Qwen3.5 and for the parts of it that work in ExeaLM. Ran every run in this post on the Mac Studio: the Qwen3.5-style baseline, the gated variants of both models, the equal-compute check and the full 18M model with the gate." }
+numbers:
+  - { value: "1.511", label: "bits per byte, ExeaLM hybrid with gated attention and QK-norm at 13M, mean of 2 seeds (Qwen3.5-style 1.521, Llama 1.551)" }
+  - { value: "1.509", label: "bits per byte at equal training time, 600 s, 1 seed (gated Llama 1.515, Qwen3.5-style 1.542)" }
+  - { value: "0.026", label: "bits per byte the two parts gain in the full 18M model with both memory skills (1.393 against 1.419, 1 seed)" }
+sources:
+  - { label: "results/README.md, sections 10 and 12", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/README.md" }
+  - { label: "results/sweep/lm_compare_q_*.json and lm_compare_eqt_q_*.json (every 13M run)", href: "https://github.com/exea-labs/ExeaLM/tree/main/results/sweep" }
+  - { label: "results/full_small/full_small_exealm_skillsA_gate_seed0.json (the full model with the gate)", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/full_small/full_small_exealm_skillsA_gate_seed0.json" }
+  - { label: "exealm/model/delta.py (Gated DeltaNet) and exealm/model/baseline.py (the gate and QK-norm)", href: "https://github.com/exea-labs/ExeaLM/tree/main/exealm/model" }
+  - { label: "docs/figures/arch_compare.png: the three 13M models, block by block", href: "https://github.com/exea-labs/ExeaLM/blob/main/docs/figures/arch_compare.png" }
+  - { label: "Commit 520770a: Qwen3.5 parts at 13M", href: "https://github.com/exea-labs/ExeaLM/commit/520770a" }
+  - { label: "Commit 06310c8: equal compute at 13M", href: "https://github.com/exea-labs/ExeaLM/commit/06310c8" }
+  - { label: "Commit d34fb9d: gated attention and QK-norm become the default", href: "https://github.com/exea-labs/ExeaLM/commit/d34fb9d" }
+  - { label: "Qiu et al. (2025), Gated Attention for Large Language Models", href: "https://arxiv.org/abs/2505.06708" }
+  - { label: "Yang, Kautz and Hatamizadeh (2024), Gated Delta Networks", href: "https://arxiv.org/abs/2412.06464" }
+  - { label: "Qwen3.5's layer layout (Hugging Face community overview)", href: "https://huggingface.co/blog/mlabonne/qwen35" }
+---
+
+Every comparison on this blog so far has been against a same-size <Term id="llama">Llama</Term>. Yesterday's post named a stronger baseline as the next step: Qwen3.5, the strongest small open design that mixes recurrent layers with attention. We built a Qwen3.5-style model at our small size. Then we tried each of its parts inside ExeaLM's <Term id="hybrid">hybrid</Term>.
+
+Two of the parts helped. With them the hybrid leads the Qwen3.5-style model at equal steps on both seeds, and at equal training time on the one seed we ran. They are now the default.
+
+## Three parts of Qwen3.5
+
+Qwen3.5 is built from two kinds of sequence layers: three linear-attention layers for every attention layer, a layout it inherits from Qwen3-Next ([an overview](https://huggingface.co/blog/mlabonne/qwen35)). We took three parts from it:
+
+- **<Term id="deltanet">Gated DeltaNet</Term>** ([Yang, Kautz and Hatamizadeh, 2024](https://arxiv.org/abs/2412.06464)), the linear-attention layer. It keeps a memory of fixed size. At each token it overwrites what it stored for the current key and lets older memory fade. Its cost grows linearly with length.
+- **<Term id="gated-attention">Gated attention</Term>** ([Qiu et al., 2025](https://arxiv.org/abs/2505.06708), from the Qwen team). Each output channel of an attention layer is multiplied by a gate between 0 and 1, computed from the layer's input. A head can turn its output down when it has nothing to add.
+- **<Term id="qk-norm">QK-norm</Term>**: each head's queries and keys are normalised before they are compared, so attention scores cannot grow without bound.
+
+Gated DeltaNet is in `exealm/model/delta.py`, in plain PyTorch, with a test that checks it against the token-by-token recurrence. The gate and QK-norm are two options of the attention layer (`attn_gate` and `qk_norm`).
+
+The **Qwen3.5-style baseline** is a Llama with Gated DeltaNet at layers 0, 1, 2 and 4, and gated attention with QK-norm at layers 3 and 5. That is the small Qwen3.5 models' pattern, three DeltaNet layers before each attention layer, cut to six layers. Everything else matches our other baselines: width, depth, vocabulary, MLPs and training. A [figure in the repository](https://github.com/exea-labs/ExeaLM/blob/main/docs/figures/arch_compare.png) draws all three models block by block.
+
+**Setup.** 13M parameters: width 256, six layers, the 32k vocabulary. 3,000 steps of 32 sequences of 512 tokens (49M tokens), learning rate 2e-3, on the Mac Studio's GPU. The hybrid is the default 2:1 layout, with <Term id="tonn">TONN</Term> layers at 0 and 3 and attention in the other four, without memory circuits. Every model is scored in <Term id="bpb">bits per byte</Term> on held-out English, Japanese Wikipedia, Japanese web text and code. The tables give the mean of the four.
+
+## At equal steps, the gate and QK-norm help both models
+
+| Model | Parameters | Seed 0 | Seed 1 |
+|---|---|---|---|
+| Llama | 13.1M | 1.543 | 1.560 |
+| Llama + gate + QK-norm | 13.5M | 1.525 | |
+| Qwen3.5-style | 13.5M | 1.520 | 1.521 |
+| ExeaLM hybrid | 13.1M | 1.536 | |
+| **ExeaLM hybrid + gate + QK-norm** | 13.4M | **1.511** | **1.512** |
+| ExeaLM hybrid + gate + QK-norm + Gated DeltaNet at layers 1 and 4 | 13.4M | 1.512 | |
+
+- The Qwen3.5-style model beats Llama by 0.023 on seed 0 and by 0.039 on seed 1. It is the stronger baseline.
+- Gated attention and QK-norm improve the hybrid by 0.025 (1.536 to 1.511, seed 0). That is the largest gain from a single change since the convolution-heavy start.
+- With them the hybrid leads the Qwen3.5-style model by 0.009 on both seeds. Its lead is largest on code (1.708 against 1.728 on seed 0).
+- The two parts help Llama as well, by 0.019 on seed 0. They are not specific to the hybrid. Against the gated Llama the hybrid leads by 0.014.
+
+<Figure n={1} caption="Mean bits per byte at 13M on held-out English, Japanese and code, lower is better. Each dot is one training run, filled for seed 0 and hollow for seed 1. The vertical mark is the mean of the seeds run. Switch between equal steps and equal training time, or pick one kind of text, above the chart. ExeaLM's rows are orange, and the bold row is the new default. At equal steps the gated hybrid leads every baseline on both seeds. At equal time it leads the gated Llama by 0.006.">
+  <QwenCompare />
+</Figure>
+
+## At equal training time the lead shrinks to 0.006
+
+<Term id="equal-compute">Equal compute</Term> gives each model the same training time: 600 seconds on the Mac Studio, one model at a time with nothing else on the GPU, seed 0. Each takes as many steps as it can, with its learning-rate schedule stretched to fit.
+
+| Model | Steps in 600 s | English | Japanese wiki | Japanese web | Code | Mean |
+|---|---|---|---|---|---|---|
+| Llama | 3,020 (655 s) | 1.460 | 1.535 | 1.414 | 1.761 | 1.542 |
+| Llama + gate + QK-norm | 3,233 | **1.429** | 1.507 | **1.392** | 1.732 | 1.515 |
+| Qwen3.5-style | 2,592 (684 s) | 1.462 | 1.533 | 1.415 | 1.758 | 1.542 |
+| **ExeaLM hybrid + gate + QK-norm** | 3,070 | 1.432 | **1.503** | **1.392** | **1.709** | **1.509** |
+
+- The gated hybrid leads the gated Llama by 0.006 and Llama by 0.033. Most of the lead is code (0.023 against the gated Llama). On English the gated Llama is ahead by 0.003.
+- The Qwen3.5-style model falls to Llama's level. It managed 2,592 steps against Llama's 3,020, because its Gated DeltaNet runs in plain PyTorch on the Mac. On an NVIDIA GPU, the fused kernels of [flash-linear-attention](https://github.com/fla-org/flash-linear-attention) would change this ([#31](https://github.com/exea-labs/ExeaLM/issues/31)). This row says more about our hardware than about Qwen3.5's design.
+- The step counts come from timing the first 50 steps. Two runs overshot the budget (655 s and 684 s), which favours them.
+
+## DeltaNet layers and the circuit search add nothing on top
+
+We tried two more things on top of the gated hybrid, on seed 0.
+
+**Gated DeltaNet layers** at 1 and 4, in place of two attention layers, scored 1.512 against 1.511 without them. At this size they add nothing. On the Mac they are also slower. A gated delta-rule memory may still earn a place as one of TONN's circuit types, where the search decides where it goes ([#30](https://github.com/exea-labs/ExeaLM/issues/30)).
+
+**TONN's <Term id="search">circuit search</Term>**, which swaps circuits every 250 steps during the first half of training, scored 1.5107 against 1.5110 at equal steps. It swapped one circuit, an attention circuit for a state-space one in layer 3. At equal time it ran 2,286 steps against 3,070 and scored 1.552, partly from the search's own cost. On language alone, a good starting mix leaves the search little to do. The earlier 13M sweep found the same: about 0.001 from the search on top of the convolution-heavy start.
+
+## In the full model, the gate helps language and keeps both skills
+
+The 18M model from yesterday's post is the hybrid at width 320, with a retrieval circuit and a board circuit in each TONN layer. It trains for 24,000 steps on text, Wikipedia, <Term id="relay">relay</Term> and <Term id="lookup">lookup</Term> batches. We trained it again with the gate and QK-norm, seed 0.
+
+| Model | Parameters | English | Japanese wiki | Japanese web | Code | Mean | Relay, shared / cut | Lookup, attached / removed |
+|---|---|---|---|---|---|---|---|---|
+| ExeaLM | 18.08M | 1.320 | 1.422 | 1.322 | 1.612 | 1.419 | 100.0% / 0.9% | 94.0% / 1.5% |
+| **ExeaLM + gate + QK-norm** | 18.49M | **1.303** | **1.399** | **1.302** | **1.566** | **1.393** | 100.0% / 1.4% | 93.1% / 1.5% |
+| Llama, same batches, no gate | 17.83M | 1.339 | 1.444 | 1.336 | 1.641 | 1.440 | | |
+
+- The gain is 0.026, the same as at 13M without memory circuits. Code gains the most (0.046).
+- Both skills hold: the relay at 100% and lookup at 93.1%, against 94.0% without the gate.
+- The lead over Llama grows from 0.021 to 0.047. That Llama has no gate. At 13M the same parts gave Llama 0.019, so most of the wider lead is probably the parts themselves. We have not run a gated Llama on these batches.
+- With the circuit search on for the first half of the run, the same model scored 1.431, 0.012 worse. The search gave layer 0 four more board circuits and took them from language. On the training mix, switching off a memory circuit breaks the relay and lookup batches, so the search ranks memory circuits far above language ones.
+
+The two full runs shared the GPU with other runs, so their times are not comparable.
+
+## The default is now gated
+
+Since [commit d34fb9d](https://github.com/exea-labs/ExeaLM/commit/d34fb9d), the `100m` and `small` presets turn on `attn_gate` and `qk_norm`.
+
+- The 0.1B model grows from 101.1M to 104.8M <Term id="params">parameters</Term> with the planned vocabulary (about 90.6M to 94.3M with the 32k tokenizer). The gate is one extra projection of width by width in each of the nine attention layers.
+- The Llama baseline stays plain. `llama_baseline(cfg)` turns both parts off unless a run asks for them. Every script that builds a Llama from a preset goes through it.
+- Configs saved before the options existed load as they were trained, without the gate. The checkpoints on [Hugging Face](https://huggingface.co/exea-labs/ExeaLM) still load. A fine-tune started from one keeps its setting. Tests cover all three.
+
+## What this does not show
+
+- Most rows are one seed. The gated hybrid and the Qwen3.5-style model have two at equal steps. The equal-time comparison and the full model have one.
+- 13M parameters and 49M tokens. Qwen3.5's parts were designed for much larger models trained much longer. Their effect at 0.1B on 100B tokens is untested.
+- The Qwen3.5-style model is our six-layer reconstruction, not Qwen3.5. Its DeltaNet layers had no fast kernel, which matters at equal time.
+- The gated ExeaLM is now 4.5% larger than a plain Llama of the same shape at 0.1B (104.8M against 100.2M). A gated Llama (106.0M) is the fair baseline from here on.
+- Only held-out bits per byte, no benchmark tasks.
+
+## Next
+
+- A gated Llama on the full model's batches, two seeds. It is the comparison missing from the 18M table.
+- Gated DeltaNet as a TONN circuit type ([#30](https://github.com/exea-labs/ExeaLM/issues/30)) and its fast kernels on NVIDIA ([#31](https://github.com/exea-labs/ExeaLM/issues/31)). Both are open for contributors.
+- A GPU. We no longer have the Mac Studio. Every checkpoint and result file from it is on [Hugging Face](https://huggingface.co/exea-labs/ExeaLM).

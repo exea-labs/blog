@@ -61,6 +61,10 @@ So agents 1 to 3 could, in principle, read one target each off the board: 1 targ
   <p>The pure-TONN gain is the most exposed: a ceiling of 0.002 is a third of 0.006. The gain that remains with the board cut (0.010) cannot use the leak at evaluation. The correction is on the results page (commit 37f4f44); the original numbers stay in the record until the reruns replace them.</p>
 </Correction>
 
+<Correction title="2026-11-13: reruns did not confirm this gain">
+  <p>Rerun with the seam targets hidden and with them kept, the hybrid's swarm came out between 0.015 better and 0.035 worse than its control. Runs of the same configuration differ by up to 0.012 on the Mac's GPU. For the hybrid, the swarm gain on real text is unproven. The pure-TONN gain held with the seams hidden, on one seed. Details in <a href="/posts/on-real-text-the-notes-help-a-little/#a-correction-the-swarm-gain-on-real-text-is-unproven">On real text, notes from a reader help a little.</a></p>
+</Correction>
+
 <AgentGain />
 
 The swarm result holds at about 0.012 bits per byte or more on the hybrid. The number we published was a little too high. The pure-TONN result is weaker than it looked.

@@ -1,0 +1,129 @@
+---
+title: "On real text, notes from a reader help a little. Notes on the wrong articles break the model."
+date: 2026-11-13
+order: 2
+day: 4
+summary: "We tested ExeaLM's memory paths on held-out Wikipedia, with knowledge the model never trained on. Notes written ahead of time by a reader of the article gain up to 0.039 bits per re-mentioned rare word, against 0.34 for ordinary BM25 RAG. After 8,000 steps of practice, notes from all 256 articles at once make re-mentions 7.9 bits worse. Separately, reruns did not confirm the swarm gain on real text that we reported on day 2."
+dek: "The board path is the only one that helps on real text. It has not learned to ignore the wrong notes."
+cover: board
+tags: [retrieval, swarms, correction]
+credits:
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Asked for proof that the board, the library and a knowledge base the model never trained on work on real text. Ran the six fine-tunes, the real-text test and the swarm reruns on the Mac Studio." }
+  - { login: aarochu, name: "Aaron Chu", what: "Found the split-swarm seam leak and fixed it (PR #7). The reruns in this post's correction are the reruns that fix made necessary." }
+numbers:
+  - { value: "+0.039", label: "bits per re-mentioned rare word from notes written by a reader of the article, the best built-in path (ordinary BM25 RAG: +0.34)" }
+  - { value: "-7.9", label: "bits per re-mention when the notes of all 256 articles share the board, after 8,000 steps of practice on single articles" }
+  - { value: "0.012", label: "bits per byte between two runs of the same swarm control on the Mac's GPU, about the size of the swarm gain we reported" }
+sources:
+  - { label: "results/README.md, sections 2 and 13", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/README.md" }
+  - { label: "experiments/irl_eval.py (the real-text memory test)", href: "https://github.com/exea-labs/ExeaLM/blob/main/experiments/irl_eval.py" }
+  - { label: "results/irl/ (the fine-tunes and their test results)", href: "https://github.com/exea-labs/ExeaLM/tree/main/results/irl" }
+  - { label: "results/full_small/irl_exealm_skillsA_seed0.json and _seed1.json (before practice)", href: "https://github.com/exea-labs/ExeaLM/tree/main/results/full_small" }
+  - { label: "results/swarm_text_hybrid*/ (the swarm reruns)", href: "https://github.com/exea-labs/ExeaLM/tree/main/results" }
+  - { label: "Issue #27: memory on real text", href: "https://github.com/exea-labs/ExeaLM/issues/27" }
+  - { label: "Issue #28: a notes knowledge base at scale", href: "https://github.com/exea-labs/ExeaLM/issues/28" }
+  - { label: "Issue #33: is the swarm gain on real text real?", href: "https://github.com/exea-labs/ExeaLM/issues/33" }
+  - { label: "Commit 81df86d: the overnight fine-tune and section 13", href: "https://github.com/exea-labs/ExeaLM/commit/81df86d" }
+  - { label: "Commit d0390ad: the swarm reruns in section 2", href: "https://github.com/exea-labs/ExeaLM/commit/d0390ad" }
+---
+
+The 18M model passes facts to another agent through its <Term id="board">board</Term> and looks facts up in its <Term id="retrieval">library</Term>, on synthetic tasks built for those circuits (yesterday's post). ExeaLM is meant to use the same circuits on real text, with knowledge it never trained on. This post tests that on held-out Wikipedia.
+
+Notes written ahead of time by a reader of the article are the only path that helps. The gain is small: up to 0.039 bits per word, against 0.34 for ordinary RAG. After longer practice the same path broke when the board held notes on the wrong articles. The post ends with a correction to an earlier swarm result.
+
+## The test: rare words that come back
+
+We took 256 Wikipedia articles held out from training and split each one in half. The model reads the second half. It is scored on <Term id="re-mention">re-mentions</Term>: rare words from the first half that come up again in the second, before the text being read has used them (8,517 words in all). The model can only predict them well if the first half reaches it somehow. Rare words that appear in neither half are the control.
+
+The first half reaches the model by one of three paths, each through a different circuit:
+
+- **Library** (the retrieval circuit): the first halves of all 256 articles form a library the model never trained on. Its own search finds the chunks. We also test a perfect search, which always hands it the right article, and a <Term id="bm25">BM25</Term> keyword search.
+- **Board, live** (the board circuit): a second agent reads the first half at the same time, in a swarm of 2.
+- **<Term id="notes">Notes</Term>** (the board circuit, as a knowledge base): a reader agent reads each first half once, ahead of time, and its board posts are stored. "Own article" puts only that article's notes on the board. "All articles" puts all 256 articles' notes there at once, so the model must pick the right ones.
+
+For scale there are two ordinary baselines: the end of the first half pasted into the context, and BM25's top 4 chunks pasted into the context, which is ordinary RAG. The test is `experiments/irl_eval.py`.
+
+## Before practice, no path helps
+
+The starting checkpoints are yesterday's 18M models, both seeds. Gain in bits per re-mention against no memory; higher is better:
+
+| Path | Seed 0 | Seed 1 |
+|---|---|---|
+| No memory (bits per re-mention) | 8.508 | 8.565 |
+| Library, the model's own search | -0.097 | -0.009 |
+| Library, perfect search | -0.997 | -0.079 |
+| Board, live | +0.003 | +0.003 |
+| Notes, own article | -0.009 | +0.005 |
+| Notes, all 256 articles | -0.014 | +0.001 |
+
+None of the paths help. A perfect search makes seed 0 a full bit worse. The library's read was trained on synthetic tables, which reward exact copying, and on Wikipedia with a search that found the right article about 26% of the time. It never practised reading the right real document. BM25 finds the right article for 64% of the queries in this test.
+
+## Practice makes the library harmless, not useful
+
+Each fine-tune starts from the seed-0 checkpoint. Real-text practice means two changes to the training mix. Half of the Wikipedia batches get the right article from the search. Article-pair batches add a reader of the first half whose board posts are visible from the first token, the way stored notes are read.
+
+Gain in bits per re-mention against no memory; the first 256 positions in brackets:
+
+| Fine-tune | Steps | No memory (bits) | Library, own search | Library, perfect search | Board, live | Notes, own article | Notes, all articles |
+|---|---|---|---|---|---|---|---|
+| Control: the old mix, more steps | 4,000 | 8.546 | -0.347 | -2.386 | +0.002 | -0.005 | -0.010 |
+| Real-text practice | 4,000 | 8.351 | -0.007 | -0.007 | +0.004 | +0.023 (+0.036) | +0.001 |
+| The same, BM25 search in training | 4,000 | 8.334 | -0.015 | -0.001 | +0.005 | +0.022 (+0.035) | -0.003 |
+| The same, with a read-nothing entry | 4,000 | 8.353 | -0.005 | +0.001 | +0.004 | +0.023 (+0.036) | +0.002 |
+| The same, 3 retrieval and 3 board circuits per TONN layer | 2,000 | 8.532 | -0.052 | -0.136 | **+0.011** | **+0.039 (+0.059)** | **+0.014** |
+| The same, 3 and 3, longer | 8,000 | **8.181** | -0.009 | -0.012 | +0.006 | +0.024 (+0.040) | -7.924 |
+
+For scale, the end of the first half in the context gains 0.98 to 1.05 bits (first 256 positions). BM25 RAG gains 0.32 to 0.36 (positions 64 to 255).
+
+- More training on the old mix makes the library worse: -0.35, and -2.4 with a perfect search. It sharpens the exact copying the synthetic lookup rewards, which hurts on prose.
+- With real-text practice the library is harmless (about -0.01) but not helpful. The model learns to ignore it.
+- A read-nothing entry, which lets the retrieval read attend to nothing, changes nothing. The read's problem on prose is not that it cannot abstain.
+
+## Notes from a reader are the one path that helps
+
+Notes written by a reader of the article gain 0.022 to 0.023 bits after 4,000 steps of practice, and 0.035 to 0.036 in the first 256 positions. Three board circuits per TONN layer instead of one raised the gain to 0.039 (0.059 in the first 256) in 2,000 steps. A live second agent went from +0.004 to +0.011. A board post is 32 numbers per 8 tokens per board circuit, so capacity seemed to be the limit.
+
+The gain is still small next to ordinary RAG's 0.34. It also did not keep growing. The same wide model trained four times as long gained 0.024, less than at 2,000 steps.
+
+## Longer practice made the model trust any note
+
+The 8,000-step model has the best language model of the set: 8.181 bits per re-mention with no memory, since half of its batches are Wikipedia or article pairs. It keeps the relay (100%) and most of lookup (89.1%). With its own article's notes it gains 0.024.
+
+With the notes of all 256 articles on the board at once, it fails. Re-mentions get 7.9 bits worse. The four-choice score, where the right word competes with three similar rare words, falls from 0.88 to 0.66. The 2,000-step model gained 0.014 from the same board.
+
+The likely cause is the practice itself. In every article-pair batch, the board held notes on the right article and nothing else. The model learned to trust whatever is on its board. It never had to ignore a note on the wrong article. The fix is to train with distractors: notes from other articles next to the right ones, so the read has to select. A second fix bounds the problem from the other side. Search the stored notes by key and put only the top few on the board ([#28](https://github.com/exea-labs/ExeaLM/issues/28)).
+
+## A correction: the swarm gain on real text is unproven
+
+<Correction title="Reruns did not confirm the swarm gain on real text">
+  <p>On day 2 we reported that the hybrid trained as a swarm beats a matched control on real text by 0.014 bits per byte, then 0.012 after the seam leak Aaron found. Reruns range from 0.015 better to 0.035 worse than the control. Runs of the same configuration differ by up to 0.012. For the hybrid, the swarm gain on real text is unproven.</p>
+</Correction>
+
+We reran it with the seam targets hidden (the fix) and with them kept. Swarm minus control in bits per byte; below zero, the swarm is better:
+
+| Model | Seam targets | Seed 0 | Seed 1 |
+|---|---|---|---|
+| Pure TONN | kept (the original run) | -0.006 | |
+| Pure TONN | hidden | -0.007 | |
+| Hybrid | kept (the original run) | -0.015 | -0.012 |
+| Hybrid | hidden | +0.035 | +0.033 |
+| Hybrid | kept, rerun | +0.001 | -0.014 |
+
+- Runs of the same configuration differ by up to 0.012. The hybrid's control with seam targets kept scored 1.639, then 1.627, on seed 0. The seam-hidden swarm scored 1.654, then 1.647. Training on the Mac's GPU is not deterministic. With two seeds per arm, differences under about 0.015 cannot be told apart from that noise.
+- Hiding the seam targets makes the hybrid swarm worse than its control by 0.033 to 0.035 on both seeds. Hiding one target in 512 should not do that. We have not found why.
+- So for the hybrid, the swarm gain on real text is unproven. The pure-TONN gain (0.006 to 0.007) held with the seams hidden, on one seed.
+
+The day-2 posts now carry a note pointing here. The record is corrected in [results section 2](https://github.com/exea-labs/ExeaLM/blob/main/results/README.md#2-swarms-on-real-text-experimentsswarm_textpy) (commit d0390ad). The relay result is untouched. There the board is the only way to answer. The relay works on every seed we ran.
+
+## What this does not show
+
+- One seed and one starting checkpoint for every fine-tune, and 256 articles.
+- The real-text test asks for rare words from one article. It does not test reasoning across documents or several agents working on one problem.
+- The notes come from the model's own reader. A stronger reader, or a reader trained for writing notes, is untested.
+- The swarm reruns rule out the reported gain, not a smaller one. Three more seeds per arm on hardware that repeats itself would settle it ([#33](https://github.com/exea-labs/ExeaLM/issues/33)).
+
+## Next
+
+- Practice with distractor notes, so the board learns to select. Then the 8,000-step test again.
+- Search the stored notes instead of reading all of them ([#28](https://github.com/exea-labs/ExeaLM/issues/28)), which is also what a knowledge base of 10,000 articles needs.
+- A stronger read for the library: retrieved tokens with their context, as RETRO does, instead of one 32-channel head over plain token embeddings.

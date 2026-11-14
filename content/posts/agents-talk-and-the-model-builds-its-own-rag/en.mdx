@@ -65,6 +65,10 @@ On pure TONN (5.2M parameters), the board gains 0.006 bits per byte. On the <Ter
   <p>In a split swarm, the last byte an agent predicts is the first byte the next agent reads. That agent's first board post can carry it. Agents 1 to 3 could read 1 target in 512 off the board; the control could not. The leak can explain at most 0.002 bits per byte of the 0.014. Measured from the data, it explains about 0.001. Agent 4, which has no seam, still beats the control by 0.012 and 0.009 on the two seeds. The pure-TONN gain of 0.006 is the most exposed. Reruns with the fix are queued; details in <a href="/posts/seven-pull-requests-and-a-leak/">Seven pull requests from Aaron. One found a leak.</a></p>
 </Correction>
 
+<Correction title="2026-11-13: reruns did not confirm this gain">
+  <p>Rerun with the seam targets hidden and with them kept, the hybrid's swarm came out between 0.015 better and 0.035 worse than its control. Runs of the same configuration differ by up to 0.012 on the Mac's GPU. For the hybrid, the swarm gain on real text is unproven. The pure-TONN gain held with the seams hidden, on one seed. Details in <a href="/posts/on-real-text-the-notes-help-a-little/#a-correction-the-swarm-gain-on-real-text-is-unproven">On real text, notes from a reader help a little.</a></p>
+</Correction>
+
 Split batches have a cost. A batch of 32 rows read in swarms of 4 holds 8 independent stretches of text instead of 32. On pure TONN the control trained on split batches is 0.021 worse than ordinary training. Pretraining will need more rows per batch, or swarms that read related documents instead of one stretch.
 
 ## The model builds its own RAG

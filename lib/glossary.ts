@@ -119,8 +119,38 @@ export const GLOSSARY: Term[] = [
   },
   {
     id: "params",
-    en: { term: "Parameters", def: "The number of learned weights. ExeaLM's planned size is 0.1 billion (101.1M with a 49k vocabulary, about 90M with the 32k tokenizer)." },
-    ja: { term: "パラメータ数", def: "学習される重みの数。ExeaLM の予定サイズは 0.1B（49k 語彙で 1 億 110 万、32k トークナイザーで約 9 千万）です。" },
+    en: { term: "Parameters", def: "The number of learned weights. ExeaLM's planned size is 0.1 billion: 104.8M with a 49k vocabulary and about 94M with the 32k tokenizer. Before gated attention became the default (2026-11-13) it was 101.1M and about 90M." },
+    ja: { term: "パラメータ数", def: "学習される重みの数。ExeaLM の予定サイズは 0.1B で、49k 語彙で 1 億 480 万、32k トークナイザーで約 9,400 万です。ゲート付きアテンションを標準にする前（2026-11-13 まで）は 1 億 110 万と約 9 千万でした。" },
+  },
+  {
+    id: "gated-attention",
+    en: { term: "Gated attention", def: "Attention whose output is multiplied, channel by channel, by a gate between 0 and 1 computed from the layer's input. A head can turn its output down when it has nothing useful to add. From Qiu et al. (2025); Qwen3-Next and Qwen3.5 use it." },
+    ja: { term: "ゲート付きアテンション", def: "アテンションの出力に、層の入力から計算した 0〜1 のゲートをチャネルごとに掛けたもの。役に立つ情報がないとき、ヘッドは出力を小さくできます。Qiu ら（2025）の提案で、Qwen3-Next と Qwen3.5 が使っています。" },
+  },
+  {
+    id: "qk-norm",
+    en: { term: "QK-norm", def: "Normalising each attention head's queries and keys (RMSNorm) before they are compared, so attention scores cannot grow without bound during training. Qwen3 uses it." },
+    ja: { term: "QK-norm", def: "比べる前に、各アテンションヘッドのクエリとキーを正規化（RMSNorm）すること。学習中にアテンションのスコアが際限なく大きくなるのを防ぎます。Qwen3 が使っています。" },
+  },
+  {
+    id: "deltanet",
+    en: { term: "Gated DeltaNet", def: "A linear-attention layer with a fixed-size memory. At each token it overwrites what it stored for the current key (the delta rule) and lets older memory fade (the gate). Its cost grows linearly with length. Qwen3.5 uses it in three of every four layers." },
+    ja: { term: "Gated DeltaNet", def: "固定サイズのメモリを持つ線形アテンション層。トークンごとに、いまのキーに対して覚えていた内容を書き換え（デルタ則）、古い記憶を薄めます（ゲート）。計算量は長さに比例します。Qwen3.5 は 4 層のうち 3 層で使っています。" },
+  },
+  {
+    id: "re-mention",
+    en: { term: "Re-mention", def: "A rare word from the first half of an article that comes up again in the second half, before the text being read has used it. The model can only predict it well if it remembers the first half, so the real-text memory test scores these words." },
+    ja: { term: "再登場語", def: "記事の前半に出てきた珍しい単語で、読んでいる後半のテキストにまだ出ていないうちに再び出てくるもの。前半を覚えていなければうまく予測できないので、実テキストでのメモリのテストはこの単語で採点します。" },
+  },
+  {
+    id: "notes",
+    en: { term: "Notes", def: "A knowledge base made of board posts. A reader agent reads each document once, ahead of time, and its posts are stored. Later the model reads the stored posts through its board circuits, without ever training on the documents." },
+    ja: { term: "ノート", def: "掲示板の投稿でできた知識ベース。読み手のエージェントが各文書を前もって一度読み、その投稿を保存します。モデルは後で、文書で学習することなく、掲示板の回路を通して保存された投稿を読みます。" },
+  },
+  {
+    id: "bm25",
+    en: { term: "BM25", def: "A classic keyword search. It ranks documents by the rare words they share with the query. Ordinary RAG systems often use it to choose the passages they paste into the prompt." },
+    ja: { term: "BM25", def: "昔からあるキーワード検索。クエリと共有する珍しい単語で文書を順位づけします。ふつうの検索拡張（RAG）では、プロンプトに貼る文章を選ぶのによく使われます。" },
   },
 ];
 

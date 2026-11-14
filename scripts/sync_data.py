@@ -32,6 +32,8 @@ def lm_rows(res):
                 r = dict(r)
                 r.setdefault("tag", d)
                 r.setdefault("cfg", "{}")
+                if r.get("model") == "llama" and j["args"].get("llama_cfg", "{}") != "{}":
+                    r["cfg"] = j["args"]["llama_cfg"]          # a Llama's own options (DeltaNet layers, gate, QK-norm)
                 r.setdefault("lr", j["args"].get("lr", 2e-3))
                 r["source"] = f"results/{d}/{os.path.basename(f)}"
                 r["size"] = j["args"].get("size", "")
@@ -141,6 +143,8 @@ def lookup(res):
     for f in sorted(glob.glob(os.path.join(res, "rag_lookup", "lookup*.json"))):
         j = load(f)
         a = j["args"]
+        if "restate" not in a:          # the first design, which never learned (results/README.md section 3)
+            continue
         for r in j["runs"]:
             out.append(dict(file=os.path.basename(f), facts=a["facts"], restate=a["restate"], arm=r["arm"],
                             attached=r["final"]["attached"]["acc"], removed=r["final"]["removed"]["acc"],
@@ -163,7 +167,30 @@ def swarm_text(res):
 FULL_SMALL = {  # result file tag -> recipe name (24,000-step runs only; the short checks live in the README)
     "exealm": "first", "llama": "llama_first", "exealm_skills": "relay_first", "exealm_skillsA": "together",
     "llama_skills": "llama", "llama_skills_eqc": "llama_same_time", "llama_textonly": "llama_text_only",
+    "exealm_skillsA_gate": "together_gated", "exealm_skillsA_search": "together_search",
 }
+
+
+QWEN = [  # (key, run tags at equal steps, run tag at equal time): results/sweep, 13M, results/README.md section 12
+    ("llama", ["q_llama"], "eqt_q_llama"),
+    ("llama_gate", ["q_llama_gate"], "eqt_q_llama_gate"),
+    ("qwen35", ["q_qwen35", "q_qwen35_s1"], "eqt_q_qwen35"),
+    ("hybrid", ["q_hybrid"], None),
+    ("hybrid_gate", ["q_hybrid_gate", "q_hybrid_gate_s1"], "eqt_q_hybrid_gate"),
+    ("hybrid_gate_delta", ["q_hybrid_delta"], None),
+]
+
+
+def qwen(rows):
+    """Parts from Qwen3.5 at 13M: every model at equal steps (3,000) and at equal time (600 s), seed by seed."""
+    one = lambda r: dict(seed=r["seed"], steps=r["steps"], secs=r["secs"], params_M=r.get("params_M"), mean=r["mean"],
+                         source=r["source"], **{d: r["bits_per_byte"][d] for d in DOMS})
+    out = []
+    for key, steps_tags, time_tag in QWEN:
+        st = sorted((r for t in steps_tags for r in pick(rows, t)), key=lambda r: r["seed"])
+        tm = pick(rows, time_tag) if time_tag else []
+        out.append(dict(key=key, equal_steps=[one(r) for r in st], equal_time=[one(r) for r in tm]))
+    return dict(budget_s=600, steps=3000, models=out)
 
 
 def full_small(res):
@@ -270,7 +297,7 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     rows = lm_rows(res)
     files = dict(leaderboard=leaderboard(rows), comparisons=comparisons(rows), curves=curves(rows), speed=speed(res),
-                 relay=relay(res), lookup=lookup(res), swarm_text=swarm_text(res), rag_wiki=rag_wiki(res), full_small=full_small(res),
+                 relay=relay(res), lookup=lookup(res), swarm_text=swarm_text(res), rag_wiki=rag_wiki(res), full_small=full_small(res), qwen=qwen(rows),
                  tokenizer=tokenizer(res), timeline=timeline(os.path.join(OUT, "raw")))
     c = contributors("exea-labs/ExeaLM")
     if c is not None:

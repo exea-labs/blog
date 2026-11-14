@@ -16,6 +16,7 @@ const TokenizerChart = dynamic(() => import("@/components/viz/SmallCharts").then
 const HitRate = dynamic(() => import("@/components/viz/SmallCharts").then((m) => m.HitRate));
 const SkillCurves = dynamic(() => import("@/components/viz/SmallCharts").then((m) => m.SkillCurves));
 const EqualCompute = dynamic(() => import("@/components/viz/EqualCompute").then((m) => m.EqualCompute));
+const QwenCompare = dynamic(() => import("@/components/viz/QwenCompare").then((m) => m.QwenCompare));
 const LossCurves = dynamic(() => import("@/components/viz/LossCurves").then((m) => m.LossCurves));
 const SpeedBars = dynamic(() => import("@/components/viz/SpeedBars").then((m) => m.SpeedBars));
 const SweepTimeline = dynamic(() => import("@/components/viz/SweepTimeline").then((m) => m.SweepTimeline));
@@ -55,6 +56,7 @@ export function mdxComponents(lang: Lang, order: string[] = []) {
     HitRate: withLang(HitRate),
     SkillCurves: withLang(SkillCurves),
     EqualCompute: withLang(EqualCompute),
+    QwenCompare: withLang(QwenCompare),
     LossCurves: withLang(LossCurves),
     SpeedBars: withLang(SpeedBars),
     SweepTimeline: withLang(SweepTimeline),

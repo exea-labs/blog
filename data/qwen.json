@@ -1,0 +1,202 @@
+{
+ "budget_s": 600,
+ "steps": 3000,
+ "models": [
+  {
+   "key": "llama",
+   "equal_steps": [
+    {
+     "seed": 0,
+     "steps": 3000,
+     "secs": 947.1,
+     "params_M": 13.1,
+     "mean": 1.5432,
+     "source": "results/sweep/lm_compare_q_llama.json",
+     "en": 1.4613,
+     "ja_wiki": 1.5354,
+     "ja_web": 1.4135,
+     "code": 1.7625
+    },
+    {
+     "seed": 1,
+     "steps": 3000,
+     "secs": 937.5,
+     "params_M": 13.1,
+     "mean": 1.5597,
+     "source": "results/sweep/lm_compare_q_llama.json",
+     "en": 1.4699,
+     "ja_wiki": 1.5457,
+     "ja_web": 1.422,
+     "code": 1.8014
+    }
+   ],
+   "equal_time": [
+    {
+     "seed": 0,
+     "steps": 3020,
+     "secs": 654.6,
+     "params_M": 13.1,
+     "mean": 1.5424,
+     "source": "results/sweep/lm_compare_eqt_q_llama.json",
+     "en": 1.4603,
+     "ja_wiki": 1.5352,
+     "ja_web": 1.4138,
+     "code": 1.7605
+    }
+   ]
+  },
+  {
+   "key": "llama_gate",
+   "equal_steps": [
+    {
+     "seed": 0,
+     "steps": 3000,
+     "secs": 857.1,
+     "params_M": 13.49,
+     "mean": 1.5247,
+     "source": "results/sweep/lm_compare_q_llama_gate.json",
+     "en": 1.4379,
+     "ja_wiki": 1.5185,
+     "ja_web": 1.4007,
+     "code": 1.7415
+    }
+   ],
+   "equal_time": [
+    {
+     "seed": 0,
+     "steps": 3233,
+     "secs": 607.0,
+     "params_M": 13.49,
+     "mean": 1.5153,
+     "source": "results/sweep/lm_compare_eqt_q_llama_gate.json",
+     "en": 1.4294,
+     "ja_wiki": 1.5074,
+     "ja_web": 1.392,
+     "code": 1.7324
+    }
+   ]
+  },
+  {
+   "key": "qwen35",
+   "equal_steps": [
+    {
+     "seed": 0,
+     "steps": 3000,
+     "secs": 1283.3,
+     "params_M": 13.51,
+     "mean": 1.5203,
+     "source": "results/sweep/lm_compare_q_qwen35.json",
+     "en": 1.4424,
+     "ja_wiki": 1.5122,
+     "ja_web": 1.3989,
+     "code": 1.7276
+    },
+    {
+     "seed": 1,
+     "steps": 3000,
+     "secs": 1345.9,
+     "params_M": 13.51,
+     "mean": 1.521,
+     "source": "results/sweep/lm_compare_q_qwen35_s1.json",
+     "en": 1.4437,
+     "ja_wiki": 1.5103,
+     "ja_web": 1.4,
+     "code": 1.7301
+    }
+   ],
+   "equal_time": [
+    {
+     "seed": 0,
+     "steps": 2592,
+     "secs": 684.2,
+     "params_M": 13.51,
+     "mean": 1.542,
+     "source": "results/sweep/lm_compare_eqt_q_qwen35.json",
+     "en": 1.4617,
+     "ja_wiki": 1.5329,
+     "ja_web": 1.4153,
+     "code": 1.758
+    }
+   ]
+  },
+  {
+   "key": "hybrid",
+   "equal_steps": [
+    {
+     "seed": 0,
+     "steps": 3000,
+     "secs": 557.6,
+     "params_M": 13.1,
+     "mean": 1.5364,
+     "source": "results/sweep/lm_compare_q_hybrid.json",
+     "en": 1.4529,
+     "ja_wiki": 1.5257,
+     "ja_web": 1.408,
+     "code": 1.7589
+    }
+   ],
+   "equal_time": []
+  },
+  {
+   "key": "hybrid_gate",
+   "equal_steps": [
+    {
+     "seed": 0,
+     "steps": 3000,
+     "secs": 594.3,
+     "params_M": 13.36,
+     "mean": 1.511,
+     "source": "results/sweep/lm_compare_q_hybrid_gate.json",
+     "en": 1.4344,
+     "ja_wiki": 1.5065,
+     "ja_web": 1.3953,
+     "code": 1.7076
+    },
+    {
+     "seed": 1,
+     "steps": 3000,
+     "secs": 574.4,
+     "params_M": 13.36,
+     "mean": 1.5115,
+     "source": "results/sweep/lm_compare_q_hybrid_gate_s1.json",
+     "en": 1.4375,
+     "ja_wiki": 1.5015,
+     "ja_web": 1.3896,
+     "code": 1.7175
+    }
+   ],
+   "equal_time": [
+    {
+     "seed": 0,
+     "steps": 3070,
+     "secs": 607.5,
+     "params_M": 13.36,
+     "mean": 1.5092,
+     "source": "results/sweep/lm_compare_eqt_q_hybrid_gate.json",
+     "en": 1.432,
+     "ja_wiki": 1.5032,
+     "ja_web": 1.3924,
+     "code": 1.7093
+    }
+   ]
+  },
+  {
+   "key": "hybrid_gate_delta",
+   "equal_steps": [
+    {
+     "seed": 0,
+     "steps": 3000,
+     "secs": 806.7,
+     "params_M": 13.37,
+     "mean": 1.5122,
+     "source": "results/sweep/lm_compare_q_hybrid_delta.json",
+     "en": 1.4356,
+     "ja_wiki": 1.5056,
+     "ja_web": 1.3909,
+     "code": 1.7166
+    }
+   ],
+   "equal_time": []
+  }
+ ]
+}

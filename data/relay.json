@@ -2,6 +2,188 @@
  "chance": 0.015625,
  "runs": [
   {
+   "file": "relay_a2_f16_seed0.json",
+   "seed": 0,
+   "facts": 16,
+   "agents": 2,
+   "arm": "swarm",
+   "shared": 0.9999,
+   "cut": 0.0146,
+   "curve": [
+    {
+     "step": 250,
+     "shared": 0.9999,
+     "cut": 0.0144
+    },
+    {
+     "step": 500,
+     "shared": 0.9965,
+     "cut": 0.0149
+    },
+    {
+     "step": 750,
+     "shared": 0.9974,
+     "cut": 0.015
+    },
+    {
+     "step": 1000,
+     "shared": 0.9988,
+     "cut": 0.015
+    },
+    {
+     "step": 1250,
+     "shared": 0.9988,
+     "cut": 0.015
+    },
+    {
+     "step": 1500,
+     "shared": 0.999,
+     "cut": 0.0156
+    },
+    {
+     "step": 1750,
+     "shared": 0.9993,
+     "cut": 0.0159
+    },
+    {
+     "step": 2000,
+     "shared": 1.0,
+     "cut": 0.0145
+    },
+    {
+     "step": 2250,
+     "shared": 0.9998,
+     "cut": 0.0139
+    },
+    {
+     "step": 2500,
+     "shared": 0.9991,
+     "cut": 0.0153
+    },
+    {
+     "step": 2750,
+     "shared": 0.9996,
+     "cut": 0.0138
+    },
+    {
+     "step": 3000,
+     "shared": 0.9994,
+     "cut": 0.0151
+    },
+    {
+     "step": 3250,
+     "shared": 0.9999,
+     "cut": 0.014
+    },
+    {
+     "step": 3500,
+     "shared": 0.9988,
+     "cut": 0.0159
+    },
+    {
+     "step": 3750,
+     "shared": 0.9995,
+     "cut": 0.0139
+    },
+    {
+     "step": 4000,
+     "shared": 0.9999,
+     "cut": 0.0146
+    }
+   ]
+  },
+  {
+   "file": "relay_a2_f16_seed0.json",
+   "seed": 0,
+   "facts": 16,
+   "agents": 2,
+   "arm": "solo",
+   "shared": 0.0137,
+   "cut": 0.0137,
+   "curve": [
+    {
+     "step": 250,
+     "shared": 0.0171,
+     "cut": 0.0171
+    },
+    {
+     "step": 500,
+     "shared": 0.0143,
+     "cut": 0.0143
+    },
+    {
+     "step": 750,
+     "shared": 0.0137,
+     "cut": 0.0137
+    },
+    {
+     "step": 1000,
+     "shared": 0.017,
+     "cut": 0.017
+    },
+    {
+     "step": 1250,
+     "shared": 0.0143,
+     "cut": 0.0143
+    },
+    {
+     "step": 1500,
+     "shared": 0.0159,
+     "cut": 0.0159
+    },
+    {
+     "step": 1750,
+     "shared": 0.0159,
+     "cut": 0.0159
+    },
+    {
+     "step": 2000,
+     "shared": 0.0171,
+     "cut": 0.0171
+    },
+    {
+     "step": 2250,
+     "shared": 0.0159,
+     "cut": 0.0159
+    },
+    {
+     "step": 2500,
+     "shared": 0.0149,
+     "cut": 0.0149
+    },
+    {
+     "step": 2750,
+     "shared": 0.017,
+     "cut": 0.017
+    },
+    {
+     "step": 3000,
+     "shared": 0.0135,
+     "cut": 0.0135
+    },
+    {
+     "step": 3250,
+     "shared": 0.0144,
+     "cut": 0.0144
+    },
+    {
+     "step": 3500,
+     "shared": 0.0187,
+     "cut": 0.0187
+    },
+    {
+     "step": 3750,
+     "shared": 0.015,
+     "cut": 0.015
+    },
+    {
+     "step": 4000,
+     "shared": 0.0137,
+     "cut": 0.0137
+    }
+   ]
+  },
+  {
    "file": "relay_a4_f4_seed0.json",
    "seed": 0,
    "facts": 4,

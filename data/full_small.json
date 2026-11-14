@@ -92,6 +92,218 @@
    ]
   },
   {
+   "recipe": "together_gated",
+   "model": "exealm",
+   "seed": 0,
+   "params": 18490908,
+   "steps": 24000,
+   "source": "results/full_small/full_small_exealm_skillsA_gate_seed0.json",
+   "curve": [
+    {
+     "step": 3000,
+     "secs": 1830.5,
+     "en": 1.7727,
+     "ja_wiki": 2.0251,
+     "ja_web": 1.7446,
+     "code": 2.8826,
+     "relay_shared": 0.9857,
+     "relay_cut": 0.0133,
+     "lookup_attached": 0.748,
+     "lookup_removed": 0.0155
+    },
+    {
+     "step": 6000,
+     "secs": 3671.7,
+     "en": 1.5365,
+     "ja_wiki": 1.6719,
+     "ja_web": 1.5339,
+     "code": 1.9843,
+     "relay_shared": 0.9987,
+     "relay_cut": 0.012,
+     "lookup_attached": 0.8695,
+     "lookup_removed": 0.0097
+    },
+    {
+     "step": 9000,
+     "secs": 5509.0,
+     "en": 1.4641,
+     "ja_wiki": 1.5915,
+     "ja_web": 1.4675,
+     "code": 1.8483,
+     "relay_shared": 0.9896,
+     "relay_cut": 0.0114,
+     "lookup_attached": 0.8876,
+     "lookup_removed": 0.0169
+    },
+    {
+     "step": 12000,
+     "secs": 7343.9,
+     "en": 1.4334,
+     "ja_wiki": 1.5542,
+     "ja_web": 1.4353,
+     "code": 1.768,
+     "relay_shared": 0.998,
+     "relay_cut": 0.0094,
+     "lookup_attached": 0.8896,
+     "lookup_removed": 0.0141
+    },
+    {
+     "step": 15000,
+     "secs": 9178.8,
+     "en": 1.4139,
+     "ja_wiki": 1.5279,
+     "ja_web": 1.4146,
+     "code": 1.7431,
+     "relay_shared": 0.985,
+     "relay_cut": 0.0107,
+     "lookup_attached": 0.8943,
+     "lookup_removed": 0.0159
+    },
+    {
+     "step": 18000,
+     "secs": 11013.7,
+     "en": 1.4029,
+     "ja_wiki": 1.5162,
+     "ja_web": 1.3982,
+     "code": 1.7152,
+     "relay_shared": 0.998,
+     "relay_cut": 0.0143,
+     "lookup_attached": 0.8839,
+     "lookup_removed": 0.019
+    },
+    {
+     "step": 21000,
+     "secs": 12265.9,
+     "en": 1.3654,
+     "ja_wiki": 1.4714,
+     "ja_web": 1.3647,
+     "code": 1.6582,
+     "relay_shared": 0.999,
+     "relay_cut": 0.015,
+     "lookup_attached": 0.8988,
+     "lookup_removed": 0.0138
+    },
+    {
+     "step": 24000,
+     "secs": 13169.0,
+     "en": 1.3033,
+     "ja_wiki": 1.3988,
+     "ja_web": 1.3015,
+     "code": 1.5664,
+     "relay_shared": 1.0,
+     "relay_cut": 0.014,
+     "lookup_attached": 0.9312,
+     "lookup_removed": 0.0153
+    }
+   ]
+  },
+  {
+   "recipe": "together_search",
+   "model": "exealm",
+   "seed": 0,
+   "params": 18080796,
+   "steps": 24000,
+   "source": "results/full_small/full_small_exealm_skillsA_search_seed0.json",
+   "curve": [
+    {
+     "step": 3000,
+     "secs": 2056.8,
+     "en": 1.801,
+     "ja_wiki": 2.0477,
+     "ja_web": 1.7525,
+     "code": 3.046,
+     "relay_shared": 0.9928,
+     "relay_cut": 0.0107,
+     "lookup_attached": 0.7312,
+     "lookup_removed": 0.0163
+    },
+    {
+     "step": 6000,
+     "secs": 3870.4,
+     "en": 1.5781,
+     "ja_wiki": 1.7258,
+     "ja_web": 1.5675,
+     "code": 2.15,
+     "relay_shared": 0.8936,
+     "relay_cut": 0.0114,
+     "lookup_attached": 0.8617,
+     "lookup_removed": 0.0149
+    },
+    {
+     "step": 9000,
+     "secs": 5684.0,
+     "en": 1.5055,
+     "ja_wiki": 1.647,
+     "ja_web": 1.4983,
+     "code": 1.9809,
+     "relay_shared": 0.9987,
+     "relay_cut": 0.0114,
+     "lookup_attached": 0.8718,
+     "lookup_removed": 0.0182
+    },
+    {
+     "step": 12000,
+     "secs": 7491.4,
+     "en": 1.4699,
+     "ja_wiki": 1.6092,
+     "ja_web": 1.4703,
+     "code": 1.9012,
+     "relay_shared": 0.9486,
+     "relay_cut": 0.0146,
+     "lookup_attached": 0.8927,
+     "lookup_removed": 0.016
+    },
+    {
+     "step": 15000,
+     "secs": 9132.7,
+     "en": 1.4521,
+     "ja_wiki": 1.5748,
+     "ja_web": 1.4468,
+     "code": 1.8613,
+     "relay_shared": 0.9964,
+     "relay_cut": 0.0098,
+     "lookup_attached": 0.8894,
+     "lookup_removed": 0.0151
+    },
+    {
+     "step": 18000,
+     "secs": 10773.5,
+     "en": 1.4384,
+     "ja_wiki": 1.5743,
+     "ja_web": 1.4328,
+     "code": 1.8255,
+     "relay_shared": 0.9971,
+     "relay_cut": 0.012,
+     "lookup_attached": 0.9124,
+     "lookup_removed": 0.0161
+    },
+    {
+     "step": 21000,
+     "secs": 12399.8,
+     "en": 1.3971,
+     "ja_wiki": 1.5142,
+     "ja_web": 1.3969,
+     "code": 1.7406,
+     "relay_shared": 1.0,
+     "relay_cut": 0.0088,
+     "lookup_attached": 0.9338,
+     "lookup_removed": 0.0168
+    },
+    {
+     "step": 24000,
+     "secs": 14041.2,
+     "en": 1.3334,
+     "ja_wiki": 1.4371,
+     "ja_web": 1.3295,
+     "code": 1.6253,
+     "relay_shared": 1.0,
+     "relay_cut": 0.016,
+     "lookup_attached": 0.9439,
+     "lookup_removed": 0.017
+    }
+   ]
+  },
+  {
    "recipe": "together",
    "model": "exealm",
    "seed": 0,
@@ -972,6 +1184,112 @@
      "relay_cut": 0.015,
      "lookup_attached": null,
      "lookup_removed": 0.0303
+    }
+   ]
+  },
+  {
+   "recipe": "llama_text_only",
+   "model": "llama",
+   "seed": 0,
+   "params": 17832000,
+   "steps": 24000,
+   "source": "results/full_small/full_small_llama_textonly_seed0.json",
+   "curve": [
+    {
+     "step": 3000,
+     "secs": 950.4,
+     "en": 1.5338,
+     "ja_wiki": 1.6637,
+     "ja_web": 1.5213,
+     "code": 1.9672,
+     "relay_shared": 0.0,
+     "relay_cut": 0.0,
+     "lookup_attached": null,
+     "lookup_removed": 0.0
+    },
+    {
+     "step": 6000,
+     "secs": 2008.1,
+     "en": 1.4505,
+     "ja_wiki": 1.5762,
+     "ja_web": 1.4387,
+     "code": 1.8131,
+     "relay_shared": 0.0,
+     "relay_cut": 0.0,
+     "lookup_attached": null,
+     "lookup_removed": 0.0
+    },
+    {
+     "step": 9000,
+     "secs": 3021.2,
+     "en": 1.4204,
+     "ja_wiki": 1.5336,
+     "ja_web": 1.4109,
+     "code": 1.7611,
+     "relay_shared": 0.0,
+     "relay_cut": 0.0,
+     "lookup_attached": null,
+     "lookup_removed": 0.0001
+    },
+    {
+     "step": 12000,
+     "secs": 4046.5,
+     "en": 1.4044,
+     "ja_wiki": 1.5133,
+     "ja_web": 1.408,
+     "code": 1.7467,
+     "relay_shared": 0.0,
+     "relay_cut": 0.0,
+     "lookup_attached": null,
+     "lookup_removed": 0.0002
+    },
+    {
+     "step": 15000,
+     "secs": 4914.2,
+     "en": 1.3985,
+     "ja_wiki": 1.4988,
+     "ja_web": 1.3846,
+     "code": 1.7197,
+     "relay_shared": 0.0,
+     "relay_cut": 0.0,
+     "lookup_attached": null,
+     "lookup_removed": 0.0
+    },
+    {
+     "step": 18000,
+     "secs": 5806.2,
+     "en": 1.3866,
+     "ja_wiki": 1.4965,
+     "ja_web": 1.3812,
+     "code": 1.7043,
+     "relay_shared": 0.0,
+     "relay_cut": 0.0,
+     "lookup_attached": null,
+     "lookup_removed": 0.0002
+    },
+    {
+     "step": 21000,
+     "secs": 6730.1,
+     "en": 1.3499,
+     "ja_wiki": 1.4554,
+     "ja_web": 1.3394,
+     "code": 1.6333,
+     "relay_shared": 0.0,
+     "relay_cut": 0.0,
+     "lookup_attached": null,
+     "lookup_removed": 0.0002
+    },
+    {
+     "step": 24000,
+     "secs": 7628.9,
+     "en": 1.2875,
+     "ja_wiki": 1.3758,
+     "ja_web": 1.2698,
+     "code": 1.5418,
+     "relay_shared": 0.0,
+     "relay_cut": 0.0,
+     "lookup_attached": null,
+     "lookup_removed": 0.0005
     }
    ]
   }

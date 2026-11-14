@@ -21,10 +21,11 @@ const L = {
     all: "All",
     model: (r: Row) => (r.model === "llama" ? "Llama" : r.model === "tonn_core_search" ? "TONN + search" : r.model === "tonn" ? "TONN + memory" : "TONN"),
     layout: (r: Row) => {
-      const a = (r.cfg as { attn_layers?: number[] }).attn_layers;
-      if (r.model === "llama") return "all attention";
-      if (!a) return "all TONN";
-      return `attention at ${a.join(", ")}`;
+      const c = r.cfg as { attn_layers?: number[]; delta_layers?: number[]; attn_gate?: boolean; qk_norm?: boolean };
+      const q = c.attn_gate || c.qk_norm ? ", gated + QK-norm" : "";
+      if (r.model === "llama") return (c.delta_layers?.length ? `DeltaNet at ${c.delta_layers.join(", ")}` : "all attention") + q;
+      if (!c.attn_layers) return "all TONN";
+      return `attention at ${c.attn_layers.join(", ")}${q}` + (c.delta_layers?.length ? `, DeltaNet at ${c.delta_layers.join(", ")}` : "");
     },
     start: (r: Row) => ((r.cfg as { init_weights?: Record<string, number> }).init_weights?.C ? "conv start" : ""),
     budget: (r: Row) => (r.budget ? `${r.budget.toLocaleString()} s` : `${(r.steps ?? 3000).toLocaleString()} steps`),
@@ -37,10 +38,11 @@ const L = {
     all: "すべて",
     model: (r: Row) => (r.model === "llama" ? "Llama" : r.model === "tonn_core_search" ? "TONN＋探索" : r.model === "tonn" ? "TONN＋メモリ" : "TONN"),
     layout: (r: Row) => {
-      const a = (r.cfg as { attn_layers?: number[] }).attn_layers;
-      if (r.model === "llama") return "すべてアテンション";
-      if (!a) return "すべて TONN";
-      return `アテンション：${a.join(", ")}`;
+      const c = r.cfg as { attn_layers?: number[]; delta_layers?: number[]; attn_gate?: boolean; qk_norm?: boolean };
+      const q = c.attn_gate || c.qk_norm ? "、ゲート＋QK-norm" : "";
+      if (r.model === "llama") return (c.delta_layers?.length ? `DeltaNet：${c.delta_layers.join(", ")}` : "すべてアテンション") + q;
+      if (!c.attn_layers) return "すべて TONN";
+      return `アテンション：${c.attn_layers.join(", ")}${q}` + (c.delta_layers?.length ? `、DeltaNet：${c.delta_layers.join(", ")}` : "");
     },
     start: (r: Row) => ((r.cfg as { init_weights?: Record<string, number> }).init_weights?.C ? "畳み込み寄り" : ""),
     budget: (r: Row) => (r.budget ? `${r.budget.toLocaleString()} 秒` : `${(r.steps ?? 3000).toLocaleString()} ステップ`),

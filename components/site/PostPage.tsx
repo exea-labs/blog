@@ -98,7 +98,7 @@ export async function PostPage({ slug, lang }: { slug: string; lang: Lang }) {
             {meta.sources.map((s) => (
               <li key={s.href} className="border-b border-[var(--line)]">
                 <a href={s.href} className="flex items-baseline justify-between gap-4 py-3 no-underline transition-colors hover:text-signal-ink">
-                  <span className="text-[1rem]">{s.label}</span>
+                  <span className="min-w-0 text-[1rem] [overflow-wrap:anywhere]">{s.label}</span>
                   <span className="mono shrink-0 text-ink-3">{new URL(s.href).hostname.replace("www.", "")}</span>
                 </a>
               </li>
