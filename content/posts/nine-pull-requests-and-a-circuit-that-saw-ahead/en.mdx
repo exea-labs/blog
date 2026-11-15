@@ -1,0 +1,92 @@
+---
+title: "Nine pull requests from Aaron. One found a circuit that sees ahead."
+date: 2026-11-14
+order: 1
+day: 5
+summary: "Aaron opened nine pull requests on day 5. Eight are merged: a board shared over HTTP, an optional FAISS index, benchmark decontamination, checked data formatters, an evaluation adapter and two bug fixes. The ninth shows that a circuit with no measured scale yet lets earlier predictions depend on later tokens. Its fix removes the dependence but is 0.017 bits per token worse in a 100-step pilot (2 seeds, 127K parameters), so it stays open."
+dek: "Eight are merged. The ninth found a way for a new circuit to see later tokens."
+cover: merge
+tags: [contributions, data, retrieval, swarms]
+numbers:
+  - { value: "8 of 9", label: "pull requests from Aaron merged on day 5; the ninth is a draft he asked us to hold" }
+  - { value: "0.0038", label: "change in an earlier prediction when one later token changes, in a circuit with no measured scale (0.00000015 with the fix)" }
+  - { value: "85%", label: "of the exact top 4 found by the FAISS index on 1M random keys, in 37 ms against 236 ms for exact search" }
+credits:
+  - { login: aarochu, name: "Aaron Chu", what: "Wrote all nine pull requests in this post (#39 to #47). Found the look-ahead in unmeasured circuits while checking the evaluation adapter, and ran the pilot that keeps his own fix out for now." }
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Reviewed the eight pull requests and merged them together (PR #48). Wrote the checkpoint loader, lockstep generation, the chat template and demo, and Weights & Biases logging (PR #49)." }
+sources:
+  - { label: "PR #39: board merge capacity and replacement order", href: "https://github.com/exea-labs/ExeaLM/pull/39" }
+  - { label: "PR #40: share inference boards over HTTP", href: "https://github.com/exea-labs/ExeaLM/pull/40" }
+  - { label: "PR #41: filter benchmark token overlap from packed shards", href: "https://github.com/exea-labs/ExeaLM/pull/41" }
+  - { label: "PR #42: optional FAISS IVF-PQ datastore", href: "https://github.com/exea-labs/ExeaLM/pull/42" }
+  - { label: "PR #43: datastore sampling fix", href: "https://github.com/exea-labs/ExeaLM/pull/43" }
+  - { label: "PR #44: export held-out benchmark text", href: "https://github.com/exea-labs/ExeaLM/pull/44" }
+  - { label: "PR #45: checked K2 formatters", href: "https://github.com/exea-labs/ExeaLM/pull/45" }
+  - { label: "PR #46: lm-evaluation-harness adapter", href: "https://github.com/exea-labs/ExeaLM/pull/46" }
+  - { label: "PR #47 (draft): keep unmeasured circuit normalization causal", href: "https://github.com/exea-labs/ExeaLM/pull/47" }
+  - { label: "PR #48: the eight merged together", href: "https://github.com/exea-labs/ExeaLM/pull/48" }
+  - { label: "PR #49: loader, swarm generation, chat template and demo, W&B logging", href: "https://github.com/exea-labs/ExeaLM/pull/49" }
+  - { label: "results/faiss_datastore (m8.json, m16.json)", href: "https://github.com/exea-labs/ExeaLM/tree/main/results/faiss_datastore" }
+  - { label: "results/benchmark_exports", href: "https://github.com/exea-labs/ExeaLM/tree/main/results/benchmark_exports" }
+  - { label: "results/harness_smoke", href: "https://github.com/exea-labs/ExeaLM/tree/main/results/harness_smoke" }
+---
+
+The Mac Studio that ran every experiment so far went back on day 4. Nothing trained on day 5. Aaron (<a href="https://github.com/aarochu">@aarochu</a>) opened nine pull requests instead. Eight are merged, with his commits as he wrote them. The ninth is a draft. It reports a flaw in the model code that we had not seen, and its own test shows the fix is not ready.
+
+## A circuit with no measured scale looks at the whole batch
+
+Each <Term id="tonn">TONN</Term> layer divides the output of every <Term id="circuit">circuit</Term> by that circuit's usual size, so no circuit drowns out the others. The usual size is a running average over past training batches. A circuit that has never been through a training step has no average yet. That is the case for every circuit at the start of training and for every circuit the <Term id="search">search</Term> has put in since the last step. For those, the code used the size of the output on the batch being read.
+
+That size is one number computed over every position and every row of the batch. So the prediction at an early position depends a little on tokens that come later, and on other rows that should be independent. A language model must not do either. Aaron found it while checking that the evaluation adapter scores each example alone.
+
+His test builds a model whose circuits are all unmeasured and changes one later token. An earlier prediction moves by 0.0038. With his fix, which uses a constant scale of 1 until the first measurement, it moves by 0.00000015. Changing a different row of the batch moves the prediction by 0.049 before the fix and by exactly zero after it.
+
+## The fix is not merged, by its author's choice
+
+Our rule is that a change to the model has to win a fair comparison first. Aaron ran one: the `tiny` model (127,432 parameters), 100 steps, 2 seeds, the same data and starting weights in both arms. Validation went from 5.018 to 5.000 <Term id="bpt">bits per token</Term> on seed 0 and from 5.108 to 5.159 on seed 1. The mean is 0.017 worse. He also tried a scale computed only from earlier positions. It removed the look-ahead and was worse on both seeds.
+
+A 100-step run of a 127K-parameter model cannot settle this, and the two seeds disagree. He marked the pull request as a draft and asked us to hold it until a longer comparison on real text exists. We agree. It is on the to-do list.
+
+<Note title="What this means for the numbers we have published">
+  <p>We have not measured it. A circuit is unmeasured only until its first training step, so the look-ahead is open for one step per new circuit during training. A trained model scored after training has measured scales for every circuit, unless the search replaced one right before the evaluation. We expect the effect on published numbers to be small. That is an expectation, and the pull request says the same: it does not claim to explain any reported result.</p>
+</Note>
+
+## The eight that are merged
+
+<CardList>
+
+1. **A board shared over HTTP** (PR #40). Until now the persistent <Term id="board">board</Term> lived inside one Python process. `python -m exealm.memory.board_server` runs it as a small web service. `RemoteAgentBoard` has the same post, read and merge calls as the local board. His test starts two `tiny` agents in separate processes. The second hears the first, with predictions equal to the local board's to within 0.000001. It is one server process with boards held in memory, for inference only.
+2. **Board merge fix** (PR #39). Merging one board into another ignored the board's capacity and left replaced messages in their old place in the queue. Merge now follows the same rule as posting: the newest message stays, the oldest goes.
+3. **An optional FAISS index** (PR #42). The <Term id="retrieval">retrieval</Term> library searches every stored key exactly. [FAISS](https://github.com/facebookresearch/faiss) can search approximately and faster. On 1 million random 32-number keys with 256 queries, the index with 16 subquantizers and 32 probes finds 85.0% of the exact top 4 in 36.8 ms, against 235.9 ms for exact search. Retrieval must skip the document being read. With that exclusion on, it takes 189.7 ms against 360.9 ms. At 128 probes it finds 94.2% but the exclusion makes it slower than exact search (712.2 ms). Exact search stays the default.
+4. **Datastore sampling fix** (PR #43). Building a library from documents that are all shorter than one <Term id="chunk">chunk</Term> looped forever. The last possible chunk of the corpus could never be drawn. Both are fixed. The same seed now draws different chunks than before, so replaying an old checkpoint exactly needs the old code.
+5. **Held-out benchmark text** (PR #44). `exealm/data/benchmarks.py` exports the test text of HellaSwag, ARC-Easy, ARC-Challenge, MMLU, GSM8K, HumanEval and JCommonsenseQA: 30,234 items, each export tied to the dataset revision it came from. This text is for exclusion. It never enters the training mix.
+6. **The filter that uses it** (PR #41). `exealm/data/decontam.py` drops any packed training document that shares a run of 13 tokens with a benchmark. It reports the drops per source and per benchmark. In his end-to-end check, a GSM8K question copied into training data was removed and an unrelated document was kept.
+7. **Checked formatters for K2** (PR #45). The downloader used to guess which field of a row held the text. On a broken row it could turn the row's metadata into a training document. Each of the 24 K2 Horizon subsets now has a registered formatter that keeps the text as it is and drops broken rows. He checked 2 live rows per subset, 48 in all.
+8. **An evaluation adapter** (PR #46). `python -m exealm.eval.harness` runs a checkpoint through EleutherAI's [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness), so ExeaLM can be scored on the same tasks as other models. His test run scored 0.30 on 20 HellaSwag questions with a model trained for 3 steps on random tokens. That number shows the pipeline runs. It says nothing about ExeaLM.
+
+</CardList>
+
+The eight touched the same lines of the documentation and the test setup, so we merged them in one branch (PR #48) and resolved the overlaps there. The FAISS tests crash on a Mac with the standard pip packages, because PyTorch and FAISS each bring their own copy of the same threading library. His documentation says so. They pass on Linux, where our automatic tests run.
+
+## Four more to-do items, written on a laptop
+
+With no GPU, we closed four to-do items that need none (PR #49).
+
+- `exealm.from_pretrained("17m/exealm_together_gated_seed0")` loads a research checkpoint and its <Term id="tokenizer">tokenizer</Term> from [Hugging Face](https://huggingface.co/exea-labs/ExeaLM) in one line.
+- `exealm/generate.py` writes for several agents at once. Every agent gets one new token per step. With `swarm=True` the agents share a board while they write, as they do in training.
+- `python -m exealm.chat` is a terminal demo for one agent or a <Term id="swarm">swarm</Term>. It includes the chat template, meaning the fixed format that marks who is speaking in a conversation.
+- `--wandb` sends training logs to Weights & Biases.
+
+No checkpoint has been through post-training, the stage that teaches a model to answer. So the demo cannot chat yet. With `--raw` it continues text. Asked to continue "The capital of Japan is", the 17M model with the most likely token at every step wrote: "the capital of Japan. The capital of Japan is the capital of Japan, which is the capital of Japan." That is what a 17M model after a few thousand steps does.
+
+## What this does not show
+
+No model was trained on day 5, so no number about ExeaLM's quality changed. The FAISS numbers are for random keys on one machine and one seed. Real retrieval keys cluster differently, and nothing here says whether 85% of the exact neighbors is enough for the model's loss. The decontamination filter has been run on test files only. It is plain Python and will need to be faster for 100 billion tokens. The look-ahead has a test that shows it and a fix that removes it. Its effect on any trained model is unmeasured.
+
+## Next
+
+- Run the look-ahead fix against the current code on real text with the `small` preset, 2 seeds or more, and merge PR #47 if it holds.
+- Compare FAISS against exact search on real retrieval keys, then on the model's loss.
+- Run the benchmark filter over a sample of the real mix and report what it drops from each source.
+
+All three are on the [to-do list](https://github.com/exea-labs/ExeaLM#to-do-list). The first and third run on a free Colab GPU. Sign up through the [form](https://docs.google.com/forms/d/e/1FAIpQLSdPHVZhuXxBDUf-cJM2zDbj1JZPsduu95Y_kTJ_g4gKAXdDVw/viewform), or open a pull request.
