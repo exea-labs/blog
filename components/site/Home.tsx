@@ -8,6 +8,8 @@ import { allPosts } from "@/lib/posts";
 import { href, t, type Lang } from "@/lib/i18n";
 import cmp from "@/data/comparisons.json";
 import speed from "@/data/speed.json";
+import full from "@/data/full_small.json";
+import qwen from "@/data/qwen.json";
 
 type Row = { name: string; tokens_per_sec: number };
 const rel = (k: string) => {
@@ -28,11 +30,27 @@ export function Home({ lang }: { lang: Lang }) {
   const [latest, ...rest] = posts;
   const other: Lang = ja ? "en" : "ja";
   const big = cmp.equal_time.find((c) => c.size === "90M")!;
+  // Round half up, as the results report does (the full model's mean is 1.3925).
+  const r3 = (x: number) => (Math.round(x * 1000 + 1e-6) / 1000).toFixed(3);
+  const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+  type Run = { recipe: string; model: string; seed: number; curve: Record<string, number>[] };
+  const last = (recipe: string) => {
+    const c = (full.runs as unknown as Run[]).find((x) => x.recipe === recipe && x.model === "exealm" && x.seed === 0)!.curve.at(-1)!;
+    return { bpb: mean([c.en, c.ja_wiki, c.ja_web, c.code]), relay: c.relay_shared, lookup: c.lookup_attached };
+  };
+  const gated = last("together_gated");
+  const plain = last("together");
+  type QRun = { mean: number };
+  const steps = (key: string) => (qwen.models as unknown as { key: string; equal_steps: QRun[] }[]).find((m) => m.key === key)!.equal_steps;
+  const ours = steps("hybrid_gate");
+  const q35 = steps("qwen35");
+  const pct = (x: number) => Math.round(x * 100);
   const results = [
-    { v: big.hybrid.mean.toFixed(3), unit: "bpb", slug: "hybrid-beats-llama", h: ja ? "0.1B で同サイズの Llama を上回る" : "Ahead of a same-size Llama at 0.1B", p: ja ? `Llama は ${big.llama.mean.toFixed(3)}。同じ学習時間。シードはまだ 1 つ。` : `Llama: ${big.llama.mean.toFixed(3)}. Same training time. One seed so far.` },
+    { v: big.hybrid.mean.toFixed(3), unit: "bpb", slug: "hybrid-beats-llama", h: ja ? "0.1B で同サイズの Llama を上回る" : "Ahead of a same-size Llama at 0.1B", p: ja ? `Llama は ${big.llama.mean.toFixed(3)}。同じ学習時間。シード ${big.hybrid.seeds.length} つ。短い学習で、記憶回路なし。` : `Llama: ${big.llama.mean.toFixed(3)}. Same training time, ${big.hybrid.seeds.length} seeds. Short runs without the memory circuits.` },
+    { v: r3(gated.bpb), unit: "bpb", slug: "two-parts-from-qwen35-make-the-hybrid-better", h: ja ? "掲示板とライブラリを備えた 18M のモデル" : "One 18M model with its board and its library", p: ja ? `ゲート付きアテンションと QK-norm なしでは ${r3(plain.bpb)}。中継タスク ${pct(gated.relay)}%、検索タスク ${pct(gated.lookup)}%。シードはまだ 1 つ。` : `${r3(plain.bpb)} without gated attention and QK-norm. Relay ${pct(gated.relay)}%, lookup ${pct(gated.lookup)}%. One seed so far.` },
+    { v: r3(mean(ours.map((x) => x.mean))), unit: "bpb", slug: "two-parts-from-qwen35-make-the-hybrid-better", h: ja ? "13M で Qwen3.5 型のモデルを上回る" : "Ahead of a Qwen3.5-style model at 13M", p: ja ? `Qwen3.5 型は ${r3(mean(q35.map((x) => x.mean)))}。同じステップ数、シード ${ours.length} つ。18M と 0.1B ではまだ比べていません。` : `Qwen3.5-style: ${r3(mean(q35.map((x) => x.mean)))}. Same steps, ${ours.length} seeds. Not compared at 18M or 0.1B yet.` },
     { v: rel("hybrid_2to1").toFixed(2), unit: "×", slug: "hybrid-beats-llama", h: ja ? "Llama と同じ学習速度" : "Trains at Llama's speed", p: ja ? `トークンあたりのコスト。純粋な TONN は ${rel("pure_tonn").toFixed(2)} 倍。` : `Cost per token against Llama. Pure TONN was ${rel("pure_tonn").toFixed(2)}×.` },
-    { v: "0.012", unit: "bpb", slug: "seven-pull-requests-and-a-leak", h: ja ? "スウォームは実際のテキストで効く" : "Swarms help on real text", p: ja ? "リークを差し引いても、少なくともこれだけ。シード 2 つ。" : "At least this much, after a leak fix. Two seeds." },
-    { v: "30", unit: "%", slug: "retrieval-on-real-text-and-a-correction", h: ja ? "検索はまだ未解決" : "Retrieval's open problem", p: ja ? "検索が正しい記事を見つける割合。" : "How often the search finds the right article." },
+    { v: "30", unit: "%", slug: "retrieval-on-real-text-and-a-correction", h: ja ? "検索はまだ未解決" : "Retrieval's open problem", p: ja ? "検索が正しい記事を見つける割合。実際のテキストでは、記憶回路はまだ損失を下げていません。" : "How often the search finds the right article. On real text the memory circuits do not lower the loss yet." },
   ];
   const beam = [
     { id: "latest", label: d.latest },
