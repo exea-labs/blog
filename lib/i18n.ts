@@ -64,7 +64,7 @@ const en = {
 
 const ja: typeof en = {
   description:
-    "Exea Labs の日々の記録。いま取り組んでいるのは、0.1B のオープンな言語モデル ExeaLM の公開開発です。試したこと、数字が示したこと、壊れたことを書きます。",
+    "1 億パラメータ級の言語モデル ExeaLM をゼロから学習させる開発記録。試した手法、実験結果、うまくいかなかったことを公開します。",
   nav: { posts: "記事", architecture: "アーキテクチャ", results: "結果", glossary: "用語集" },
   search: "検索",
   searchPlaceholder: "記事・図・用語を検索",
@@ -78,10 +78,10 @@ const ja: typeof en = {
   day: (n: number) => `${n}日目`,
   readPost: "読む",
   byline: "Exea チーム",
-  workBy: "この記事の作業",
-  contributors: "つくっている人",
+  workBy: "この記事で紹介した取り組みの担当",
+  contributors: "開発チーム",
   contributorsNote:
-    "ExeaLM にマージされた貢献のある人を GitHub から一覧にしています。高校生は登録フォームから参加できます。",
+    "GitHub で ExeaLM に取り込まれた変更の貢献者を掲載しています。高校生はフォームから参加を申し込めます。",
   joinCta: "参加を申し込む",
   commits: (n: number) => `${n} コミット`,
   maintainer: "メンテナー",
@@ -94,7 +94,7 @@ const ja: typeof en = {
   allTopics: "すべて",
   minutes: (n: number) => `${n}分で読めます`,
   where: "ExeaLM の現在地",
-  whereNote: "これまでの小規模実験の結果です。それぞれ測定した記事にリンクしています。",
+  whereNote: "これまでの小規模実験の結果です。各結果から、測定条件を記載した記事に移動できます。",
   footerNote: "高校生が運営する研究ラボ。コードと重みは Apache 2.0。",
   rss: "RSS フィード",
   correction: "訂正",

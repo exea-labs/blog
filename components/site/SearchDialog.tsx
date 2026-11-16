@@ -53,6 +53,7 @@ export function SearchDialog({ lang }: { lang: Lang }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.isComposing || e.keyCode === 229) return;
       const typing = (e.target as HTMLElement)?.closest?.("input, textarea, [contenteditable=true]");
       if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) {
         e.preventDefault();
@@ -108,10 +109,12 @@ export function SearchDialog({ lang }: { lang: Lang }) {
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
+    // Let the IME handle candidate selection and confirmation.
+    if (e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229) return;
     if (e.key === "Escape") setOpen(false);
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setActive((a) => Math.min(a + 1, hits.length - 1));
+      setActive((a) => Math.min(a + 1, Math.max(0, hits.length - 1)));
     }
     if (e.key === "ArrowUp") {
       e.preventDefault();
