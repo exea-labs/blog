@@ -1,0 +1,144 @@
+---
+title: "At 0.1B the hybrid leads every baseline. Agents now teach each other by editing weights."
+date: 2026-11-15
+order: 1
+day: 6
+summary: "On one rented AMD MI300X we reran the same-size comparisons at equal steps. At about 0.1B parameters the hybrid scores 1.427 bits per byte (3 seeds), and 1.413 with one circuit type left out of its starting menu, against 1.446 for a gated Llama, 1.457 for our Qwen3.5-style build and 1.509 for Llama (3 seeds each). At 13M the five-seed means tie, because one hybrid seed drew poor starting circuits. A new circuit lets one agent edit another agent's weights. Its first version passed 52% of the facts in the relay task. With the key taken from the edited layer itself it passes 99.7 to 100% (6 runs), as the board does."
+dek: "Five seeds at 13M, three at 0.1B, and a circuit that writes into another agent's weights."
+cover: stack
+tags: [architecture, scaling, swarms]
+numbers:
+  - { value: "1.427", label: "bits per byte, ExeaLM hybrid at 0.1B, 3 seeds at equal steps (gated Llama 1.446, Qwen3.5-style 1.457, Llama 1.509); 1.413 without rotary attention in the starting menu" }
+  - { value: "1.523", label: "bits per byte at 13M, mean of 5 seeds; Qwen3.5-style 1.522, gated Llama 1.523. A tie, caused by one weak seed (1.567)" }
+  - { value: "100%", label: "of relay facts passed by weight edits alone once the key comes from the edited layer (99.7 to 100% on 6 runs); about 52% with a learned key, 1.6% by chance" }
+credits:
+  - { login: aarochu, name: "Aaron Chu", what: "Found the look-ahead in unmeasured circuits and wrote its fix (PR #47). This post's real-text comparison is the test he asked for before merging it." }
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Ran the MI300X session, wrote the weight-alter circuit, its new key and the consolidated result tables (PRs #54, #55, #56)." }
+sources:
+  - { label: "results/funding/README.md: every table in this post", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/funding/README.md" }
+  - { label: "results/funding: one JSON file per run, with its exact arguments", href: "https://github.com/exea-labs/ExeaLM/tree/main/results/funding" }
+  - { label: "results/weight_alter_hkey and results/weight_alter_diag: the new key and the per-question scores", href: "https://github.com/exea-labs/ExeaLM/tree/main/results/weight_alter_hkey" }
+  - { label: "results/weight_alter: relay runs and logs", href: "https://github.com/exea-labs/ExeaLM/tree/main/results/weight_alter" }
+  - { label: "results/combined: the 0.1B model with all three memory circuits", href: "https://github.com/exea-labs/ExeaLM/tree/main/results/combined" }
+  - { label: "PR #47: keep unmeasured circuit normalization causal (merged)", href: "https://github.com/exea-labs/ExeaLM/pull/47" }
+  - { label: "PR #54: weight-alter circuit and the MI300X comparisons", href: "https://github.com/exea-labs/ExeaLM/pull/54" }
+  - { label: "PR #55: weight-alter key from the edited layer", href: "https://github.com/exea-labs/ExeaLM/pull/55" }
+  - { label: "PR #56: final results of the session", href: "https://github.com/exea-labs/ExeaLM/pull/56" }
+  - { label: "exealm/model/alter.py", href: "https://github.com/exea-labs/ExeaLM/blob/main/exealm/model/alter.py" }
+---
+
+Day 5 ended with no GPU and an open question about a look-ahead in the model code. On day 6 we rented one AMD MI300X for a few hours. We used it for three things: the same-size comparisons on more seeds, the test that the look-ahead fix was waiting for, and a new <Term id="circuit">circuit</Term> that edits weights.
+
+## How the comparisons are run
+
+Every model in a table has the same width, depth, <Term id="tokenizer">tokenizer</Term> (32,768 tokens), data, batch and learning-rate schedule. Each trains for 3,000 steps of 16,384 tokens, about 49 million tokens. The data is half English, 30% Japanese and 20% code. We report <Term id="bpb">bits per byte</Term> on held-out English, Japanese Wikipedia, Japanese web text and code, and the mean of the four. Lower is better. All runs are in 32-bit precision.
+
+There are three baselines. Llama is a plain Llama-style transformer. The gated Llama adds gated attention and QK-norm, the two parts we took from Qwen3.5 on day 4. The Qwen3.5-style model is our own build of that layout, with Gated DeltaNet and gated attention layers at about 3 to 1. It is not the released Qwen3.5 weights.
+
+These are comparisons at equal steps. On this GPU the hybrid takes about 1.2 times as long per step as Llama, so at equal training time its lead is smaller than the tables show.
+
+## At 13M the means tie, because of one seed
+
+| Model | Seeds | Mean | Median | Per seed |
+|---|---|---|---|---|
+| ExeaLM hybrid | 5 | 1.523 | **1.511** | 1.511, 1.511, 1.505, 1.521, 1.567 |
+| Qwen3.5-style | 5 | **1.522** | 1.521 | 1.519, 1.521, 1.529, 1.517, 1.522 |
+| Llama + gated attention + QK-norm | 5 | 1.523 | 1.521 | 1.525, 1.521, 1.528, 1.518, 1.520 |
+| Llama | 5 | 1.550 | 1.548 | 1.544, 1.559, 1.551, 1.546, 1.548 |
+
+Seeds 0 to 2 of the hybrid beat every baseline run. Seed 3 is level with them. Seed 4 scored 1.567, most of it lost on code. A seed fixes the starting weights and, for ExeaLM, the starting circuits. Seed 4 drew four rotary-attention circuits and no state-space or oscillating memory. That one run pulls the hybrid's mean level with the two strongest baselines. Its spread is several times theirs.
+
+The <Term id="search">search</Term> is supposed to repair a bad draw. It did not. With the search on, seed 4 scored 1.565 against 1.567. As tuned, the search replaced one circuit in the whole run.
+
+Removing rotary attention from the starting menu did repair it. The attention layers of the hybrid already do what that circuit does. With it left out, the five seeds score 1.503, 1.509, 1.514, 1.515 and 1.514 (mean 1.511). Every one is ahead of every Qwen3.5-style run and every gated-Llama run. We chose this menu after seeing the weak seed, so we tested it on five seeds it had not seen (5 to 9).
+
+| Model, seeds 5 to 9 | Mean | Per seed |
+|---|---|---|
+| ExeaLM hybrid, no rotary attention in the starting menu | **1.511** | 1.505, 1.504, 1.507, 1.527, 1.512 |
+| ExeaLM hybrid, original menu | 1.520 | 1.524, 1.544, 1.508, 1.512, 1.510 |
+| Qwen3.5-style | 1.523 | 1.520, 1.522, 1.524, 1.527, 1.522 |
+| Llama + gated attention + QK-norm | 1.521 | 1.523, 1.515, 1.521, 1.521, 1.523 |
+
+The menu holds. Without rotary attention the hybrid is 0.012 bits per byte ahead of the Qwen3.5-style model and 0.010 ahead of the gated Llama. It beats the gated Llama on 4 of the 5 new seeds. Against the Qwen3.5-style model it is ahead on 4 and level on seed 8 (1.5269 against 1.5270). The original menu drew another weak seed (1.544). The next section shows it at 0.1B.
+
+## At 0.1B the hybrid is ahead on every seed
+
+| Model | Parameters | Seeds | Mean | Per seed |
+|---|---|---|---|---|
+| ExeaLM hybrid, no rotary attention in the starting menu | 93.4M | 3 | **1.413** | 1.416, 1.415, 1.410 |
+| ExeaLM hybrid | 93.4M | 3 | 1.427 | 1.441, 1.419, 1.419 |
+| Llama + gated attention + QK-norm | 95.5M | 3 | 1.446 | 1.444, 1.447, 1.447 |
+| Qwen3.5-style | 95.7M | 3 | 1.457 | 1.461, 1.453, 1.457 |
+| Llama | 89.7M | 3 | 1.509 | 1.507, 1.510, 1.509 |
+
+The models are 640 wide and 14 layers deep. The hybrid has TONN layers at positions 0, 3, 6, 9 and 12. Against Llama it is 0.082 bits per byte better, on 3 of 3 seeds. Against the gated Llama it is 0.019 better, on 3 of 3. Against the Qwen3.5-style model it is 0.030 better, on 3 of 3.
+
+The hybrid's weakest seed here (1.441) is still ahead of every baseline run, but only by 0.003 over the gated Llama.
+
+The menu without rotary attention helps at this size too. Its three seeds score 1.416, 1.415 and 1.410. That is 0.033 ahead of the gated Llama, 0.044 ahead of the Qwen3.5-style model and 0.095 ahead of Llama. The weak seed 0 moves from 1.441 to 1.416.
+
+## The look-ahead fix costs nothing, so it is merged
+
+On day 5 Aaron (<a href="https://github.com/aarochu">@aarochu</a>) showed that a circuit with no measured scale lets an early prediction depend on later tokens. His fix was 0.017 bits per token worse in a 100-step pilot, so he asked us to hold it until a real-text comparison existed.
+
+At 13M on real text, three seeds score 1.517, 1.509 and 1.501 with the fix, against 1.511, 1.511 and 1.505 without it. The mean difference is 0.0001 bits per byte. PR #47 is merged. Every 0.1B hybrid run above uses it.
+
+## A circuit that edits weights
+
+The <Term id="board">board</Term> lets agents pass messages. We added a second path. A weight-alter slot (`WA`, `exealm/model/alter.py`) reads one <Term id="chunk">chunk</Term> and emits a small change to one weight matrix, the output matrix of the MLP after its layer. The change is a product of two vectors. One says which inputs the change applies to. The other says what to add to the output for those inputs. A setting chooses whose copy of the matrix changes: the agent's own, the other agents of its <Term id="swarm">swarm</Term>, or all of them.
+
+The change takes effect from the next chunk on and lasts for the rest of the pass. Nothing is written to the stored parameters. The slot learns what to write from the ordinary loss, like every other circuit. This is the fast-weights idea ([Schmidhuber, 1992](https://people.idsia.ch/~juergen/FKI-147-91ocr.pdf); [Ba et al., 2016](https://arxiv.org/abs/1610.06258)) with the write rule placed inside a TONN layer. `WA` is not in the default menu.
+
+## The first version passed half of what the board passes
+
+The relay task from day 1 tests a path between agents. One copy of the model reads four facts. Another copy must answer questions about them. Only the path under test connects the two. Chance is 1.6%. The model has 0.8M parameters and trains for 3,000 steps.
+
+| Path between the agents | Seeds | Facts passed | With the path cut |
+|---|---|---|---|
+| Board | 3 | 99.8 to 99.9% | at most 2.1% |
+| Weight-alter, learned key | 3 | 51.1 to 53.9% | at most 1.7% |
+| Weight-alter, learned key, edits to the MLP's input matrix | 3 | 45.4 to 49.5% | at most 1.9% |
+| Weight-alter, key from the edited layer | 3 | 99.7 to 100% | at most 2.1% |
+| Weight-alter, key from the edited layer, edits to the input matrix | 3 | 100% | at most 1.9% |
+
+In the first version both vectors of an edit were learned maps of the writing slot's input. It stopped near 52% on every seed. Two or four slots per layer gave 53%. Writes corrected so that they do not disturb each other gave the same. So did learned positions for reading the key and the value.
+
+52% is a suspicious number. Suppose the asker learns which four answers exist but not which question each belongs to. It guesses among the four, and it rules out each answer once it has seen it. That scores 25%, 33%, 50% and 100% on the four questions in turn, or 52% on average. We reran the first version on three seeds and scored it question by question. The four questions score 25 to 30%, 34 to 36%, 49 to 50% and 90 to 93%. The edits carried the values across. The model never learned to tie each value to its key.
+
+## The key now comes from the layer being edited
+
+The fix follows from that. An edit only fires when the reader's activation matches the edit's key. With a learned key, the writer has to discover what the reader's activation for the same token will look like. It never did.
+
+So we stopped asking it to. With `wa_key="hidden"`, the key of an edit is what the edited matrix itself receives at the fact, in the writer's own copy of the layer. A reader that meets the same token produces nearly the same activation, so the key matches without being learned. The slot still learns what to write and how strongly. This is the key that ROME uses to edit facts in a trained transformer ([Meng et al., 2022](https://arxiv.org/abs/2202.05262)), computed here by the model on itself during the forward pass.
+
+With this key all six runs pass 99% at the first evaluation, step 250, and end at 99.7 to 100%. With the path cut they score 1.4 to 2.1%. A run with eight facts instead of four also ends at 100% (one seed), where the first version was at 22% at step 1,750 and still training. Two new tests check that an edit cannot affect any token before the end of the chunk that produced it.
+
+On ordinary text the circuit still costs a little. One self-editing slot per TONN layer at 13M scores 1.521, 1.517 and 1.505 with the new key, against 1.517, 1.509 and 1.501 without the slot. That is 0.005 bits per byte worse, on all three seeds. With edits to the input matrix it is 0.003 worse. The first version cost about 0.008 (2 seeds). The new key makes agents able to teach each other. It does not make a model better at plain text by editing itself.
+
+## One 0.1B model with the board, the library and weight edits
+
+We trained one 94.7M hybrid with all three memory circuits: the board, the <Term id="retrieval">retrieval</Term> library and a weight-alter slot in every TONN layer. It trained mostly on real text, with relay and lookup batches mixed in. A Llama of 89.7M trained on the same stream of batches.
+
+| At step 3,000, seed 0 | ExeaLM, all three | Llama |
+|---|---|---|
+| Relay | 99.4% (0.8% with the board cut) | 1.4% |
+| Lookup in 1,024 unseen facts | 77.6% (1.6% without the library) | 1.5% |
+| English, bits per byte | 1.706 | 2.046 |
+
+Both skills form at this size. The board carries the relay alone: with the weight-alter slots off it stays at 99.4%, and with the board off it falls to 0.7%. This model used the first version of weight-alter. Both models used a learning rate of 0.002. Earlier tests found that too high for a Llama of this size, so we also ran the Llama at 0.001 on two seeds. It scores 2.013 and 2.000 on English, against 2.046 and 2.065 at 0.002. The learning rate does not explain the gap.
+
+With the new key the model switches paths. We trained the same model again with `wa_key="hidden"` (seed 0). Its relay is 100%. With the board switched off it is still 100%. With the weight-alter slots switched off it is 0.0%. Given both ways to pass a fact, this model uses weight edits and leaves the board unused. Lookup is 75.0% and English 1.726, close to the first run.
+
+The recipe is not stable at this size. A second seed at the same learning rate never trained: English 4.11 bits per byte, both tasks at chance. At a learning rate of 0.001, seed 0 learned the relay (98.9%) but not the lookup, and scored 3.25 on English. Seed 1 learned neither. Two of five ExeaLM runs trained. Our guess, not yet checked, is that a run which fails to learn the lookup early keeps receiving lookup batches with a very high loss, and those swamp the text. The 0.1B section above has no tasks mixed in, and every run there trained. It is the fair text comparison.
+
+## What this does not show
+
+These are short runs of about 49 million tokens, far from convergence. Differences of 0.01 are small, which is why every seed is listed. The Qwen3.5-style model is our build at small size, with its DeltaNet layers in plain PyTorch. It says nothing about the released Qwen3.5 models. The hybrid depends on its starting circuits, and the menu that reduces this was chosen after seeing a weak seed. The combined model trained in two of five runs. The comparisons are at equal steps, and the hybrid is slower per step. None of the three memory circuits has lowered the loss on ordinary text. Nothing above 0.1B has been trained.
+
+## Next
+
+- Make the menu without rotary attention the default for the hybrid.
+- Find out why the combined 0.1B recipe fails to start in three runs of five, and fix it.
+- Test weight edits between agents on a task from real text, where the board and the edits can be compared.
+
+The first two are on the [to-do list](https://github.com/exea-labs/ExeaLM#to-do-list). The first runs on a free Colab GPU at 13M. Sign up through the [form](https://docs.google.com/forms/d/e/1FAIpQLSdPHVZhuXxBDUf-cJM2zDbj1JZPsduu95Y_kTJ_g4gKAXdDVw/viewform), or open a pull request.
