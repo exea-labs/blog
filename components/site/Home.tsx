@@ -6,10 +6,9 @@ import { People } from "./People";
 import { HybridStack } from "@/components/viz/HybridStack";
 import { allPosts } from "@/lib/posts";
 import { href, t, type Lang } from "@/lib/i18n";
-import cmp from "@/data/comparisons.json";
+import funding from "@/data/funding.json";
 import speed from "@/data/speed.json";
 import full from "@/data/full_small.json";
-import qwen from "@/data/qwen.json";
 
 type Row = { name: string; tokens_per_sec: number };
 const rel = (k: string) => {
@@ -29,7 +28,8 @@ export function Home({ lang }: { lang: Lang }) {
   const posts = allPosts(lang);
   const [latest, ...rest] = posts;
   const other: Lang = ja ? "en" : "ja";
-  const big = cmp.equal_time.find((c) => c.size === "90M")!;
+  const fb = funding.big;
+  const fs = funding.small;
   // Round half up, as the results report does (the full model's mean is 1.3925).
   const r3 = (x: number) => (Math.round(x * 1000 + 1e-6) / 1000).toFixed(3);
   const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
@@ -40,15 +40,12 @@ export function Home({ lang }: { lang: Lang }) {
   };
   const gated = last("together_gated");
   const plain = last("together");
-  type QRun = { mean: number };
-  const steps = (key: string) => (qwen.models as unknown as { key: string; equal_steps: QRun[] }[]).find((m) => m.key === key)!.equal_steps;
-  const ours = steps("hybrid_gate");
-  const q35 = steps("qwen35");
   const pct = (x: number) => Math.round(x * 100);
   const results = [
-    { v: big.hybrid.mean.toFixed(3), unit: "bpb", slug: "hybrid-beats-llama", h: ja ? "0.1B で同サイズの Llama を上回る" : "Ahead of a same-size Llama at 0.1B", p: ja ? `Llama は ${big.llama.mean.toFixed(3)}。同じ学習時間。シード ${big.hybrid.seeds.length} つ。短い学習で、記憶回路なし。` : `Llama: ${big.llama.mean.toFixed(3)}. Same training time, ${big.hybrid.seeds.length} seeds. Short runs without the memory circuits.` },
+    { v: r3(fb.hybrid.mean), unit: "bpb", slug: "at-0-1b-the-hybrid-leads-and-agents-edit-each-others-weights", h: ja ? "0.1B で、同サイズのすべての比較対象を上回る" : "Ahead of every same-size baseline at 0.1B", p: ja ? `ゲート付き Llama は ${r3(fb.llama_gate.mean)}、Qwen3.5 型（自作）は ${r3(fb.qwen35.mean)}、Llama は ${r3(fb.llama.mean)}。同じステップ数、各 ${fb.hybrid.seeds.length} シード。短い学習で、記憶回路なし。` : `Gated Llama: ${r3(fb.llama_gate.mean)}. Qwen3.5-style (our build): ${r3(fb.qwen35.mean)}. Llama: ${r3(fb.llama.mean)}. Same steps, ${fb.hybrid.seeds.length} seeds each. Short runs without the memory circuits.` },
     { v: r3(gated.bpb), unit: "bpb", slug: "two-parts-from-qwen35-make-the-hybrid-better", h: ja ? "掲示板とライブラリを備えた 18M のモデル" : "One 18M model with its board and its library", p: ja ? `ゲート付きアテンションと QK-norm なしでは ${r3(plain.bpb)}。中継タスク ${pct(gated.relay)}%、検索タスク ${pct(gated.lookup)}%。シードはまだ 1 つ。` : `${r3(plain.bpb)} without gated attention and QK-norm. Relay ${pct(gated.relay)}%, lookup ${pct(gated.lookup)}%. One seed so far.` },
-    { v: r3(mean(ours.map((x) => x.mean))), unit: "bpb", slug: "two-parts-from-qwen35-make-the-hybrid-better", h: ja ? "13M で Qwen3.5 型のモデルを上回る" : "Ahead of a Qwen3.5-style model at 13M", p: ja ? `Qwen3.5 型は ${r3(mean(q35.map((x) => x.mean)))}。同じステップ数、シード ${ours.length} つ。18M と 0.1B ではまだ比べていません。` : `Qwen3.5-style: ${r3(mean(q35.map((x) => x.mean)))}. Same steps, ${ours.length} seeds. Not compared at 18M or 0.1B yet.` },
+    { v: r3(fs.hybrid.mean), unit: "bpb", slug: "at-0-1b-the-hybrid-leads-and-agents-edit-each-others-weights", h: ja ? "13M で Qwen3.5 型のモデルを上回る" : "Ahead of a Qwen3.5-style model at 13M", p: ja ? `Qwen3.5 型は ${r3(fs.qwen35.mean)}、ゲート付き Llama は ${r3(fs.llama_gate.mean)}。同じステップ数、各 ${fs.hybrid.seeds.length} シード。` : `Qwen3.5-style: ${r3(fs.qwen35.mean)}. Gated Llama: ${r3(fs.llama_gate.mean)}. Same steps, ${fs.hybrid.seeds.length} seeds each.` },
+    { v: "100", unit: "%", slug: "at-0-1b-the-hybrid-leads-and-agents-edit-each-others-weights", h: ja ? "エージェントは重みを書き換えて教え合う" : "Agents teach each other by editing weights", p: ja ? "重みの書き換えだけで渡せたリレーの事実（6 回の実行で 99.7 から 100%）。掲示板は 99.8%。通常のテキストではまだ損失を下げていません。" : "Relay facts passed by weight edits alone (99.7 to 100% on 6 runs). The board passes 99.8%. It does not lower the loss on ordinary text yet." },
     { v: rel("hybrid_2to1").toFixed(2), unit: "×", slug: "hybrid-beats-llama", h: ja ? "Llama と同じ学習速度" : "Trains at Llama's speed", p: ja ? `トークンあたりのコスト。純粋な TONN は ${rel("pure_tonn").toFixed(2)} 倍。` : `Cost per token against Llama. Pure TONN was ${rel("pure_tonn").toFixed(2)}×.` },
     { v: "30", unit: "%", slug: "retrieval-on-real-text-and-a-correction", h: ja ? "検索はまだ未解決" : "Retrieval's open problem", p: ja ? "検索が正しい記事を見つける割合。実際のテキストでは、記憶回路はまだ損失を下げていません。" : "How often the search finds the right article. On real text the memory circuits do not lower the loss yet." },
   ];

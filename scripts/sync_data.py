@@ -351,6 +351,32 @@ def swarm_reruns(res):
     return dict(rows=out, repeats=repeats, noise=round(max(abs(r["a"] - r["b"]) for r in repeats), 4))
 
 
+FUNDING = dict(  # (size tag, model tag) per key: the MI300X session, ExeaLM results/funding/README.md sections 1 and 3
+    small=dict(hybrid=("f13", "hybrid_gate_norp_fix"), hybrid_old_menu=("f13", "hybrid_gate"), qwen35=("f13", "qwen35"),
+               llama_gate=("f13", "llama_gate"), llama=("f13", "llama")),
+    big=dict(hybrid=("f100", "hybrid_gate_norp_fix_lr1e3"), hybrid_old_menu=("f100", "hybrid_gate_fix_lr1e3"),
+             qwen35=("f100", "qwen35_lr1e3"), llama_gate=("f100", "llama_gate_lr1e3"), llama=("f100", "llama_lr1e3")))
+
+
+def funding(res):
+    """Same-size comparisons at equal steps on one AMD MI300X: mean bits per byte of four held-out sets, per seed."""
+    runs = {}
+    for f in sorted(glob.glob(os.path.join(res, "funding", "lm_compare_*.json"))):
+        for r in load(f)["rows"]:
+            size, rest = r["tag"].split("_", 1)
+            model, seed = rest.rsplit("_s", 1)
+            runs.setdefault((size, model), {})[int(seed)] = dict(mean=sum(r["bits_per_byte"].values()) / 4, params_M=r["params_M"])
+    out = {}
+    for size, models in FUNDING.items():
+        out[size] = {}
+        for key, tag in models.items():
+            v = [runs[tag][k] for k in sorted(runs.get(tag, {}))]
+            if v:
+                out[size][key] = dict(mean=round(sum(x["mean"] for x in v) / len(v), 4), seeds=[round(x["mean"], 4) for x in v],
+                                      params_M=v[0]["params_M"])
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--exealm", default=os.path.join(os.path.dirname(__file__), "..", "..", "ExeaLM"))
@@ -360,7 +386,7 @@ def main():
     rows = lm_rows(res)
     files = dict(leaderboard=leaderboard(rows), comparisons=comparisons(rows), curves=curves(rows), speed=speed(res),
                  relay=relay(res), lookup=lookup(res), swarm_text=swarm_text(res), rag_wiki=rag_wiki(res), full_small=full_small(res), qwen=qwen(rows), irl=irl(res), swarm_reruns=swarm_reruns(res),
-                 tokenizer=tokenizer(res), timeline=timeline(os.path.join(OUT, "raw")))
+                 tokenizer=tokenizer(res), timeline=timeline(os.path.join(OUT, "raw")), funding=funding(res))
     c = contributors("exea-labs/ExeaLM")
     if c is not None:
         files["contributors"] = c
