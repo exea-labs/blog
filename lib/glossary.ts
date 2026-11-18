@@ -152,6 +152,21 @@ export const GLOSSARY: Term[] = [
     en: { term: "BM25", def: "A classic keyword search. It ranks documents by the rare words they share with the query. Ordinary RAG systems often use it to choose the passages they paste into the prompt." },
     ja: { term: "BM25", def: "昔からあるキーワード検索。クエリと共有する珍しい単語で文書を順位づけします。ふつうの検索拡張（RAG）では、プロンプトに貼る文章を選ぶのによく使われます。" },
   },
+  {
+    id: "gpu-hour",
+    en: { term: "GPU-hour", def: "One GPU used for one hour. Shared computers count usage this way: a job on 4 GPUs for 12 hours costs 48 GPU-hours." },
+    ja: { term: "GPU 時間", def: "GPU 1 枚を 1 時間使った量。共用の計算機では使用量をこの単位で数えます。4 枚の GPU で 12 時間のジョブは 48 GPU 時間です。" },
+  },
+  {
+    id: "checkpoint",
+    en: { term: "Checkpoint", def: "A file with everything a training run needs to continue later: the weights, the optimizer's state, the current circuits and the state of every random number generator." },
+    ja: { term: "チェックポイント", def: "学習を後で続けるために必要なものをすべて入れたファイル。重み、オプティマイザの状態、その時点の回路、すべての乱数生成器の状態を含みます。" },
+  },
+  {
+    id: "bf16",
+    en: { term: "bf16", def: "A 16-bit number format (bfloat16) with the range of 32-bit numbers and fewer digits. GPUs multiply it much faster. ExeaLM uses it for most of the model and keeps its running sums and memory circuits in 32-bit." },
+    ja: { term: "bf16", def: "16 ビットの数値形式（bfloat16）。32 ビットと同じ範囲を、少ない桁数で表します。GPU ではずっと速く掛け算できます。ExeaLM はモデルの大部分で使い、累積和とメモリ回路は 32 ビットのままにしています。" },
+  },
 ];
 
 export const glossaryById = Object.fromEntries(GLOSSARY.map((g) => [g.id, g]));

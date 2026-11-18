@@ -1,0 +1,170 @@
+---
+title: "The NAIRR Pilot gave us 2,000 GPU-hours on H100s. Training on several GPUs is written and passes its checks on two rented A40s."
+date: 2026-11-18
+order: 1
+day: 9
+summary: "The NAIRR Pilot approved 2,000 GPU-hours for ExeaLM on the SDSC Expanse AI Resource, where a node holds four NVIDIA H100s and is charged as four. The hours are for one scaling study: the hybrid at 0.5B, 1B and 3B parameters, with same-size baselines at 0.5B and 1B. On day 9 we wrote what those nodes need: training on several GPUs, runs that continue across 48-hour jobs and presets for the three sizes. The same day it passed every check on two rented NVIDIA A40s, where two GPUs trained 1.86 times as fast as one. It has not run on an H100 or on four GPUs yet."
+dek: "What the hours are for, and what the code needed before it could use a node of four H100s."
+cover: stack
+tags: [plan, scaling, speed]
+numbers:
+  - { value: "2,000", label: "GPU-hours from the NAIRR Pilot on SDSC Expanse, for ExeaLM at 0.5B, 1B and 3B with same-size baselines at 0.5B and 1B" }
+  - { value: "4", label: "H100s in an Expanse node, charged as 4 GPU-hours per hour. Before day 9 a training run used one GPU" }
+  - { value: "1.86x", label: "tokens per second on two rented A40s against one, at the 0.1B shape. Every correctness check passed there. No H100 and no four-GPU run yet" }
+credits:
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Wrote the NAIRR Pilot proposal and its compute plan from the MI300X measurements. Started the H100 port (branch h100-port) and rented the two A40s it first ran on." }
+  - { login: aarochu, name: "Aaron Chu", what: "Wrote exact checkpoint resume (PR #1) and the test that forces circuit replacements during a resume. The chain of 48-hour jobs depends on the first. The two-process resume test follows the second." }
+sources:
+  - { label: "NAIRR Pilot", href: "https://nairrpilot.org" }
+  - { label: "SDSC Expanse user guide: the AI resource, its partitions, limits and storage", href: "https://www.sdsc.edu/systems/expanse/user_guide.html" }
+  - { label: "docs/budget.md: the compute plan, run by run", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/docs/budget.md" }
+  - { label: "results/funding/README.md, section 6: training speed on the MI300X", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/funding/README.md" }
+  - { label: "exealm/train/multi.py: training with several processes", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/exealm/train/multi.py" }
+  - { label: "tests/test_multi.py: the two-process tests, accumulation, time limits and stop signals", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/tests/test_multi.py" }
+  - { label: "exealm/config.py: the 500m, 1b and 3b presets", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/exealm/config.py" }
+  - { label: "experiments/expanse: setup, the first job, the training job and what is still unchecked", href: "https://github.com/exea-labs/ExeaLM/tree/h100-port/experiments/expanse" }
+  - { label: "results/a40_check: the first runs on NVIDIA GPUs, with the full output of the check", href: "https://github.com/exea-labs/ExeaLM/tree/h100-port/results/a40_check" }
+  - { label: "experiments/gpu_check.py", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/experiments/gpu_check.py" }
+  - { label: "experiments/throughput.py", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/experiments/throughput.py" }
+  - { label: "PR #1: resume pretraining exactly from a checkpoint", href: "https://github.com/exea-labs/ExeaLM/pull/1" }
+---
+
+Every result on this blog so far came from a Mac Studio or from one AMD MI300X rented by the hour. The NAIRR Pilot has now approved our request for 2,000 <Term id="gpu-hour">GPU-hours</Term>. NAIRR is the National AI Research Resource, a [program](https://nairrpilot.org) led by the U.S. National Science Foundation that gives researchers access to computing resources. A GPU-hour is one GPU used for one hour. Ours are on NVIDIA H100s at the San Diego Supercomputer Center. On day 8 our code could not use those machines well. Day 9 went into that.
+
+## What the 2,000 hours are for
+
+At 0.1B <Term id="params">parameters</Term> the <Term id="hybrid">hybrid</Term> leads every baseline we built at <Term id="equal-steps">equal steps</Term>: 1.413 <Term id="bpb">bits per byte</Term> against 1.446 for a gated Llama, 3 <Term id="seed">seeds</Term> each ([day 6](/posts/at-0-1b-the-hybrid-leads-and-agents-edit-each-others-weights/)). Nothing above 0.1B has been trained. The hours go to that gap.
+
+We will train the same hybrid at about 0.5B, 1B and 3B parameters. At 0.5B and 1B a same-size baseline trains on the same data. With the 13M and 0.1B results that makes five sizes, enough to see whether the lead holds, grows or disappears as the model grows.
+
+| Run | Width, layers | Parameters | Training tokens | GPU-hours |
+|---|---|---|---|---|
+| ExeaLM | 1280, 22 | 498M | 30B | 307 |
+| Baseline | 1280, 22 | 474M | 30B | 190 |
+| ExeaLM | 1664, 26 | 966M | 20B | 397 |
+| Baseline | 1664, 26 | 918M | 20B | 248 |
+| ExeaLM | 2560, 34 | 2.90B | 8B | 477 |
+| Evaluation and short post-training | | | | 150 |
+| Library builds, restarts and reserve | | | | 231 |
+| Total | | | | 2,000 |
+
+The parameter counts are those of the new presets in the code, with the 32k <Term id="tokenizer">tokenizer</Term>. The baseline's count is for a plain <Term id="llama">Llama</Term>. The 0.5B model gets the longest run, 60 tokens per parameter. The 1B model gets about 20, close to the ratio that the Chinchilla paper ([Hoffmann et al., 2022](https://arxiv.org/abs/2203.15556)) found best for a fixed compute budget. The 3B run is short on purpose, under 3 tokens per parameter. It tests whether the architecture trains stably at that size. It also gives a loss at 8 billion tokens, which every smaller model can be compared with at the same token count.
+
+## The plan was priced on an AMD GPU
+
+The GPU-hours in the table come from speeds we measured in the MI300X session. Those runs used <Term id="bf16">bf16</Term>, meaning 16-bit numbers for most of the arithmetic. At 0.5B the hybrid trained 27,158 tokens per second and a same-size Llama 43,883. The hybrid was 1.6 times slower per token. Attention runs as one fused GPU kernel, meaning a single compiled routine. Most TONN <Term id="circuit">circuits</Term> still run as plain PyTorch operations, with their running sums in 32-bit.
+
+Training compute is about 6 × parameters × tokens ([Kaplan et al., 2020](https://arxiv.org/abs/2001.08361)). By that count the hybrid used the MI300X at 81 trillion operations per second and Llama at 125. The plan budgets every ExeaLM run at the first rate and every baseline at the second. An H100 is a different chip. We have not timed one. The first job on Expanse measures both rates. The token counts in the table will be rescaled to fit.
+
+## An Expanse node is four H100s, charged as four
+
+These facts are from the [Expanse user guide](https://www.sdsc.edu/systems/expanse/user_guide.html).
+
+| What | From the user guide |
+|---|---|
+| GPUs in a node | 4 NVIDIA H100, 80 GB each |
+| Charge | GPUs × hours: 4 GPU-hours per hour for a whole node |
+| Longest job | 48 hours |
+| The node's own disk | emptied when the job ends |
+
+A second queue takes jobs on fewer than four GPUs of one node. The large runs will use whole nodes.
+
+Three things follow for the code. Before day 9 a training run used one GPU. On a whole node that wastes three quarters of what the run is charged. The longest run in the plan needs about 20 days on one GPU, against a limit of 48 hours per job. A <Term id="checkpoint">checkpoint</Term>, meaning a file with everything a run needs to continue, is lost if it is still on the node's disk when the job ends.
+
+## Four processes hold one model
+
+The usual way to train on several GPUs starts one process per GPU. Each process holds the whole model and reads its own batches. After the backward pass the gradients are averaged over the processes. Every process then takes the same optimizer step, so the weights stay the same everywhere. PyTorch ships a wrapper for this, `DistributedDataParallel`. We wrote the same steps out in `exealm/train/multi.py`, for three reasons that belong to ExeaLM.
+
+Many of ExeaLM's parameters get no gradient in some runs. A <Term id="retrieval">retrieval</Term> circuit without a library is one case. The wrapper has to walk the computation graph on every step to cope with that. In our version a parameter that no process used stays without a gradient, as it does on one GPU.
+
+The <Term id="search">search</Term> replaces circuits while the model trains. One process now runs it. After a round that replaced a circuit, that process sends the new architecture, the weights and the optimizer's statistics to the others.
+
+Every TONN layer also keeps a running measure of how large each slot's output is. It divides the output by that measure. Each process measures this on its own batches. The processes now average the measure after every step. The next section shows what happens without that.
+
+A <Term id="swarm">swarm</Term> never spans two GPUs. Each process draws whole swarms for its own batch, so a <Term id="board">board</Term> needs no messages between GPUs. At every evaluation the processes compare one number each, the sum of all their weights. The log line says whether they still hold the same model. If they ever differ, the first process sends its state to the others.
+
+## What two processes on a CPU show
+
+The tests in the repo run two processes on a CPU, with a tiny model on a made-up corpus, so that anyone can run them.
+
+| Test | Result |
+|---|---|
+| Each process computes the gradient of its own batch, then they average | Every parameter matches a mean computed separately, to within 0.000001. A parameter neither process used still has no gradient |
+| A 40-step run is stopped at step 6 and continued, with a search round every 4 steps that replaces circuits | The final weights are identical to the last bit to those of an uninterrupted run |
+| The same training with the averaging of the slot measure switched off | The two processes hold different models by the first evaluation, at step 5. The check reports it |
+| 2 passes of 4 rows per step (`--accum 2`) against 1 pass of 8 rows, a Llama, 5 steps | The same weights, to within 0.0001 |
+
+Exact resume on one GPU is Aaron's work from day 2 (<a href="https://github.com/aarochu">@aarochu</a>, PR #1). The two-process resume test follows his test, which forces the search to replace circuits so that a resume has to restore the search's state too.
+
+The test suite now has 227 passing tests, against 208 before. Eight are new here. Eleven came the same day with Naman Jain's pull request on how many facts weight edits carry ([post](/posts/weight-edits-pass-64-facts-the-board-stops-learning-at-64/)).
+
+## On two rented A40s every check passes
+
+Late on day 9 we rented a machine with two NVIDIA A40s for 19 minutes. An A40 is an older and slower card than an H100, with 46 GB. It runs the same CUDA code, so it can say whether the model is right. It cannot say how fast an H100 is.
+
+`experiments/gpu_check.py` passed in full.
+
+| Check | On the A40 |
+|---|---|
+| A layer of each of the 12 circuit types, an attention block and a Gated DeltaNet block, in 32-bit, against the CPU | Largest difference 0.0000005 of the largest value |
+| The same layers in bf16 against 32-bit | At most 0.006 (the gated running sum) |
+| Whole models, loss and gradient size, in 32-bit, against the CPU | Within 0.00001 |
+| Whole models in bf16 against 32-bit | Within 0.0003 |
+| 150 training steps with the search and a datastore | 5.60 to 2.68 bits per token |
+| The same run stopped at step 70 and resumed | Identical to the last bit |
+| Two processes on two GPUs, 60 steps | In sync at all three evaluations, 6.96 to 4.65 bits per token |
+| That run stopped at step 30 and resumed | Identical to the last bit |
+
+The whole models are ExeaLM with <Term id="swarm">swarms</Term> of 4, a Llama and our Qwen3.5-style build. We did not expect a resumed run to match bit for bit on a GPU, because some GPU routines add numbers in a different order from run to run. On this card, in these short runs, it did.
+
+The first attempt failed inside the check. It reused one input for the CPU pass and the GPU pass. On a GPU the copy of that input lost its gradient. A CPU cannot show this, because moving data to the device it is already on returns the same data. The CPU dry run had passed.
+
+Then the real training loop ran at the 0.1B shape on one A40 and on two. The model had 73.5M parameters there, because the made-up corpus has only 256 tokens.
+
+| GPUs | Tokens per step | Tokens per second | Peak memory on the first GPU |
+|---|---|---|---|
+| 1 | 16,384 | 39,322 | 11.8 GB |
+| 2 | 32,768 | 73,060 | 11.8 GB |
+
+Two GPUs trained 1.86 times as fast as one. The two processes held the same model at every evaluation. One run at the 0.5B shape on one A40 used 23.1 GB at 16 rows of 512 tokens. We stopped the machine before the two-GPU run at that size.
+
+## Runs that outlive a 48-hour job
+
+Two new options handle the time limit. `--save_minutes 30` writes a checkpoint every 30 minutes. `--max_minutes` saves and stops before the job's limit, without changing the learning-rate schedule. The next job continues the run with `--resume auto`.
+
+`experiments/expanse/train.sb` is the job file that chains those sessions. It copies the data to the node's disk and brings back the run's last checkpoint. It trains on the job's GPUs and copies every new checkpoint off the node. It stops 45 minutes before the limit and submits the next job.
+
+We could not run it on Expanse yet. We ran it on a laptop with the commands of the scheduler, meaning the program that starts jobs on the cluster, replaced by stand-ins. A run was stopped by its time limit, copied off, resubmitted and finished by the second job. That dry run found two bugs in the job file before any GPU-hour was spent. The model's code could not be imported once the job ran from the node's disk. A background copy loop was left running after training had ended.
+
+Writing this also turned up an older bug in resume. Training losses saved between two evaluations were restored on the CPU. On a GPU the next evaluation would mix them with losses on the GPU and stop. Earlier runs saved only at evaluations, so they never met it. Checkpoints on the clock would have, on the first resume.
+
+## The first job measures before anything trains
+
+`experiments/expanse/first_contact.sb` is the first job we will submit. We expect it to take about an hour on one node. It measures four things.
+
+1. Whether the model is right on an H100. `experiments/gpu_check.py` runs a layer of every circuit type and each whole model on the GPU and on the CPU, in 32-bit and in bf16. It compares the two. Then it trains a small model, resumes it and trains with two processes on two GPUs.
+2. The speed of one H100. `experiments/throughput.py` repeats the MI300X measurement at 0.1B and 0.5B and adds 1B and 3B, with the peak memory of each.
+3. What four GPUs buy. The real training loop runs at 0.5B on one GPU and on four.
+4. Which circuit types gain least from bf16. That is an open to-do from the MI300X session.
+
+The third number changes the budget. The plan counts GPU-hours as if each run had one GPU. A node costs 4 GPU-hours per hour. Suppose four GPUs turn out 3.6 times as fast as one. Every token then costs 4 / 3.6 = 1.11 times what the plan assumed.
+
+Memory is the other open number. The MI300X had 192 GB and an H100 has 80. At 2.90B parameters the weights, their gradients and the optimizer's two statistics take 16 bytes per parameter in 32-bit. That is 46 GB before any activations, by arithmetic and not by measurement. Whether a useful batch fits in the rest is for the first job to say. `--accum` exists for the case that it does not.
+
+Two speed switches are in the code and off. TF32 lets 32-bit matrix products run with fewer digits. We keep the running sums and the memory circuits in 32-bit for precision, so TF32 stays off until a run shows that the loss does not move. `torch.compile` is applied only after the search has frozen the architecture. On a CPU it warns that it cannot compile the one circuit type that uses complex numbers.
+
+## What this does not show
+
+None of this has run on an H100 or on four GPUs. The speed-up of 1.86 is for two A40s and a model of 73.5M parameters. It says little about four H100s at 0.5B and above, where far more gradient data moves between the GPUs on every step. The compile and TF32 switches have not run on a GPU. The job files have never met the real scheduler. Their lines for tasks and cores are a guess. The speeds behind the plan are from an AMD GPU, so its token counts will change.
+
+Every process holds the whole model. Four GPUs make a run faster. They do not make room for a model that does not fit in 80 GB.
+
+The data is not ready either. The packed token files hold 413 million tokens. The 0.5B run is planned on 30 billion, which would read them 73 times.
+
+## Next
+
+- Submit the first job on Expanse and rescale the plan from its numbers.
+- Pack the full training data. The 0.5B run waits on this.
+- Review the port and merge it. It is on the branch `h100-port`.
+
+The first two are on the [to-do list](https://github.com/exea-labs/ExeaLM#to-do-list). Anyone with an NVIDIA GPU can rerun the check in a few minutes with `python experiments/gpu_check.py`. Sign up through the [form](https://docs.google.com/forms/d/e/1FAIpQLSdPHVZhuXxBDUf-cJM2zDbj1JZPsduu95Y_kTJ_g4gKAXdDVw/viewform), or open a pull request.

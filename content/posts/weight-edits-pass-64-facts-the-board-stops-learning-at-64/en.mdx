@@ -1,0 +1,84 @@
+---
+title: "Weight edits pass 64 facts between agents. In the same 3,000 steps the board passes 32 and learns nothing at 64."
+date: 2026-11-17
+order: 1
+day: 8
+summary: "Naman Jain measured how many facts each path between two agents can carry, on a 0.8M-parameter model trained on a laptop CPU. Weight edits with the key taken from the edited layer pass every fact at 8, 16, 32 and 64 facts on both seeds (100%, about 1.5% with the path cut). The board passes 99.6% at 16 facts and 87.2% at 32. At 64 facts it is still at chance after 3,000 steps. Sixty-four is the most this task can hold, so the limit of weight edits is not found yet. Two seeds, one step budget."
+dek: "Twenty runs on a laptop answer issue #58: weight edits carry everything the task can hold."
+cover: merge
+tags: [swarms, contributions]
+numbers:
+  - { value: "100%", label: "of 64 facts passed by weight edits, on both seeds (1.5% with the path cut, 1.6% by chance)" }
+  - { value: "87.2%", label: "of 32 facts passed by the board after the same 3,000 steps (81.8% and 92.6% on the two seeds)" }
+  - { value: "1.6%", label: "of 64 facts passed by the board, which is chance. Its training loss never left that of a uniform guess" }
+credits:
+  - { login: man-coding-j, name: "Naman Jain", what: "Wrote the capacity sweep (experiments/swarm_relay.py --sweep), its 11 tests and the 20-run benchmark on his laptop (PR #62). It closes issue #58." }
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Wrote the weight-alter circuit and its key from the edited layer (PRs #54 and #55), which this sweep measures. Opened issue #58." }
+sources:
+  - { label: "PR #62: benchmark hidden-key weight-alter relay capacity", href: "https://github.com/exea-labs/ExeaLM/pull/62" }
+  - { label: "results/swarm_relay_capacity/README.md: every run, with its JSON file", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/swarm_relay_capacity/README.md" }
+  - { label: "results/swarm_relay_capacity_smoke: the 20-step timing runs on CPU and MPS", href: "https://github.com/exea-labs/ExeaLM/tree/main/results/swarm_relay_capacity_smoke" }
+  - { label: "experiments/swarm_relay.py", href: "https://github.com/exea-labs/ExeaLM/blob/main/experiments/swarm_relay.py" }
+  - { label: "tests/test_swarm_relay.py", href: "https://github.com/exea-labs/ExeaLM/blob/main/tests/test_swarm_relay.py" }
+  - { label: "Issue #58: how many facts can weight edits carry?", href: "https://github.com/exea-labs/ExeaLM/issues/58" }
+---
+
+On day 6 a new <Term id="circuit">circuit</Term> let one agent edit another agent's weights. With four facts it passed 99.7 to 100% of them, as the <Term id="board">board</Term> does ([day 6](/posts/at-0-1b-the-hybrid-leads-and-agents-edit-each-others-weights/)). Issue #58 asked how far that goes. Naman Jain (<a href="https://github.com/man-coding-j">@man-coding-j</a>) answered it with 20 runs on a laptop. His pull request is merged.
+
+## The task grows from 4 facts to 64
+
+The <Term id="relay">relay</Term> has two agents, meaning two copies of one model. The first reads facts, each a random key and a random value. The second is asked for the value of every key, in shuffled order, after the first agent has read all the facts. It never sees the facts. It can answer only through the path under test. Chance is 1 in 64, or 1.56%.
+
+The sweep runs the relay with 4, 8, 16, 32 and 64 facts. Each fact and each question fills one <Term id="chunk">chunk</Term> of 8 tokens, so an agent reads 64 tokens at 4 facts and 1,024 at 64. The task has 64 different keys. Sixty-four facts is the most it can hold.
+
+Two paths are compared. The board lets agents post messages and read them. A weight-alter slot emits a small change to one weight matrix of the other agent. The key of each change is what the edited layer itself receives at the fact. That is the second version from day 6, the one that passed 99.7 to 100%.
+
+## Both arms get the same circuits, batches and steps
+
+The model is a four-layer TONN, 128 wide, with 8 slots per layer. Each arm has one slot per layer for its path. Every other slot holds the same circuit in both arms for a given <Term id="seed">seed</Term>. A test in the pull request checks that. The board arm has 814,320 parameters. The weight-alter arm has 844,216, which is 3.7% more.
+
+Both arms train from scratch for 3,000 steps on the same batches, 8 pairs of agents per batch. There are two seeds. Every 250 steps both arms are scored on the same 16 held-out batches. Each score is taken twice, with the path open and with it cut. A cut score above chance would mean the answers leak some other way.
+
+## Weight edits pass every fact up to 64
+
+| Facts | Tokens per agent | Board | Weight edits | Board, path cut | Weight edits, path cut |
+|---|---|---|---|---|---|
+| 4 | 64 | 98.7% | **99.8%** | 1.7% | 1.9% |
+| 8 | 128 | 99.1% | **100%** | 1.3% | 1.3% |
+| 16 | 256 | 99.6% | **100%** | 1.7% | 1.3% |
+| 32 | 512 | 87.2% | **100%** | 1.7% | 1.7% |
+| 64 | 1,024 | 1.6% | **100%** | 1.6% | 1.5% |
+
+Each cell is the mean of two seeds at step 3,000. From 8 facts on, weight edits pass every fact on both seeds. With the path cut every score is at chance, so nothing leaks.
+
+The board holds up to 16 facts. At 32 it scores 81.8% on one seed and 92.6% on the other. Its training loss was still falling there, so 3,000 steps left it short of whatever its ceiling is.
+
+## At 64 facts the board never started to learn
+
+At 64 facts the board scores 1.68% and 1.55%. Its training loss at the end is 4.160 and 4.158. The loss of a uniform guess among 64 values is 4.159. On held-out batches it is 6.00 bits per answer, which is the same guess. The scores stayed near chance at every evaluation.
+
+So this is a run that did not train, on both seeds. It does not show that a board cannot hold 64 facts. More steps, a different learning rate or a larger model might start it. The sweep fixed all three.
+
+## Weight edits cost more time per step
+
+| Facts | Minutes per run, board | Minutes per run, weight edits |
+|---|---|---|
+| 4 | 2.1 | 2.6 |
+| 16 | 5.9 | 9.3 |
+| 64 | 26.2 | 59.9 |
+
+These are wall times for 3,000 steps on an Apple M2 Max CPU with two threads, evaluation included. At 64 facts a weight-alter run takes 2.3 times as long as a board run. This comparison is at <Term id="equal-steps">equal steps</Term>. At equal time the board would get more than twice the steps. The 20 runs took about 298 minutes in all.
+
+The scores at 4 facts are a little below day 6's (99.8 to 99.9% for the board there). That sweep trained on 32 pairs of agents per batch. This one uses 8.
+
+## What this does not show
+
+There are two seeds, one model of 0.8M parameters and one budget of 3,000 steps. The task is synthetic: random keys and values, one fact per chunk. Sixty-four facts is the task's limit, so the largest number of facts weight edits can carry is still unknown. The board's failure at 64 is a run that did not train. Its cause is not found. An edit lasts for one pass and is gone afterwards. Nothing here is on real text, where day 6 found that a weight-alter slot costs 0.003 to 0.005 bits per byte at 13M.
+
+## Next
+
+- Train the board arm longer at 32 and 64 facts, to separate a slow start from a limit.
+- Give the task more than 64 keys and find where weight edits stop.
+- Build the relay from real text, so that the two paths can be compared outside the toy task.
+
+The third is on the [to-do list](https://github.com/exea-labs/ExeaLM#to-do-list). All three run on a laptop CPU. Sign up through the [form](https://docs.google.com/forms/d/e/1FAIpQLSdPHVZhuXxBDUf-cJM2zDbj1JZPsduu95Y_kTJ_g4gKAXdDVw/viewform), or open a pull request.
