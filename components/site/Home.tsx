@@ -47,14 +47,14 @@ export function Home({ lang }: { lang: Lang }) {
     { v: r3(fs.hybrid.mean), unit: "bpb", slug: "at-0-1b-the-hybrid-leads-and-agents-edit-each-others-weights", h: ja ? "13M で Qwen3.5 型のモデルを上回る" : "Ahead of a Qwen3.5-style model at 13M", p: ja ? `Qwen3.5 型は ${r3(fs.qwen35.mean)}、ゲート付き Llama は ${r3(fs.llama_gate.mean)}。同じステップ数、各 ${fs.hybrid.seeds.length} シード。` : `Qwen3.5-style: ${r3(fs.qwen35.mean)}. Gated Llama: ${r3(fs.llama_gate.mean)}. Same steps, ${fs.hybrid.seeds.length} seeds each.` },
     { v: "100", unit: "%", slug: "at-0-1b-the-hybrid-leads-and-agents-edit-each-others-weights", h: ja ? "エージェントは重みを書き換えて教え合う" : "Agents teach each other by editing weights", p: ja ? "重みの書き換えだけで渡せたリレーの事実（6 回の実行で 99.7 から 100%）。掲示板は 99.8%。通常のテキストではまだ損失を下げていません。" : "Relay facts passed by weight edits alone (99.7 to 100% on 6 runs). The board passes 99.8%. It does not lower the loss on ordinary text yet." },
     { v: rel("hybrid_2to1").toFixed(2), unit: "×", slug: "hybrid-beats-llama", h: ja ? "Llama と同じ学習速度" : "Trains at Llama's speed", p: ja ? `トークンあたりのコスト。純粋な TONN は ${rel("pure_tonn").toFixed(2)} 倍。` : `Cost per token against Llama. Pure TONN was ${rel("pure_tonn").toFixed(2)}×.` },
-    { v: "30", unit: "%", slug: "retrieval-on-real-text-and-a-correction", h: ja ? "検索はまだ未解決" : "Retrieval's open problem", p: ja ? "検索が正しい記事を見つける割合。実際のテキストでは、記憶回路はまだ損失を下げていません。" : "How often the search finds the right article. On real text the memory circuits do not lower the loss yet." },
+    { v: "30", unit: "%", slug: "retrieval-on-real-text-and-a-correction", h: ja ? "実テキストでの検索精度は約 30%" : "Retrieval's open problem", p: ja ? "正しい記事を検索できた割合です。この実験では、メモリ回路を使っても実テキストの損失は下がりませんでした。" : "How often the search finds the right article. On real text the memory circuits do not lower the loss yet." },
   ];
   const beam = [
     { id: "latest", label: d.latest },
     { id: "posts", label: d.allPosts },
     { id: "standing", label: ja ? "現在地" : "Where it stands" },
     { id: "model", label: ja ? "モデル" : "The model" },
-    { id: "people", label: ja ? "人" : "People" },
+    { id: "people", label: ja ? "開発チーム" : "People" },
   ];
   return (
     <Shell lang={lang} altHref={href(other, "/")} current="posts" beam={beam}>
@@ -62,10 +62,10 @@ export function Home({ lang }: { lang: Lang }) {
         <header className="enter">
           <p className="kicker mono">
             <i aria-hidden="true" />
-            {ja ? "Exea Labs、高校生がつくる研究ラボ" : "Exea Labs, a research lab run by high schoolers"}
+            {ja ? "高校生が運営する研究チーム、Exea Labs" : "Exea Labs, a research lab run by high schoolers"}
           </p>
           <h1 className="h-display mt-5 max-w-[14em]">{ja ? "高校生がつくる、オープンな言語モデル。" : "An open language model, built by high schoolers."}</h1>
-          <p className="mt-5 text-[1.3rem] leading-snug text-ink-2">{ja ? "ExeaLM を毎日の記録で公開します。" : "Daily notes from building ExeaLM."}</p>
+          <p className="mt-5 text-[1.3rem] leading-snug text-ink-2">{ja ? "ExeaLM をゼロから学習させるプロジェクトの開発記録です。" : "Daily notes from building ExeaLM."}</p>
         </header>
 
         {latest && (
@@ -144,10 +144,10 @@ export function Home({ lang }: { lang: Lang }) {
             </div>
             <div data-reveal="left">
               <p className="text-[1.3rem] font-light leading-snug">
-                {ja ? "3 層に 1 層が TONN。小さな回路の列で、検索と掲示板を内蔵します。" : "Every third layer is TONN: a row of small circuits, with retrieval and a message board built in."}
+                {ja ? "3 層のうち 1 層は TONN、残りはアテンション層です。TONN 層には、資料を検索する回路と、エージェント同士が情報を共有する掲示板があります。" : "Every third layer is TONN: a row of small circuits, with retrieval and a message board built in."}
               </p>
               <Link href={href(lang, "/architecture/")} className="btn btn--ghost mt-6">
-                {ja ? "中を見る" : "See inside"}
+                {ja ? "モデルの構成を見る" : "See inside"}
               </Link>
             </div>
           </div>

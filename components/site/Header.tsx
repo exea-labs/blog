@@ -25,7 +25,7 @@ export function Header({ lang, altHref, current }: { lang: Lang; altHref: string
           Blog
         </Link>
       </span>
-      <nav className="topbar__nav" aria-label="Main">
+      <nav className="topbar__nav" aria-label={lang === "ja" ? "メインナビゲーション" : "Main"}>
         {links.map((l) => (
           <Link key={l.k} href={l.href} aria-current={current === l.k ? "page" : undefined}>
             {l.label}

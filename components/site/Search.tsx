@@ -14,6 +14,7 @@ export function SearchButton({ lang }: { lang: Lang }) {
   useEffect(() => {
     setMac(/Mac|iPhone|iPad/.test(navigator.platform));
     const onKey = (e: KeyboardEvent) => {
+      if (e.isComposing || e.keyCode === 229) return;
       const typing = (e.target as HTMLElement)?.closest?.("input, textarea, [contenteditable=true]");
       if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) {
         e.preventDefault();
