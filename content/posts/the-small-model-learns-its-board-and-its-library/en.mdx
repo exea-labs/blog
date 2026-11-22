@@ -6,7 +6,7 @@ day: 3
 summary: "An 18M-parameter ExeaLM trained mostly on real text also learned to pass facts to another agent through its board (100% of answers, 1% with the board cut) and to look facts up in a library it had never seen (94%, 1.6% without it), on both seeds. That took teaching the two skills together from the first step. Taught one after the other, lookup formed on one seed of two. On language the model is about even with a same-size Llama. The library still does not help on real Wikipedia text."
 dek: "Relay and lookup both form when they are taught together. Language is a tie."
 cover: board
-tags: [swarms, retrieval, architecture]
+tags: [public, swarms, retrieval, architecture]
 credits:
   - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Set the goal of a 17M model that keeps both memory skills. Ran every run in this post on the Mac Studio: three recipes, the schedule checks, two seeds of each and the Llama baselines at equal steps and equal compute." }
   - { login: jaztulsi, name: "Jasraj Tulsi", what: "Wrote experiments/plot_search.py (PR #36), which logs and draws the circuits the search keeps in every layer, and found that --seed never changed a run's starting circuits. Wrote the beginner notebook (PR #37) that trains the tiny model and the relay task on a laptop CPU in under five minutes." }

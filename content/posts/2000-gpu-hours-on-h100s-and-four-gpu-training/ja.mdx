@@ -6,7 +6,7 @@ day: 9
 summary: "NAIRR Pilot が、SDSC の Expanse AI Resource で ExeaLM に 2,000 GPU 時間を認めました。そこでは 1 ノードに NVIDIA H100 が 4 枚あり、4 枚分として課金されます。この時間は 1 つのスケーリング実験に使います。ハイブリッドを 0.5B、1B、3B パラメータで学習し、0.5B と 1B では同じ大きさの比較対象も学習します。9 日目に、そのノードに必要なものを書きました。複数 GPU での学習、48 時間のジョブをまたいで続く実行、3 つの大きさのプリセットです。同じ日に、借りた NVIDIA A40 2 枚ですべての確認に通りました。そこでは 2 枚が 1 枚の 1.86 倍の速さで学習しました。H100 でも、4 枚の GPU でも、まだ動かしていません。"
 dek: "この時間を何に使うのか。そして、H100 が 4 枚のノードを使う前にコードに必要だったもの。"
 cover: stack
-tags: [plan, scaling, speed]
+tags: [nairr, plan, scaling, speed, correction]
 numbers:
   - { value: "2,000", label: "NAIRR Pilot から得た SDSC Expanse での GPU 時間。ExeaLM を 0.5B、1B、3B で、同じ大きさの比較対象を 0.5B と 1B で学習するためのものです" }
   - { value: "4", label: "Expanse の 1 ノードにある H100 の枚数。1 時間あたり 4 GPU 時間として課金されます。9 日目より前は、学習は 1 枚の GPU で動いていました" }
@@ -17,15 +17,15 @@ credits:
 sources:
   - { label: "NAIRR Pilot", href: "https://nairrpilot.org" }
   - { label: "SDSC Expanse ユーザーガイド：AI リソース、そのパーティション、制限、ストレージ", href: "https://www.sdsc.edu/systems/expanse/user_guide.html" }
-  - { label: "docs/budget.md：実行ごとの計算計画", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/docs/budget.md" }
+  - { label: "docs/budget.md：実行ごとの計算計画", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/docs/budget.md" }
   - { label: "results/funding/README.md の 6 節：MI300X での学習速度", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/funding/README.md" }
-  - { label: "exealm/train/multi.py：複数プロセスでの学習", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/exealm/train/multi.py" }
-  - { label: "tests/test_multi.py：2 プロセスのテスト、勾配の累積、時間制限、停止シグナル", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/tests/test_multi.py" }
-  - { label: "exealm/config.py：500m、1b、3b のプリセット", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/exealm/config.py" }
-  - { label: "experiments/expanse：セットアップ、最初のジョブ、学習ジョブ、まだ確かめていないこと", href: "https://github.com/exea-labs/ExeaLM/tree/h100-port/experiments/expanse" }
-  - { label: "results/a40_check：NVIDIA の GPU での最初の実行と、確認スクリプトの全出力", href: "https://github.com/exea-labs/ExeaLM/tree/h100-port/results/a40_check" }
-  - { label: "experiments/gpu_check.py", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/experiments/gpu_check.py" }
-  - { label: "experiments/throughput.py", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/experiments/throughput.py" }
+  - { label: "exealm/train/multi.py：複数プロセスでの学習", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/exealm/train/multi.py" }
+  - { label: "tests/test_multi.py：2 プロセスのテスト、勾配の累積、時間制限、停止シグナル", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/tests/test_multi.py" }
+  - { label: "exealm/config.py：500m、1b、3b のプリセット", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/exealm/config.py" }
+  - { label: "experiments/expanse：セットアップ、最初のジョブ、学習ジョブ、まだ確かめていないこと", href: "https://github.com/exea-labs/ExeaLM/tree/nairr/experiments/expanse" }
+  - { label: "results/a40_check：NVIDIA の GPU での最初の実行と、確認スクリプトの全出力", href: "https://github.com/exea-labs/ExeaLM/tree/nairr/results/a40_check" }
+  - { label: "experiments/gpu_check.py", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/experiments/gpu_check.py" }
+  - { label: "experiments/throughput.py", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/experiments/throughput.py" }
   - { label: "PR #1：チェックポイントから事前学習を完全に再開する", href: "https://github.com/exea-labs/ExeaLM/pull/1" }
 ---
 
@@ -47,6 +47,10 @@ sources:
 | 評価と短い事後学習 | | | | 150 |
 | ライブラリの構築、やり直し、予備 | | | | 231 |
 | 合計 | | | | 2,000 |
+
+<Correction title="移植は nairr にあります。この表は、これから走らせる計画ではありません">
+  <p>11 月 22 日に、ブランチ h100-port を削除しました。移植は <a href="https://github.com/exea-labs/ExeaLM/tree/nairr">nairr</a> にあります。main にはマージしていません。main は公開のモデルです。nairr は NAIRR の 9B へ向かう線です。プッシュできるのは、選んだ人だけです。上の表は申請書の計画です。それらの実行が始まる前に、計画を変えました。各大きさの ExeaLM には、同じ形のゲート付き Llama を並べます。3B も含みます。新しい 0.1B の組は、パラメータあたり約 110 トークンまで学習します。改めた表は nairr の <a href="https://github.com/exea-labs/ExeaLM/blob/nairr/docs/budget.md">docs/budget.md</a> です。どれもまだ走っていません。分かれは<a href="/ja/posts/nine-of-ten-public-pull-requests-merged-to-main/">13 日目の記事</a>に書きました。</p>
+</Correction>
 
 パラメータ数は、コードに加えた新しいプリセットの値で、32k の<Term id="tokenizer">トークナイザー</Term>を使った場合です。比較対象の数は、素の <Term id="llama">Llama</Term> のものです。0.5B のモデルがいちばん長く学習し、パラメータあたり 60 トークンです。1B のモデルは約 20 トークンです。これは、Chinchilla の論文（[Hoffmann et al., 2022](https://arxiv.org/abs/2203.15556)）が、決まった計算量のもとで最良とした比率に近い値です。3B の実行はわざと短くしてあり、パラメータあたり 3 トークン未満です。この大きさでアーキテクチャが安定して学習できるかを確かめます。80 億トークン時点の損失も得られます。それは、より小さいすべてのモデルと、同じトークン数で比べられます。
 
@@ -165,6 +169,6 @@ Expanse では、まだ動かせていません。ノートパソコンで、ス
 
 - Expanse で最初のジョブを投入し、その数で計画を調整する。
 - 学習データをすべてパックする。0.5B の実行は、これを待っています。
-- 移植をレビューして、マージする。ブランチ `h100-port` にあります。
+- 移植はブランチ `nairr` にあります。main にはマージしていません。
 
 最初の 2 つは [to-do リスト](https://github.com/exea-labs/ExeaLM#to-do-list)にあります。NVIDIA の GPU があれば、`python experiments/gpu_check.py` で、数分で確認をやり直せます。参加は[フォーム](https://docs.google.com/forms/d/e/1FAIpQLSdPHVZhuXxBDUf-cJM2zDbj1JZPsduu95Y_kTJ_g4gKAXdDVw/viewform)から、またはプルリクエストでどうぞ。

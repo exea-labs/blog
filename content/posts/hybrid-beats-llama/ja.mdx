@@ -6,7 +6,7 @@ day: 2
 summary: "TONN だけのモデルは、同じサイズの Llama にバイトあたりビット数で 0.06 遅れました。差のほとんどはコードでした。Mac 1 台での 49 回の実行からなるスイープで、TONN 層 1 つにつきアテンション層を 2 つ置くハイブリッドが、ステップ数をそろえた比較で Llama に勝ちました。速度改善のあとは、学習予定の 0.1B までのサイズで、計算量をそろえた比較でも勝ちました。このサイズでは、Llama と同じ速さで学習します。"
 dek: "TONN 層 1 つにつき、アテンション層を 2 つ。計算量をそろえた比較で、0.1B まで同じサイズの Llama に勝ちます。"
 cover: stack
-tags: [architecture, speed, scaling]
+tags: [public, architecture, speed, scaling]
 credits:
   - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Mac Studio で、49 回のスイープと、0.1B での計算量をそろえた比較の実行を行いました。プレフィックススキャンと層の高速化を書きました。" }
 numbers:

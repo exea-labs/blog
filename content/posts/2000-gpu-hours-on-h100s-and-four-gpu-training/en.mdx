@@ -6,7 +6,7 @@ day: 9
 summary: "The NAIRR Pilot approved 2,000 GPU-hours for ExeaLM on the SDSC Expanse AI Resource, where a node holds four NVIDIA H100s and is charged as four. The hours are for one scaling study: the hybrid at 0.5B, 1B and 3B parameters, with same-size baselines at 0.5B and 1B. On day 9 we wrote what those nodes need: training on several GPUs, runs that continue across 48-hour jobs and presets for the three sizes. The same day it passed every check on two rented NVIDIA A40s, where two GPUs trained 1.86 times as fast as one. It has not run on an H100 or on four GPUs yet."
 dek: "What the hours are for, and what the code needed before it could use a node of four H100s."
 cover: stack
-tags: [plan, scaling, speed]
+tags: [nairr, plan, scaling, speed, correction]
 numbers:
   - { value: "2,000", label: "GPU-hours from the NAIRR Pilot on SDSC Expanse, for ExeaLM at 0.5B, 1B and 3B with same-size baselines at 0.5B and 1B" }
   - { value: "4", label: "H100s in an Expanse node, charged as 4 GPU-hours per hour. Before day 9 a training run used one GPU" }
@@ -17,15 +17,15 @@ credits:
 sources:
   - { label: "NAIRR Pilot", href: "https://nairrpilot.org" }
   - { label: "SDSC Expanse user guide: the AI resource, its partitions, limits and storage", href: "https://www.sdsc.edu/systems/expanse/user_guide.html" }
-  - { label: "docs/budget.md: the compute plan, run by run", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/docs/budget.md" }
+  - { label: "docs/budget.md: the compute plan, run by run", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/docs/budget.md" }
   - { label: "results/funding/README.md, section 6: training speed on the MI300X", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/funding/README.md" }
-  - { label: "exealm/train/multi.py: training with several processes", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/exealm/train/multi.py" }
-  - { label: "tests/test_multi.py: the two-process tests, accumulation, time limits and stop signals", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/tests/test_multi.py" }
-  - { label: "exealm/config.py: the 500m, 1b and 3b presets", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/exealm/config.py" }
-  - { label: "experiments/expanse: setup, the first job, the training job and what is still unchecked", href: "https://github.com/exea-labs/ExeaLM/tree/h100-port/experiments/expanse" }
-  - { label: "results/a40_check: the first runs on NVIDIA GPUs, with the full output of the check", href: "https://github.com/exea-labs/ExeaLM/tree/h100-port/results/a40_check" }
-  - { label: "experiments/gpu_check.py", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/experiments/gpu_check.py" }
-  - { label: "experiments/throughput.py", href: "https://github.com/exea-labs/ExeaLM/blob/h100-port/experiments/throughput.py" }
+  - { label: "exealm/train/multi.py: training with several processes", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/exealm/train/multi.py" }
+  - { label: "tests/test_multi.py: the two-process tests, accumulation, time limits and stop signals", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/tests/test_multi.py" }
+  - { label: "exealm/config.py: the 500m, 1b and 3b presets", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/exealm/config.py" }
+  - { label: "experiments/expanse: setup, the first job, the training job and what is still unchecked", href: "https://github.com/exea-labs/ExeaLM/tree/nairr/experiments/expanse" }
+  - { label: "results/a40_check: the first runs on NVIDIA GPUs, with the full output of the check", href: "https://github.com/exea-labs/ExeaLM/tree/nairr/results/a40_check" }
+  - { label: "experiments/gpu_check.py", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/experiments/gpu_check.py" }
+  - { label: "experiments/throughput.py", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/experiments/throughput.py" }
   - { label: "PR #1: resume pretraining exactly from a checkpoint", href: "https://github.com/exea-labs/ExeaLM/pull/1" }
 ---
 
@@ -47,6 +47,10 @@ We will train the same hybrid at about 0.5B, 1B and 3B parameters. At 0.5B and 1
 | Evaluation and short post-training | | | | 150 |
 | Library builds, restarts and reserve | | | | 231 |
 | Total | | | | 2,000 |
+
+<Correction title="The port is on nairr. This table is the proposal, not the plan we will run">
+  <p>On 22 November the branch h100-port was deleted. The port is on <a href="https://github.com/exea-labs/ExeaLM/tree/nairr">nairr</a>. It was not merged into main. main is the public model. nairr is the NAIRR 9B line. Only selected contributors can push to it. The table above is the proposal. Before any of those runs, the plan changed: each ExeaLM size has a gated Llama beside it, including at 3B, and a new 0.1B pair trains to about 110 tokens per parameter. The revised table is <a href="https://github.com/exea-labs/ExeaLM/blob/nairr/docs/budget.md">docs/budget.md</a> on nairr. None of it has run. The <a href="/posts/nine-of-ten-public-pull-requests-merged-to-main/">day 13 post</a> records the split.</p>
+</Correction>
 
 The parameter counts are those of the new presets in the code, with the 32k <Term id="tokenizer">tokenizer</Term>. The baseline's count is for a plain <Term id="llama">Llama</Term>. The 0.5B model gets the longest run, 60 tokens per parameter. The 1B model gets about 20, close to the ratio that the Chinchilla paper ([Hoffmann et al., 2022](https://arxiv.org/abs/2203.15556)) found best for a fixed compute budget. The 3B run is short on purpose, under 3 tokens per parameter. It tests whether the architecture trains stably at that size. It also gives a loss at 8 billion tokens, which every smaller model can be compared with at the same token count.
 
@@ -165,6 +169,6 @@ The data is not ready either. The packed token files hold 413 million tokens. Th
 
 - Submit the first job on Expanse and rescale the plan from its numbers.
 - Pack the full training data. The 0.5B run waits on this.
-- Review the port and merge it. It is on the branch `h100-port`.
+- The port is on the branch `nairr`. It was not merged into main.
 
 The first two are on the [to-do list](https://github.com/exea-labs/ExeaLM#to-do-list). Anyone with an NVIDIA GPU can rerun the check in a few minutes with `python experiments/gpu_check.py`. Sign up through the [form](https://docs.google.com/forms/d/e/1FAIpQLSdPHVZhuXxBDUf-cJM2zDbj1JZPsduu95Y_kTJ_g4gKAXdDVw/viewform), or open a pull request.

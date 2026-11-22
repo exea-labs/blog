@@ -6,7 +6,7 @@ day: 3
 summary: "主に実際のテキストで学習した 1,800 万パラメータの ExeaLM が、掲示板を通じて別のエージェントに事実を渡すこと（正答率 100%、掲示板を切ると 1%）と、一度も見ていないライブラリから事実を引くこと（94%、ライブラリなしでは 1.6%）を、両方のシードで身につけました。そのためには、2 つのスキルを最初のステップから同時に教える必要がありました。順番に教えると、検索が身についたのは 2 シード中 1 つだけでした。言語では、同じ大きさの Llama とほぼ互角です。実際の Wikipedia では、ライブラリはまだ役に立っていません。"
 dek: "中継と検索は、同時に教えると両方身につきます。言語は互角です。"
 cover: board
-tags: [swarms, retrieval, architecture]
+tags: [public, swarms, retrieval, architecture]
 credits:
   - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "両方のメモリスキルを持つ 17M モデルという目標を立てました。この記事のすべての実行を Mac Studio で回しました。3 つのレシピ、スケジュールの確認、それぞれ 2 シード、そしてステップ数と計算量をそろえた Llama のベースラインです。" }
   - { login: jaztulsi, name: "Jasraj Tulsi", what: "探索が各層に残す回路を記録して描く experiments/plot_search.py を書きました（PR #36）。--seed が実行の最初の回路を変えていなかったことも見つけました。小さなモデルと中継タスクをノート PC の CPU で 5 分以内に学習する初心者向けノートブックを書きました（PR #37）。" }

@@ -6,7 +6,7 @@ day: 4
 summary: "We built a Qwen3.5-style model at 13M parameters and tried its parts inside ExeaLM's hybrid. Two of them, an output gate on attention and QK-norm, improve the hybrid by 0.025 bits per byte. With them it leads the Qwen3.5-style model at equal steps, averaged over two seeds (1.511 against 1.521), and at equal training time on one seed (1.509 against 1.542). The same parts also help Llama, so the fair baseline from here on is a gated Llama."
 dek: "Gated attention and QK-norm help the hybrid more than any change since the convolution-heavy start."
 cover: stack
-tags: [architecture, speed]
+tags: [public, architecture, speed]
 credits:
   - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Asked for a benchmark against Qwen3.5 and for the parts of it that work in ExeaLM. Ran every run in this post on the Mac Studio: the Qwen3.5-style baseline, the gated variants of both models, the equal-compute check and the full 18M model with the gate." }
 numbers:

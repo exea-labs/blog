@@ -6,7 +6,7 @@ day: 6
 summary: "On one rented AMD MI300X we reran the same-size comparisons at equal steps. At about 0.1B parameters the hybrid scores 1.427 bits per byte (3 seeds), and 1.413 with one circuit type left out of its starting menu, against 1.446 for a gated Llama, 1.457 for our Qwen3.5-style build and 1.509 for Llama (3 seeds each). At 13M the five-seed means tie, because one hybrid seed drew poor starting circuits. A new circuit lets one agent edit another agent's weights. Its first version passed 52% of the facts in the relay task. With the key taken from the edited layer itself it passes 99.7 to 100% (6 runs), as the board does."
 dek: "Five seeds at 13M, three at 0.1B, and a circuit that writes into another agent's weights."
 cover: stack
-tags: [architecture, scaling, swarms]
+tags: [public, architecture, scaling, swarms]
 numbers:
   - { value: "1.427", label: "bits per byte, ExeaLM hybrid at 0.1B, 3 seeds at equal steps (gated Llama 1.446, Qwen3.5-style 1.457, Llama 1.509); 1.413 without rotary attention in the starting menu" }
   - { value: "1.523", label: "bits per byte at 13M, mean of 5 seeds; Qwen3.5-style 1.522, gated Llama 1.523. A tie, caused by one weak seed (1.567)" }

@@ -6,7 +6,7 @@ day: 4
 summary: "We tested ExeaLM's memory paths on held-out Wikipedia, with knowledge the model never trained on. Notes written ahead of time by a reader of the article gain up to 0.039 bits per re-mentioned rare word, against 0.34 for ordinary BM25 RAG. After 8,000 steps of practice, notes from all 256 articles at once make re-mentions 7.9 bits worse. Separately, reruns did not confirm the swarm gain on real text that we reported on day 2."
 dek: "The board path is the only one that helps on real text. It has not learned to ignore the wrong notes."
 cover: board
-tags: [retrieval, swarms, correction]
+tags: [public, retrieval, swarms, correction]
 credits:
   - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Asked for proof that the board, the library and a knowledge base the model never trained on work on real text. Ran the six fine-tunes, the real-text test and the swarm reruns on the Mac Studio." }
   - { login: aarochu, name: "Aaron Chu", what: "Found the split-swarm seam leak and fixed it (PR #7). The reruns in this post's correction are the reruns that fix made necessary." }

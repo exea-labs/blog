@@ -6,7 +6,7 @@ day: 8
 summary: "Naman Jain measured how many facts each path between two agents can carry, on a 0.8M-parameter model trained on a laptop CPU. Weight edits with the key taken from the edited layer pass every fact at 8, 16, 32 and 64 facts on both seeds (100%, about 1.5% with the path cut). The board passes 99.6% at 16 facts and 87.2% at 32. At 64 facts it is still at chance after 3,000 steps. Sixty-four is the most this task can hold, so the limit of weight edits is not found yet. Two seeds, one step budget."
 dek: "Twenty runs on a laptop answer issue #58: weight edits carry everything the task can hold."
 cover: merge
-tags: [swarms, contributions]
+tags: [public, swarms, contributions]
 numbers:
   - { value: "100%", label: "of 64 facts passed by weight edits, on both seeds (1.5% with the path cut, 1.6% by chance)" }
   - { value: "87.2%", label: "of 32 facts passed by the board after the same 3,000 steps (81.8% and 92.6% on the two seeds)" }

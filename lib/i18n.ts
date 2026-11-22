@@ -18,7 +18,7 @@ export const SITE = {
 
 const en = {
   description:
-    "Daily notes from Exea Labs. Right now we are building ExeaLM, an open 0.1B language model, in public: what we tried, what the numbers say and what broke.",
+    "Daily notes from Exea Labs. We are building ExeaLM in public, and a separate NAIRR line toward a 9B model: what we tried, what the numbers say and what broke.",
   nav: { posts: "Posts", architecture: "Architecture", results: "Results", glossary: "Glossary" },
   search: "Search",
   searchPlaceholder: "Search posts, figures and terms",
@@ -64,7 +64,7 @@ const en = {
 
 const ja: typeof en = {
   description:
-    "Exea Labs の日々の記録。いま取り組んでいるのは、0.1B のオープンな言語モデル ExeaLM の公開開発です。試したこと、数字が示したこと、壊れたことを書きます。",
+    "Exea Labs の日々の記録。ExeaLM を公開で作り、それとは別に NAIRR の 9B へ向かう線もあります。試したこと、数字が示したこと、壊れたことを書きます。",
   nav: { posts: "記事", architecture: "アーキテクチャ", results: "結果", glossary: "用語集" },
   search: "検索",
   searchPlaceholder: "記事・図・用語を検索",
@@ -123,5 +123,7 @@ export const TAGS: Record<string, { en: string; ja: string }> = {
   scaling: { en: "Scaling", ja: "スケーリング" },
   correction: { en: "Correction", ja: "訂正" },
   contributions: { en: "Contributions", ja: "貢献" },
+  public: { en: "Public", ja: "公開" },
+  nairr: { en: "NAIRR LLM", ja: "NAIRR LLM" },
   data: { en: "Data", ja: "データ" },
 };

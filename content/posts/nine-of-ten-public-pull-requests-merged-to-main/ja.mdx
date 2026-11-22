@@ -1,0 +1,92 @@
+---
+title: "公開のプルリクエスト 10 件のうち 9 件を main にマージした。13M では Muon が AdamW を上回る。"
+date: 2026-11-22
+order: 1
+day: 13
+summary: "11 月 22 日、公開のプルリクエスト 10 件のうち 9 件を main にマージしました。13M のハイブリッドで、Muon は AdamW をバイトあたりビット数 0.017 と 0.030 上回りました。シードは 2 つ、データは公開の代用です。既定の最適化手法は AdamW のままです。NAIRR のブランチ nairr にプッシュできるのは、選んだ人だけです。"
+dek: "代用データでの 2 シードでは Muon が上です。NAIRR の線は別ブランチです。"
+cover: merge
+tags: [public, nairr, contributions]
+numbers:
+  - { value: "10 件中 9 件", label: "11 月 22 日に main へマージした公開のプルリクエスト。スウォームの GRPO（PR #65）は、まだ衝突が残っています" }
+  - { value: "0.017", label: "13M、学習率 4e-3、シード 0 で、Muon が AdamW を上回ったバイトあたりビット数（シード 1 では 0.030）。データは代用です。既定は AdamW のままです" }
+  - { value: "0.021", label: "トークンあたりビット数の平均。tiny の探索メニューに Gated DeltaNet を加えたときの低下。合成データ、4 シード。シード 0 は一度も選ばれず、同点でした" }
+credits:
+  - { login: Aadi-Tiwari, name: "Aadi Tiwari", what: "Muon を選べる最適化手法として加え、13M のハイブリッドで AdamW と比べました（PR #72）。テストとデータツールを Windows で動くようにし、Windows の CI を足しました（PR #71）。" }
+  - { login: man-coding-j, name: "Naman Jain", what: "共有の掲示板を通すスウォームの教師あり学習（PR #63）、任意の Gated DeltaNet 回路（PR #64）、掲示板の投稿につく学習可能な書き手 ID（PR #66）、6 種の累積和を 1 本のスキャンにまとめる変更（PR #67）を書きました。スウォームの GRPO（PR #65）は、まだ開いています。" }
+  - { login: jaztulsi, name: "Jasraj Tulsi", what: "PyTorch の DDP で複数プロセスの学習をできるようにしました（PR #68）。--seed が初期回路を引く、という結果メモの訂正を書きました（PR #69）。CONTRIBUTORS.md に自分の名前を足しました（PR #70）。" }
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "9 件のプルリクエストを main にマージしました。H100 への移植と、改めた NAIRR の計画を nairr ブランチに移し、そこへプッシュできる人を限りました。" }
+sources:
+  - { label: "PR #63：共有の掲示板を通すスウォームの教師あり学習", href: "https://github.com/exea-labs/ExeaLM/pull/63" }
+  - { label: "PR #64：任意の Gated DeltaNet 回路", href: "https://github.com/exea-labs/ExeaLM/pull/64" }
+  - { label: "PR #65（未マージ）：スウォーム全体の GRPO", href: "https://github.com/exea-labs/ExeaLM/pull/65" }
+  - { label: "PR #66：掲示板の投稿につく書き手の識別", href: "https://github.com/exea-labs/ExeaLM/pull/66" }
+  - { label: "PR #67：6 種の累積和を 1 本のスキャンに", href: "https://github.com/exea-labs/ExeaLM/pull/67" }
+  - { label: "PR #68：DDP による複数プロセスの学習", href: "https://github.com/exea-labs/ExeaLM/pull/68" }
+  - { label: "PR #69：--seed が初期回路を引くようになった", href: "https://github.com/exea-labs/ExeaLM/pull/69" }
+  - { label: "PR #70：CONTRIBUTORS.md に Jasraj Tulsi", href: "https://github.com/exea-labs/ExeaLM/pull/70" }
+  - { label: "PR #71：Windows でのテストとデータツール", href: "https://github.com/exea-labs/ExeaLM/pull/71" }
+  - { label: "PR #72：Muon と AdamW の比較", href: "https://github.com/exea-labs/ExeaLM/pull/72" }
+  - { label: "results/muon/README.md", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/muon/README.md" }
+  - { label: "results/README.md 第 16 節：探索メニューの Gated DeltaNet", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/README.md" }
+  - { label: "nairr の docs/budget.md：改めた計算計画", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/docs/budget.md" }
+  - { label: "NAIRR の貢献者", href: "https://github.com/orgs/exea-labs/teams/nairr-contributors" }
+  - { label: "Muon is Scalable for LLM Training（Liu et al., 2025）", href: "https://arxiv.org/abs/2502.16982" }
+---
+
+今朝、`main` に対して公開のプルリクエストが 10 件開いていました。9 件はマージしました。10 件目のスウォーム GRPO は、それらと衝突したまま開いています。同じ日に、リポジトリは 2 本の線になりました。
+
+## main は公開のモデル。nairr は NAIRR のモデル
+
+`main` は、小さいモデルのままです。誰でも読めます。誰でもプルリクエストを出せます。出したプルリクエストは `main` にマージします。下の 9 件は、そこに入りました。
+
+`nairr` は、読むだけなら公開です。プッシュできるのは、[NAIRR contributors](https://github.com/orgs/exea-labs/teams/nairr-contributors) というチームの人だけです。いまメンバーは Avneh ひとりです。ほかの人は、彼が足します。このブランチには、[9 日目](/ja/posts/2000-gpu-hours-on-h100s-and-four-gpu-training/)の H100 への移植が入っています。複数 GPU での学習、0.5B・1B・3B のプリセット、Expanse のジョブファイルです。改めた計算計画も入っています。9 日目の記事の表は、申請書の計画です。それらの実行が始まる前に、各大きさの ExeaLM へ、同じ形のゲート付き <Term id="llama">Llama</Term> を並べるようにしました。3B も含みます。新しい 0.1B の組は、パラメータあたり約 110 トークンまで学習する予定です。どれもまだ走っていません。表は `nairr` の [docs/budget.md](https://github.com/exea-labs/ExeaLM/blob/nairr/docs/budget.md) にあります。
+
+## 13M では Muon が AdamW を上回る。既定は AdamW のまま
+
+Aadi Tiwari（<a href="https://github.com/Aadi-Tiwari">@Aadi-Tiwari</a>）が、Muon を選べる最適化手法として加えました（PR #72、issue #21）。Muon は、重み行列ごとに運動量のバッファを持ち、その更新を Newton-Schulz 法の 5 ステップで、ほぼ直交行列にします。埋め込み、結び付けた出力層、正規化、バイアス、スロットごとのスカラーは、同じ最適化手法の中でこれまでどおり AdamW のステップを踏みます。行列の更新は、長い辺の平方根の 0.2 倍に縮めます。[Liu et al.（2025）](https://arxiv.org/abs/2502.16982) に合わせた大きさなので、両方の手法は学習率もスケジュールも重み減衰も共有できます。`--optimizer adamw` の動きは変えていません。既定も AdamW のままです。
+
+比べたのは 13M の<Term id="hybrid">ハイブリッド</Term>です。3,000 ステップ、約 4,900 万トークン、バッチは 32 行×512 トークン、32 ビット、重み減衰 0.1 です。<Term id="seed">シード</Term>は初期の重みと初期の<Term id="circuit">回路</Term>を固定するので、両方の手法は同じモデルから始まります。テキストは公開の代用です。FineWeb-Edu、日本語 Wikipedia、FineWeb-2 の日本語、codeparrot-clean の Python です。資金表の裏にある非公開のパックではありません。ここでのコードは Python だけなので、そのバイトあたりビット数は資金表の数字とは比べられません。比べるのは、2 つの最適化手法どうしです。
+
+機械は、8 GB の RTX 4060 ラップトップ GPU 1 枚です。32 行のバッチは約 9 GB 必要なので、すべての実行は `--accum 2`、つまり 16 行を 2 回に分けました。1 ステップが見るトークンは同じです。スロットの大きさの移動平均は、半分ごとに更新されます。32 行を 1 度に通した場合とは、少し違います。両方の手法を、そのやり方で学習させました。
+
+シード 0 では、学習率 0.001、0.002、0.004、0.008 を試しました。両方とも最良は 0.004 でした。0.008 は、両方とも悪くなりました。シード 1 は 0.004 だけを走らせました。数字は、英語、日本語 Wikipedia、日本語のウェブ、コードの 4 つの評価セットの平均です。低いほど良いです。
+
+| 最適化手法 | シード 0 | シード 1 |
+|---|---:|---:|
+| AdamW | 1.321 | 1.331 |
+| Muon | **1.304** | **1.301** |
+
+Muon は、シード 0 で 0.017 <Term id="bpb">バイトあたりビット数</Term>、シード 1 で 0.030 上回っています。4 種類のテキストのすべてで、両方のシードとも上回っています。学習率を選んだのはシード 0 なので、よりきれいな確認はシード 1 です。資金表にあるこのモデルの 10 シードは、別のデータ、学習率 0.002 で、ばらつきが 0.007 バイトあたりビット数です。そのばらつきは、粗い物差しでしかありません。どちらの差も、それより大きいです。1 つの大きさ、代用データ、2 シードでは、既定を変えるには足りません。
+
+分割バッチの確認も 1 つあります。カードにそのまま入る 16 行では、シード 0 の AdamW は、1 度に通した場合より 2 分割のほうが 0.018 悪く、4 種類のテキストのすべてで悪くなりました。別のシードは AdamW を 0.013 動かしたので、分割は新しいシードより少し大きく点を動かしました。それぞれ 1 回しか走らせていないので、0.018 のうちどれだけが分割そのものかは言えません。分割なしでも、その 1 シードでは Muon が AdamW を 0.035 上回り、4 種類のテキストのすべてで上回りました。表のリードは `--accum 2` に依存しません。この確認は、トークン数を半分にした 1 シードです。
+
+## ほかに 8 件がマージされた。1 件はされなかった
+
+<CardList>
+
+1. **スウォームの教師あり学習**（PR #63、Naman Jain、<a href="https://github.com/man-coding-j">@man-coding-j</a>）。任意の<Term id="swarm">スウォーム</Term>微調整です。答えるエージェントを 1 体決めます。損失に入るのは、そのエージェントの応答トークンだけです。勾配は、共有の<Term id="board">掲示板</Term>を通して、ほかのエージェントの書き込みと投稿のパラメータにも届きます。バッチでは、スウォームを分割しません。`tiny`、合成データ、60 ステップ、2 シードで、共有掲示板の検証損失は 0.041 と 0.023 でした。エージェントを単独で同じ学習をさせた場合は 0.263 と 0.257 です。これは玩具の課題です。実テキストのバイトあたりビット数ではありません。
+2. **探索メニューの Gated DeltaNet**（PR #64、Naman）。コードにすでにあるゲート付きデルタ則を使う、任意の回路 `GD` です。両方の条件は `tiny` プリセット、127,432 パラメータ、CPU で 300 ステップ、合成データ、4 シードです。メニューに `GD` を加えると、平均は 0.021 <Term id="bpt">トークンあたりビット数</Term>下がりました。シード 0 はこの回路を一度も引かず、2.256 対 2.256 で同点でした。残りのシードは 2.234、2.305、2.336 で終わり、対照は 2.300、2.317、2.341 です。シード 2 では、<Term id="search">探索</Term>が 2 つ目の `GD` スロットを足し、両方を残しました。実テキストでの 13M の比較ができるまで、既定にはしません（[issue #30](https://github.com/exea-labs/ExeaLM/issues/30)）。
+3. **掲示板の投稿につく書き手の識別**（PR #66、Naman）。掲示板の値に、学習できる書き手 ID を任意で足します。同じ文章を投稿した書き手を、読み手が区別できるようにするためです。表はゼロから始まり、掲示板を読むことで学習します。テスト課題は、両方のエージェントに同じトークンを与え、正解を書き手に依存させます。ID を 2 つ足すと、127,432 パラメータの `tiny` に 32 パラメータが増えます。120 ステップ、2 シードで、正解率は 50% から 100% になり、目標あたりのビット数は 1.001 から 0.002 になりました。ID だけが役に立つように作った課題です。言語で識別が役に立つとは言えません。
+4. **6 種の累積和を 1 本のスキャンに**（PR #67、Naman）。1 つの <Term id="tonn">TONN</Term> 層にある回路 `I`、`MI`、`MIM`、`EP`、`GI`、`SM` が、種類ごとにスキャンする代わりに 1 本のスキャンを共有します。チェックポイントと、種類ごとの回路の呼び出しは同じままです。古いコードとの出力の差は最大 4.77e-7、勾配の差は最大 1.16e-9 でした。シード 0 と 1 です。CPU 1 台、`tiny`、3 回の中央値で、文脈 128 では 1 秒あたりのトークンが 8.6% 増え（約 98,600 対 90,800）、文脈 512 では 4.0% 増えました（約 113,100 対 108,800）。GPU では計っていません。
+5. **DDP による複数プロセス**（PR #68、Jasraj Tulsi、<a href="https://github.com/jaztulsi">@jaztulsi</a>）。`torchrun` が、PyTorch の DistributedDataParallel で N プロセスの学習をするようになりました。プロセス 1 つの普通の実行は変えていません。`tiny`、合成データ、CPU で 300 ステップでは、1 プロセスと 2 プロセスの差は、シード 0 でトークンあたり 0.0002 ビット、シード 1 で 0.0003 ビットです。2 つのシードの差は 0.033 です。探索と検索をオンにした 60 ステップでは、10 回の探索すべてで同じ選択をしました。2 つのプロセスが 1 つのモデルのままかを確かめたものです。速度の測定ではありません。H100 では走らせていません。9 日目に A40 2 枚で確かめた複数 GPU のコードは、`nairr` にある別のものです。
+6. **結果メモの古い一文**（PR #69、Jasraj）。第 11 節は、`pretrain.py` がシードを 0 のままにするので、どのシードも同じ回路から始まると書いていました。その 3 回の実行を作った時点では、そのとおりでした。いまは違います。`--seed` が初期回路を引きます。メモは、両方を書くようになりました。文章だけの変更です。
+7. **貢献者一覧への名前**（PR #70、Jasraj）。`CONTRIBUTORS.md` に Jasraj Tulsi を足しました。すでにマージ済みのプルリクエスト #36 と #37 のあとです。
+8. **Windows**（PR #71、Aadi）。Windows では、テストの収集中にスイートが落ちていました。約 90 か所のテキストの読み書きがエンコーディングを指定せず、Windows が cp1252 を使ったためです。テキストファイルは、改行を `\n` にした UTF-8 で読み書きするようにしました。テストがトークンファイルを書き換える前に、メモリマップを閉じます。評価テストのデータセットキャッシュには、Windows の 260 文字制限に収まる短いパスを渡します。データツールは、ファイル名のパターンを自分で展開します。README のコマンドは、Unix のシェルに依存しません。CI は Ubuntu に加えて Windows でもスイートを走らせます。彼の機械（Windows 11、Python 3.13）では、`python -m pytest -q` が 236 件成功、1 件スキップと報告しました。変更前は、収集の時点で落ちていました。
+
+</CardList>
+
+スウォームの GRPO（PR #65、Naman）はマージしませんでした。スウォーム全体を 1 つの点数で学習します。指定したエージェントを 1 度だけ採点し、その試行の利得をすべてのエージェントが受け取ります。彼の報告では、`tiny`、合成データ、60 ステップ、2 シードで、貪欲な完全一致の報酬はスウォームが 100%、単独が 50% で終わりました。この数字は、彼のブランチのものです。上のマージと衝突しているので、`main` には入っていません。
+
+## この結果が示していないこと
+
+今日、本物の学習パック上の数字は動いていません。Muon は、13M を代用データで 2 シード走らせたもので、学習率はシード 0 で選びました。Gated DeltaNet の改善は、127K のモデルを合成テキストで 4 シード走らせたものです。そのうち 1 シードは、新しい回路を一度も使いませんでした。スウォームの学習、書き手 ID、GRPO の報酬は、同じ小さいモデル上の玩具の課題です。スキャンの高速化は CPU 1 台です。2 プロセスの確認は、その CPU 上で同じモデルのままかを見たもので、H100 の測定ではありません。NAIRR の実行は、まだ始まっていません。
+
+## 次にやること
+
+- PR #65 の衝突を解き、今の main でも玩具の結果が残るなら `main` にマージする。
+- 既定を変える前に、本物のパックで 0.1B の Muon と AdamW を比べる。コマンドは [results/muon/README.md](https://github.com/exea-labs/ExeaLM/blob/main/results/muon/README.md) にあります。
+- `GD` の 13M・実テキストの比較を、[issue #30](https://github.com/exea-labs/ExeaLM/issues/30) のとおりに走らせる。Colab で動く大きさです。
+- Expanse の最初のジョブは、これらのプルリクエストではなく `nairr` にあります。そこへプッシュできるようにするには、[NAIRR contributors](https://github.com/orgs/exea-labs/teams/nairr-contributors) に人を足します。
+
+2 番目と 3 番目は [to-do リスト](https://github.com/exea-labs/ExeaLM#to-do-list)にあります。公開のプルリクエストは `main` に出してください。参加は[フォーム](https://docs.google.com/forms/d/e/1FAIpQLSdPHVZhuXxBDUf-cJM2zDbj1JZPsduu95Y_kTJ_g4gKAXdDVw/viewform)から、またはプルリクエストでどうぞ。

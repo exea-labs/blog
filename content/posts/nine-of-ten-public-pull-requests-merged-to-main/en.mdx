@@ -1,0 +1,92 @@
+---
+title: "Nine of ten public pull requests merged to main. Muon leads AdamW at 13M."
+date: 2026-11-22
+order: 1
+day: 13
+summary: "Nine of ten public pull requests merged to main on 22 November. Muon beat AdamW by 0.017 and 0.030 bits per byte on the 13M hybrid, two seeds, on public stand-in data. AdamW stays the default. Only selected contributors can push to the NAIRR branch, nairr."
+dek: "Muon leads on two seeds of stand-in data. The NAIRR line is a separate branch."
+cover: merge
+tags: [public, nairr, contributions]
+numbers:
+  - { value: "9 of 10", label: "public pull requests merged to main on 22 November. Swarm GRPO (PR #65) still conflicts" }
+  - { value: "0.017", label: "bits per byte Muon ahead of AdamW at 13M, seed 0, learning rate 4e-3 (0.030 on seed 1). Stand-in data. AdamW stays the default" }
+  - { value: "0.021", label: "bits per token, mean, from adding Gated DeltaNet to the tiny search menu, 4 seeds, synthetic data. Seed 0 never drew it and tied" }
+credits:
+  - { login: Aadi-Tiwari, name: "Aadi Tiwari", what: "Added Muon as an optional optimizer and compared it with AdamW on the 13M hybrid (PR #72). Made the tests and data tools run on Windows, with a Windows CI job (PR #71)." }
+  - { login: man-coding-j, name: "Naman Jain", what: "Added swarm SFT through the shared board (PR #63), an opt-in Gated DeltaNet circuit (PR #64), learned author ids on board posts (PR #66), and one scan for six running-sum circuits (PR #67). Swarm GRPO (PR #65) is still open." }
+  - { login: jaztulsi, name: "Jasraj Tulsi", what: "Trained with PyTorch DDP across processes (PR #68), corrected the results note on how --seed draws the starting circuits (PR #69), and added his name to CONTRIBUTORS.md (PR #70)." }
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Merged the nine pull requests into main. Moved the H100 port and the revised NAIRR plan onto the nairr branch, where only selected contributors can push." }
+sources:
+  - { label: "PR #63: swarm SFT through the shared board", href: "https://github.com/exea-labs/ExeaLM/pull/63" }
+  - { label: "PR #64: opt-in Gated DeltaNet circuit", href: "https://github.com/exea-labs/ExeaLM/pull/64" }
+  - { label: "PR #65 (open): train whole swarms with GRPO", href: "https://github.com/exea-labs/ExeaLM/pull/65" }
+  - { label: "PR #66: author identity on board posts", href: "https://github.com/exea-labs/ExeaLM/pull/66" }
+  - { label: "PR #67: one scan for six running-sum circuits", href: "https://github.com/exea-labs/ExeaLM/pull/67" }
+  - { label: "PR #68: training in several processes with DDP", href: "https://github.com/exea-labs/ExeaLM/pull/68" }
+  - { label: "PR #69: --seed now draws the starting circuits", href: "https://github.com/exea-labs/ExeaLM/pull/69" }
+  - { label: "PR #70: Jasraj Tulsi in CONTRIBUTORS.md", href: "https://github.com/exea-labs/ExeaLM/pull/70" }
+  - { label: "PR #71: tests and data tools on Windows", href: "https://github.com/exea-labs/ExeaLM/pull/71" }
+  - { label: "PR #72: Muon against AdamW", href: "https://github.com/exea-labs/ExeaLM/pull/72" }
+  - { label: "results/muon/README.md", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/muon/README.md" }
+  - { label: "results/README.md, section 16: Gated DeltaNet in the search menu", href: "https://github.com/exea-labs/ExeaLM/blob/main/results/README.md" }
+  - { label: "docs/budget.md on nairr: the revised compute plan", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/docs/budget.md" }
+  - { label: "NAIRR contributors", href: "https://github.com/orgs/exea-labs/teams/nairr-contributors" }
+  - { label: "Muon is Scalable for LLM Training (Liu et al., 2025)", href: "https://arxiv.org/abs/2502.16982" }
+---
+
+Ten public pull requests were open against `main` this morning. Nine are merged. The tenth, swarm GRPO, conflicts with them and is still open. The same day the repository became two lines.
+
+## main is the public model. nairr is the NAIRR model
+
+`main` stays the small model. Anyone can read it and open a pull request. We merge those pull requests into `main`. The nine below landed there.
+
+`nairr` is public to read. Only people on the [NAIRR contributors](https://github.com/orgs/exea-labs/teams/nairr-contributors) team can push to it. Today that list is Avneh. He adds the others. The branch holds the H100 port from [day 9](/posts/2000-gpu-hours-on-h100s-and-four-gpu-training/): training on several GPUs, the 0.5B, 1B and 3B presets, and the Expanse job files. It also holds a revised compute plan. The table in the day 9 post is the proposal. Before any of those runs, each ExeaLM size gained a gated <Term id="llama">Llama</Term> of the same shape beside it, including at 3B. A new 0.1B pair is set to train to about 110 tokens per parameter. None of those runs has started. The table is [docs/budget.md](https://github.com/exea-labs/ExeaLM/blob/nairr/docs/budget.md) on `nairr`.
+
+## Muon leads AdamW at 13M. AdamW stays the default
+
+Aadi Tiwari (<a href="https://github.com/Aadi-Tiwari">@Aadi-Tiwari</a>) added Muon as an optional optimizer (PR #72, issue #21). Muon keeps a momentum buffer on each weight matrix, then takes five Newton-Schulz steps so the update is nearly orthogonal. The embedding, the tied output layer, the norms, the biases and the per-slot scalars still take AdamW steps inside the same optimizer. The matrix update is scaled by 0.2 times the square root of the longer side, following [Liu et al. (2025)](https://arxiv.org/abs/2502.16982), so both optimizers can share one learning rate, one schedule and the same weight decay. `--optimizer adamw` is unchanged, and it is still the default.
+
+The comparison is the 13M <Term id="hybrid">hybrid</Term>, 3,000 steps, about 49 million tokens, a batch of 32 rows by 512 tokens, 32-bit, weight decay 0.1. A <Term id="seed">seed</Term> fixes the starting weights and the starting <Term id="circuit">circuits</Term>, so both optimizers begin from the same model. The text is a public stand-in: FineWeb-Edu, Japanese Wikipedia, FineWeb-2 Japanese, and Python from codeparrot-clean. It is not the private packs behind the funding table. Code here is Python only, so those bits per byte are not comparable to the funding results. Compare the two optimizers with each other.
+
+The machine was one RTX 4060 laptop GPU with 8 GB. A batch of 32 needs about 9 GB, so every run used `--accum 2`, two halves of 16. Each step sees the same tokens. The running slot scale updates once per half, so this is not quite a single batch of 32. Both optimizers were trained that way.
+
+Seed 0 tried learning rates 0.001, 0.002, 0.004 and 0.008. Both optimizers were best at 0.004. Both were worse at 0.008. Seed 1 then ran at 0.004 only. The numbers are the mean of four held-out sets: English, Japanese Wikipedia, Japanese web text and code. Lower is better.
+
+| Optimizer | Seed 0 | Seed 1 |
+|---|---:|---:|
+| AdamW | 1.321 | 1.331 |
+| Muon | **1.304** | **1.301** |
+
+Muon is ahead by 0.017 <Term id="bpb">bits per byte</Term> on seed 0 and by 0.030 on seed 1. It is ahead on all four kinds of text on both seeds. Seed 0 chose the learning rate, so seed 1 is the cleaner check. Ten seeds of this model in the funding table spread by 0.007 bits per byte, on other data and at learning rate 0.002. That spread is only a rough yardstick. Both gaps are larger than it. Two seeds at one size, on stand-in data, are not enough to change the default.
+
+One more check, because of the split batches. At batch 16, which fits the card whole, AdamW on seed 0 scored 0.018 worse with two halves than with one batch. It was worse on all four kinds of text. A different seed moved AdamW by 0.013, so the split moved the score a little more than a new seed did. One run of each cannot say how much of the 0.018 is the split itself. Without the split, Muon was still ahead of AdamW by 0.035 on that one seed. It was ahead on all four kinds of text. The lead in the table does not depend on `--accum 2`. That check is one seed at half the tokens.
+
+## Eight more merged. One did not
+
+<CardList>
+
+1. **Swarm supervised training** (PR #63, Naman Jain, <a href="https://github.com/man-coding-j">@man-coding-j</a>). Opt-in <Term id="swarm">swarm</Term> fine-tuning. One agent is designated to answer. Only that agent's assistant tokens are in the loss. Gradients still reach the other agents' write and post parameters through the shared <Term id="board">board</Term>. Whole swarms stay together in a batch. On the `tiny` model, synthetic data, 60 steps, 2 seeds, shared-board validation loss was 0.041 and 0.023, against 0.263 and 0.257 for the same training with agents alone. That is a toy task. It is not bits per byte on real text.
+2. **Gated DeltaNet in the search menu** (PR #64, Naman). An opt-in circuit, `GD`, using the gated delta rule already in the code. Both arms were the `tiny` preset, 127,432 parameters, 300 steps on CPU, synthetic data, 4 seeds. Adding `GD` to the menu lowered the mean by 0.021 <Term id="bpt">bits per token</Term>. Seed 0 never drew the circuit and tied, 2.256 against 2.256. The other seeds finished at 2.234, 2.305 and 2.336, against 2.300, 2.317 and 2.341. On seed 2 the <Term id="search">search</Term> added a second `GD` slot and kept both. It stays opt-in until a 13M comparison on real text exists ([issue #30](https://github.com/exea-labs/ExeaLM/issues/30)).
+3. **Author identity on board posts** (PR #66, Naman). An opt-in learned id on each board value, so a reader can tell writers apart when they post the same text. The table starts at zero and trains through board reads. The test task gives both agents the same tokens and makes the target depend on who wrote. Two ids add 32 parameters to the 127,432-parameter `tiny` model. At 120 steps, 2 seeds, accuracy went from 50% to 100%, and bits per target from 1.001 to 0.002. The task was built so that the id is the only useful signal. It does not say that identity helps on language.
+4. **One scan for six running sums** (PR #67, Naman). The circuits `I`, `MI`, `MIM`, `EP`, `GI` and `SM` in one <Term id="tonn">TONN</Term> layer now share one scan, instead of one scan each. Checkpoints and the per-type circuit calls stay the same. Against the old code, the largest output difference was 4.77e-7, and the largest gradient difference was 1.16e-9, on seeds 0 and 1. On one CPU, the `tiny` model, median of three runs: 8.6% more tokens per second at context 128 (about 98,600 against 90,800), and 4.0% at context 512 (about 113,100 against 108,800). This has not been timed on a GPU.
+5. **Several processes with DDP** (PR #68, Jasraj Tulsi, <a href="https://github.com/jaztulsi">@jaztulsi</a>). `torchrun` now trains in N processes, using PyTorch's DistributedDataParallel. A plain one-process run is unchanged. On `tiny`, synthetic data, 300 steps on CPU, one process and two processes differ by 0.0002 bits per token on seed 0 and by 0.0003 on seed 1. The two seeds differ by 0.033. With search and retrieval on, a 60-step run made the same search choices in all 10 rounds. This checks that two processes stay one model. It is not a speed measurement. It has not run on an H100. The multi-GPU code checked on two A40s on day 9 is the separate copy on `nairr`.
+6. **A stale sentence in the results** (PR #69, Jasraj). Section 11 said `pretrain.py` leaves the seed at 0, so every seed starts from the same circuits. That was true when those three runs were made. It is no longer true: `--seed` draws the starting circuits. The note now says both. Text only.
+7. **His name on the contributors list** (PR #70, Jasraj). `CONTRIBUTORS.md` now includes Jasraj Tulsi, after his earlier merged pull requests #36 and #37.
+8. **Windows** (PR #71, Aadi). On Windows the test suite crashed while collecting tests, because about 90 text reads and writes named no encoding and Windows used cp1252. Text files are now UTF-8 with `\n` line endings. A memory-mapped token file is closed before a test rewrites it. The dataset cache used by the evaluation tests gets a short path, under Windows' 260-character limit. The data tools expand their own file patterns, so the README commands do not depend on a Unix shell. CI now runs the suite on Windows as well as Ubuntu. On his machine, Windows 11 and Python 3.13, `python -m pytest -q` reported 236 passed and 1 skipped. Before the change, collection crashed.
+
+</CardList>
+
+Swarm GRPO (PR #65, Naman) did not merge. It trains a whole swarm from one score: the designated agent is scored once, and every agent receives that attempt's advantage. His report, on `tiny`, synthetic data, 60 steps, 2 seeds, says greedy exact-match reward finished at 100% for the swarm and 50% for solo training. Those numbers are from his branch. The pull request conflicts with the merges above, so they are not on `main`.
+
+## What this does not show
+
+No number on the real training packs moved today. Muon is two seeds of a 13M model on stand-in data, with the learning rate chosen on seed 0. The Gated DeltaNet gain is four seeds of a 127K model on synthetic text. One of those seeds never used the new circuit. The swarm training, the author ids and the GRPO reward are toy tasks on the same small model. The scan speed-up is one CPU. The two-process check is a sameness test on that CPU, not a measurement of H100s. The NAIRR runs have not started.
+
+## Next
+
+- Resolve the conflict in PR #65 and merge it to `main` if the toy result still holds on current main.
+- Run Muon against AdamW at 0.1B on the real packs before anyone changes the default. The commands are in [results/muon/README.md](https://github.com/exea-labs/ExeaLM/blob/main/results/muon/README.md).
+- Run the 13M real-text comparison for `GD` in [issue #30](https://github.com/exea-labs/ExeaLM/issues/30). It is Colab-sized.
+- The first Expanse job is on `nairr`, not in these pull requests. Adding someone to the [NAIRR contributors](https://github.com/orgs/exea-labs/teams/nairr-contributors) team is what lets them push there.
+
+The second and third are on the [to-do list](https://github.com/exea-labs/ExeaLM#to-do-list). Public pull requests go to `main`. Sign up through the [form](https://docs.google.com/forms/d/e/1FAIpQLSdPHVZhuXxBDUf-cJM2zDbj1JZPsduu95Y_kTJ_g4gKAXdDVw/viewform), or open one.
