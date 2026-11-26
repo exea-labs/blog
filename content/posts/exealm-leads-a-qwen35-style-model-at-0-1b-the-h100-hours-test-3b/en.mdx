@@ -1,0 +1,129 @@
+---
+title: "ExeaLM leads our Qwen3.5-style build by 0.074 bits per byte at 0.1B. The H100 hours test it up to 3B."
+date: 2026-11-25
+order: 1
+day: 16
+summary: "On one AMD MI300X we settled what ExeaLM trains as on the NAIRR Pilot's H100s: a TONN layer in every fourth layer, value residual and XSA in its attention layers, and text read as a stream for the last 20% of training. At 0.1B it scores 1.387 bits per byte against 1.460 for our Qwen3.5-style build, 2 seeds each. A gated Llama given the same two attention changes scores 1.369, ahead of both. We published a 28.5B-token research and code dataset and planned 28 runs from 0.1B to 3B. None has run on an H100 yet."
+dek: "Eleven stages on one MI300X, a public dataset and the plan for the 2,000 hours."
+cover: stack
+tags: [nairr, plan, architecture, data, scaling]
+numbers:
+  - { value: "1.387", label: "bits per byte, ExeaLM at 0.1B as it will train on the H100s, 2 seeds, 3,000 steps on an MI300X. Qwen3.5-style 1.460, gated Llama 1.446, gated Llama with value residual and XSA 1.369" }
+  - { value: "28.5B", label: "tokens of research and code pretraining data, public on Hugging Face, 7.3B of them research code. The H100 runs read it" }
+  - { value: "28 runs", label: "planned for 1,693 of the 2,000 H100 GPU-hours: ExeaLM against the Qwen3.5-style model at 0.1B, 0.25B, 0.5B and 3B. None has run yet" }
+credits:
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Ran the MI300X session and chose what ExeaLM trains as: a TONN layer every fourth layer, value residual and XSA, streams late in training, and the board, library and weight edits after pretraining. Set the data's order of priority (research code, then code, then research papers) and the baselines of the H100 study." }
+  - { login: jaztulsi, name: "Jasraj Tulsi", what: "Wrote training across processes with PyTorch DDP (PR #68). Every four-GPU run in the H100 plan trains through it." }
+sources:
+  - { label: "results/finalize/final_text.json: every 0.1B run of the MI300X session, per seed and per held-out set", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/finalize/final_text.json" }
+  - { label: "results/finalize/decision_stream4.json: never, late and whole-run streaming, by window", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/finalize/decision_stream4.json" }
+  - { label: "results/finalize/stream_zero_shot.json: models trained on single windows, read as streams", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/finalize/stream_zero_shot.json" }
+  - { label: "results/finalize/stage11_long.json: long documents with value residual and XSA", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/finalize/stage11_long.json" }
+  - { label: "docs/decisions.md: what ExeaLM trains as, and why, newest first", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/docs/decisions.md" }
+  - { label: "docs/budget.md: the 2,000 GPU-hours, run by run", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/docs/budget.md" }
+  - { label: "experiments/expanse/plan.py: the runs, their costs and the lines that submit them", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/experiments/expanse/plan.py" }
+  - { label: "experiments/recipe/exealm_recipe_v2.json: the 300B-token recipe, source by source", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/experiments/recipe/exealm_recipe_v2.json" }
+  - { label: "exea-labs/exealm-pretrain on Hugging Face: the data and its tokenizer", href: "https://huggingface.co/datasets/exea-labs/exealm-pretrain" }
+  - { label: "ResFormer (value residual), Zhou et al.", href: "https://arxiv.org/abs/2410.17897" }
+  - { label: "Exclusive self-attention (XSA)", href: "https://arxiv.org/abs/2603.09078" }
+  - { label: "PR #68: training in several processes with DDP", href: "https://github.com/exea-labs/ExeaLM/pull/68" }
+---
+
+On day 9 the NAIRR Pilot gave us 2,000 <Term id="gpu-hour">GPU-hours</Term> on NVIDIA H100s at the San Diego Supercomputer Center ([day 9](/posts/2000-gpu-hours-on-h100s-and-four-gpu-training/)). Before the first job could run, three things had to be settled: what ExeaLM trains as, what it reads, and which runs the hours buy. On 24 and 25 November we settled all three. The model comparisons ran on one rented AMD MI300X. The data was built on the same machine and is public on Hugging Face. The plan is on the [nairr](https://github.com/exea-labs/ExeaLM/tree/nairr) branch.
+
+## Two attention changes help every model. They help a Llama most.
+
+Every run in this section has the 0.1B shape (width 640, 14 layers). Each trained for 3,000 steps of 16,384 tokens on the same mix of English, Japanese and code, with our 32k <Term id="tokenizer">tokenizer</Term>. The score is <Term id="bpb">bits per byte</Term> on four held-out sets (English, Japanese Wikipedia, Japanese web text and code), averaged. Lower is better. All runs compare at <Term id="equal-steps">equal steps</Term>.
+
+ExeaLM at this size is a <Term id="hybrid">hybrid</Term>. Most of its layers are attention. The rest are <Term id="tonn">TONN</Term> layers, built from small signal-processing <Term id="circuit">circuits</Term> such as delays, running sums and short convolutions. We tested two published changes to attention. <Term id="value-residual">Value residual</Term> ([ResFormer](https://arxiv.org/abs/2410.17897)) lets every attention layer after the first mix in the first layer's values. <Term id="xsa">Exclusive self-attention</Term> ([XSA](https://arxiv.org/abs/2603.09078)) removes from each head's output the part that points along the token's own value, so attention adds only what comes from other tokens.
+
+| Model | Seeds | Bits per byte |
+|---|---|---|
+| ExeaLM, a TONN layer every third layer | 2 | 1.415 |
+| the same, with value residual | 2 | 1.396 |
+| the same, with XSA | 2 | 1.405 |
+| the same, with both | 2 | 1.393 |
+| the same with both, a TONN layer every fourth layer | 2 | **1.387** |
+| Gated Llama | 2 | 1.446 |
+| Gated Llama with both | 2 | **1.369** |
+| Qwen3.5-style | 2 | 1.460 |
+| Qwen3.5-style with both | 1 | 1.426 |
+
+Both changes help all three designs. They help the <Term id="gated-attention">gated</Term> Llama most: 0.077 bits per byte, against 0.034 for the Qwen3.5-style build (one seed) and 0.022 for ExeaLM. Without them ExeaLM is 0.031 ahead of the gated Llama. With them in both, the gated Llama is 0.018 ahead of ExeaLM, on both seeds.
+
+With the two changes in, more attention helps ExeaLM. A TONN layer in every fourth layer, with attention in the other three, beat a TONN layer in every third on both seeds (1.387 and 1.387 against 1.394 and 1.392). At 3B that is 9 TONN layers and 25 attention layers.
+
+Against the Qwen3.5-style build, ExeaLM keeps its lead either way: 0.074 when the baseline lacks the two changes, and about 0.04 when it has them (one seed). The Qwen3.5-style build is our implementation of the Qwen3.5 design ([day 4](/posts/two-parts-from-qwen35-make-the-hybrid-better/)): <Term id="deltanet">Gated DeltaNet</Term> in three of every four layers and gated attention with <Term id="qk-norm">QK-norm</Term> in the fourth. It is not Alibaba's model. Its Gated DeltaNet runs as plain PyTorch.
+
+Two other recent changes did not earn a place. Peri-LN, which normalizes the output of each sublayer as well as its input, made ExeaLM worse (1.425, one seed). Canon layers improved the gated Llama by 0.004 (one seed). We kept the change set small.
+
+## Reading text as a stream helps, if it starts late in training
+
+<Term id="read-stream">Reading as a stream</Term> means reading a long document 512 tokens at a time while carrying the model's state from one window to the next: the TONN layers' state, and the attention layers' keys and values of the window before. Models trained on single windows already gain from it. On the fourth window of long held-out documents, ExeaLM scored 1.364 read as a stream against 1.453 read alone, a gain of 0.089. The gated Llama gained 0.080 (one seed each, 64 documents per set).
+
+We then trained with streams in three ways: never, for the last 20% of the steps, and for the whole run. In the stream phase each row is four windows read in order, with the gradient through all four. The table scores the fourth window of 24 long documents per set, read as a stream. These runs came before the two attention changes: ExeaLM has a TONN layer every third layer.
+
+| Fourth window | Never | Last 20% | Whole run |
+|---|---|---|---|
+| ExeaLM | 1.379 (1 seed) | **1.355** (2 seeds) | 1.443 (2 seeds) |
+| Gated Llama | 1.418 | **1.396** | 1.536 |
+
+The gated Llama rows are one seed each. Streaming the last 20% gained 0.023 on the fourth window for ExeaLM and 0.022 for the Llama. It cost about 0.017 on the first window, where there is nothing to carry in (1.440 against 1.423 for ExeaLM). Streaming the whole run was much worse for both. We think the cause is variety: at 16,384 tokens a step, rows of four windows hold a quarter as many different documents. ExeaLM trains with streams for the last 20% of its steps.
+
+## The board, the library and weight edits move to after pretraining
+
+ExeaLM's agent features need a model trained in <Term id="swarm">swarms</Term>: groups of four agents that read parts of one text and share a <Term id="board">board</Term>, with a slot in each TONN layer for the board and one for the library. Trained that way at 0.1B, ExeaLM reached 1.463 (one seed). The same model without the two slots, trained one row at a time, reached 1.415 (2 seeds). The library slot also has nothing to read during pretraining, because the library is not built yet.
+
+So pretraining has none of these slots. A script in the repository (`exealm/train/graft.py`) adds them to a finished model, in place of each TONN layer's weakest circuits. They are trained after pretraining. The library will be written by a large open-weight model, in text and code, for ExeaLM to find entries in and adapt to the task.
+
+## The data: research code first
+
+We wrote a recipe for 300B tokens with one order of priority: code written for research, then general code, then research papers, then math, then the rest.
+
+| Part | Tokens | Sources |
+|---|---|---|
+| Research code | 73B | scientific Python, worked solutions to code problems, the Algebraic Stack, data-science traces |
+| Code | 88B | StarCoder data, The Stack, StackExchange |
+| Research text | 70B | peS2o papers, arXiv, Wikipedia, books |
+| Math | 37B | MegaMath web text, OpenWebMath, math reasoning |
+| Web | 18B | DCLM, TxT360 |
+| Japanese | 10B | FineWeb-2 Japanese, Japanese Wikipedia, KAKEN |
+| Question answering | 4B | TxT360 QA and instruction data |
+
+Three rules hold for every source. Its license allows redistribution. None of its text was scored or rewritten by a Llama model, so the trained model's license stays open. Any document that shares a 13-token sequence with a benchmark question is dropped. In the worked solutions that removed 0.8% of the documents, 1,305 of them matching HumanEval problems.
+
+We built the first tenth on the MI300X: 23.5B tokens after deduplication and decontamination, with a 32k tokenizer trained on it. It is public as `slice-30b` in [exea-labs/exealm-pretrain](https://huggingface.co/datasets/exea-labs/exealm-pretrain). It came up short where the recipe cares most. Research code came to 3.8B tokens instead of about 7B. AI2's StarCoder release holds only about 6 GB of Python. Our downloader also fetched files in other languages, which the Python filter then threw away. Two other sources were under-fetched, because their files hold more text per compressed byte than we assumed.
+
+The next version of the recipe moves research code's share to sources that have enough of it: worked solutions (35B) and data-science traces (10B), with scientific Python cut to 15B. Its first tenth, `slice-30b-r2`, holds 28.5B tokens after deduplication and decontamination, 7.3B of them research code. Every part reached its share of the recipe. It is public in the same repository, and the H100 runs will read it. A 3B model reads 12B tokens, so nothing is read twice.
+
+## The plan for the 2,000 hours
+
+The headline is ExeaLM against the Qwen3.5-style model, at the same size and on the same tokens. A plain <Term id="llama">Llama</Term> trains beside them below 3B, as the reference most readers know. Both baselines train as their designs were published: no value residual, no XSA, no streams. ExeaLM trains with all three. We chose the Qwen3.5-style model for the headline because it is a hybrid like ExeaLM. Beating it says that TONN layers do better than Gated DeltaNet layers beside the same attention. At 0.1B that held even when we gave it the two attention changes.
+
+| Part | Runs | GPU-hours |
+|---|---|---|
+| 3B: ExeaLM and the Qwen3.5-style model, 12.0B tokens each | 2 | 1,456 |
+| The curve: 0.1B (3 seeds), 0.25B (3), 0.5B (2), all three models, 4.1 tokens per parameter | 24 | 179 |
+| The long pair: ExeaLM and the Qwen3.5-style model at 0.1B, 111 tokens per parameter | 2 | 59 |
+| The 9B model: speed and memory on one, two and four nodes | | 36 |
+| The first job, learning-rate checks and evaluation | | 180 |
+| Reserve | | 90 |
+
+Two 3B models can afford 4.1 tokens per parameter between them, so every size of the curve trains at that ratio and all four sizes lie on one curve. The run the study argues for, a 9B ExeaLM on 1T tokens, would train on 111 tokens per parameter. The long pair checks at 0.1B whether the lead holds that far. At ExeaLM's MI300X speed at 0.5B (81 effective TFLOP/s per GPU), that 9B run would take about 187,000 GPU-hours. The 9B measurement replaces that estimate with the 9B model's own speed on H100 nodes.
+
+We wrote down before any run what would count as success: ExeaLM ahead of the Qwen3.5-style model at every size, on every seed; the gap not shrinking from 0.1B to 3B; the long pair's gap no smaller than at 4.1 tokens per parameter; and a compute multiplier above 1, meaning the baseline would need more compute than ExeaLM to reach ExeaLM's score. A script in the repository (`experiments/expanse/report.py`) computes each of these from the scores.
+
+## What this does not show
+
+- Every comparison above is at 0.1B, on 49M training tokens, with one or two seeds, on an MI300X, on older data than the H100 runs will read. The smallest gaps rest on two seeds, such as the 0.006 between a TONN layer every third and every fourth layer.
+- A gated Llama with value residual and XSA beats ExeaLM at 0.1B: on held-out text by 0.018, and on the fourth window of long documents read as a stream (1.295 against 1.328 for ExeaLM with a TONN layer every third layer, one seed each). The H100 study does not train that model. ExeaLM's lead over the baselines there will include the two changes. We will report it that way.
+- Only ExeaLM trains on streams in the H100 study. By the numbers above that is worth about 0.02 on later windows of long documents. The results post will report scores of single windows and of streams separately.
+- The Qwen3.5-style model is our build in plain PyTorch.
+- 4.1 tokens per parameter is far below the 20 that the Chinchilla paper ([Hoffmann et al., 2022](https://arxiv.org/abs/2203.15556)) found best for a fixed compute budget. Only the 0.1B pair trains longer.
+- Nothing has run on an H100. The GPU-hours come from MI300X speeds.
+
+## Next
+
+1. The first job on Expanse: correctness on the H100, the speed of all three models at every size, the speed-up of four GPUs, and the lead check at 0.1B on the new data. If ExeaLM is behind there, we stop and decide before spending more.
+2. The learning-rate checks for every model and size, then the curve, smallest first, then the 3B pair.
+3. The 9B measurement on one, two and four nodes.

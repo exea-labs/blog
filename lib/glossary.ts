@@ -167,6 +167,21 @@ export const GLOSSARY: Term[] = [
     en: { term: "bf16", def: "A 16-bit number format (bfloat16) with the range of 32-bit numbers and fewer digits. GPUs multiply it much faster. ExeaLM uses it for most of the model and keeps its running sums and memory circuits in 32-bit." },
     ja: { term: "bf16", def: "16 ビットの数値形式（bfloat16）。32 ビットと同じ範囲を、少ない桁数で表します。GPU ではずっと速く掛け算できます。ExeaLM はモデルの大部分で使い、累積和とメモリ回路は 32 ビットのままにしています。" },
   },
+  {
+    id: "value-residual",
+    en: { term: "Value residual", def: "A change to attention from the ResFormer paper: every attention layer after the first mixes the first attention layer's values into its own, with two learned weights." },
+    ja: { term: "バリュー残差", def: "ResFormer 論文によるアテンションの変更。2 層目以降の各アテンション層が、最初のアテンション層のバリューを、学習される 2 つの重みで自分のバリューに混ぜます。" },
+  },
+  {
+    id: "xsa",
+    en: { term: "Exclusive self-attention (XSA)", def: "A change to attention: each head's output loses the part that points along the token's own value, so attention adds only what comes from other tokens." },
+    ja: { term: "排他的セルフアテンション（XSA）", def: "アテンションの変更。各ヘッドの出力から、そのトークン自身のバリューの方向の成分を取り除きます。アテンションは他のトークンから来る情報だけを足します。" },
+  },
+  {
+    id: "read-stream",
+    en: { term: "Reading as a stream", def: "Reading a long document 512 tokens at a time while carrying the model's state from one window to the next: the TONN layers' state and the attention layers' keys and values of the window before." },
+    ja: { term: "ストリームとして読む", def: "長い文書を 512 トークンずつ読み、窓から次の窓へモデルの状態を引き継ぐ読み方。引き継ぐのは TONN 層の状態と、直前の窓のアテンションのキーとバリューです。" },
+  },
 ];
 
 export const glossaryById = Object.fromEntries(GLOSSARY.map((g) => [g.id, g]));
