@@ -1,0 +1,132 @@
+---
+title: "ExeaLM now keeps one TONN layer, in the middle. At 0.1B it leads our Qwen3.5-style build on every held-out set."
+date: 2026-11-26
+order: 1
+day: 17
+summary: "Our first night on the NAIRR Pilot's H100s moved ExeaLM's TONN layers. One TONN layer at the middle layer scored 1.348 bits per byte at 0.1B (3 seeds, mean of 18 held-out sets), against 1.376 for one in every fourth layer, 1.420 for our Qwen3.5-style build and 1.477 for a plain Llama. It beat the Qwen3.5-style build on all 54 set-and-seed pairs. These are 0.1B models on 49M tokens, scored on the same sets we chose the layout on; the 3B pair is now training."
+dek: "Correctness on the H100, the lead check, a search over where TONN layers go, the stream phase, a faster kernel for our baseline, and five bugs."
+cover: stack
+tags: [nairr, architecture, scaling, speed]
+numbers:
+  - { value: "1.348", label: "bits per byte, ExeaLM with one TONN layer in the middle at 0.1B, 3 seeds, mean of 18 held-out sets (Qwen3.5-style build 1.420, plain Llama 1.477)" }
+  - { value: "54 of 54", label: "held-out set and seed pairs on which it beat our Qwen3.5-style build at 0.1B, by 0.049 to 0.125 bits per byte" }
+  - { value: "0.028", label: "bits per byte gained by moving from a TONN layer in every fourth layer to one in the middle (1.376 to 1.348, 3 seeds each, no streams)" }
+credits:
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Set up the Expanse account and its two-factor login, ran the first jobs, chose ExeaLM's new layout and decided it keeps its stream phase." }
+  - { login: jaztulsi, name: "Jasraj Tulsi", what: "Wrote training across processes with PyTorch DDP (PR #68). Its two-GPU check passed on the H100 on the first try. Every four-GPU run trains through it, the 3B pair included." }
+sources:
+  - { label: "results/expanse/README.md: every result of the night, with what it does not show", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/README.md" }
+  - { label: "results/expanse/lead_100m.json: the lead check, 9 runs on 18 held-out sets", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/lead_100m.json" }
+  - { label: "results/expanse/ablation_100m.json: the ablations, 14 runs", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/ablation_100m.json" }
+  - { label: "results/expanse/layout_100m.json and layout2_100m.json: the layout search, 16 runs", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/layout2_100m.json" }
+  - { label: "results/finalize/decision_stream4.json: the stream phase on long documents, on the MI300X", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/finalize/decision_stream4.json" }
+  - { label: "results/expanse/fla_check.json: the flash-linear-attention kernel against ours", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/fla_check.json" }
+  - { label: "results/expanse/throughput_h100.json: training speed on one H100", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/throughput_h100.json" }
+  - { label: "docs/decisions.md: one TONN layer at the middle layer; ExeaLM keeps its streams", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/docs/decisions.md" }
+  - { label: "PR #68: training in several processes with DDP", href: "https://github.com/exea-labs/ExeaLM/pull/68" }
+---
+
+Yesterday we wrote down what ExeaLM trains as and the 28 runs the NAIRR Pilot's hours will buy ([the post before this one](/posts/exealm-leads-a-qwen35-style-model-at-0-1b-the-h100-hours-test-3b/)). Last night the first jobs ran on those hours: NVIDIA H100s at the San Diego Supercomputer Center, four to a node. By 1 a.m. ExeaLM had a new layout. It keeps one <Term id="tonn">TONN</Term> layer, at the middle layer, where it had one in every fourth layer. This post has the checks that led there and what the change does to ExeaLM's lead.
+
+## The code computes the same thing on the H100
+
+The first job checked correctness before anything else. Every circuit type, the attention block, the <Term id="deltanet">Gated DeltaNet</Term> block and each whole model gave the same outputs on the H100 as on the CPU, within 1e-5 in 32-bit arithmetic. In <Term id="bf16">bf16</Term> they stayed within 5e-3 of 32-bit. A run stopped and resumed from its <Term id="checkpoint">checkpoint</Term> matched an uninterrupted one to the last bit.
+
+Training on several GPUs had only run on CPUs and on two rented A40s. On the H100, two processes stayed in sync at every evaluation and resumed to the last bit. Four GPUs trained 3.68 times as fast as one at 0.5B, which is 92% of perfect.
+
+## ExeaLM as planned led both baselines on every held-out set
+
+The first job ended with the check the whole study rests on. At about 0.1B <Term id="params">parameters</Term>, each model trained for 3,000 steps of 16,384 tokens, 49M tokens in all, on the study's research and code data. Each trained 3 <Term id="seed">seeds</Term> at learning rate 1e-3. We scored every model on the same fixed windows of 18 held-out sets, one per data source, each window read alone, in <Term id="bpb">bits per byte</Term>.
+
+ExeaLM as planned had a TONN layer in every fourth layer, starting with the first. It read <Term id="read-stream">streams</Term> in its last 20% of steps. It scored 1.393, against 1.420 for our Qwen3.5-style build and 1.477 for a plain Llama. It was ahead of the Qwen3.5-style build on all 54 set-and-seed pairs.
+
+We then trained each part out in the same setting. The TONN layers beat Gated DeltaNet layers as a <Term id="hybrid">hybrid</Term>'s non-attention layer, both with <Term id="value-residual">value residual</Term> and <Term id="xsa">XSA</Term> (1.376 against 1.403, one seed for the Qwen3.5-style side) and without them (1.401 against 1.420). The stream phase cost 0.017 on windows read alone (1.393 against 1.376).
+
+## Where the TONN layers go
+
+The plan had put a TONN layer at the first layer and every fourth after it, because that layout had beaten every third layer on the MI300X. It had never tried a layout without one at the first layer. We trained ExeaLM with its TONN layers in 11 other places, in the same setting. None of these runs read streams, so the layouts compare on equal terms:
+
+| TONN layers (of 14) | Seeds | Bits per byte |
+|---|---|---|
+| One, at layer 7 (the middle) | 3 | **1.348** |
+| One, at layer 6 | 1 | 1.350 |
+| One, at layer 13 (the last) | 1 | 1.351 |
+| Two, at layers 5 and 9 | 1 | 1.352 |
+| Three, at layers 4, 7 and 10 | 2 | 1.356 |
+| Three, at layers 3, 7 and 11 | 1 | 1.358 |
+| Every sixth layer (0, 6, 12) | 1 | 1.373 |
+| Every fourth layer (0, 4, 8, 12), the plan | 3 | 1.376 |
+| Every seventh layer (0, 7) | 1 | 1.378 |
+| Every eighth layer (0, 8) | 2 | 1.381 |
+| Every third layer (0, 3, 6, 9, 12) | 1 | 1.382 |
+| One, at layer 0 (the first) | 1 | 1.387 |
+
+Two things decide the score. A TONN layer at layer 0 costs a lot. One there alone scored 1.387, 0.038 behind one in the middle (one seed against three). Every layout that starts at layer 0 scored 1.373 or worse. Once the first layer is attention, each TONN layer beyond one costs a little: two scored 1.352, three 1.356 and 1.358.
+
+We think the first layer has to turn token embeddings into features that later layers build on. Attention may do that better. A TONN layer reads its input as signals, with delays, running sums and products, and may help most once those features exist. We have not tested this explanation.
+
+One TONN layer in the middle beat the planned layout on all 54 set-and-seed pairs, by 0.014 to 0.071 (1.348 against 1.376). ExeaLM now trains this way at every size: layer 8 of 16 at 0.25B, 11 of 22 at 0.5B, 17 of 34 at 3B and 21 of 42 at 9B. It keeps value residual and XSA in every attention layer. At each size it has almost exactly the parameters of our Qwen3.5-style build (2.97B against 2.99B at 3B).
+
+## The new layout against the baselines, set by set
+
+Bits per byte, mean of 3 seeds, lower is better. Both ExeaLM columns are without streams. The baselines never read streams.
+
+| Held-out set | ExeaLM, one TONN layer | ExeaLM, every fourth layer | Qwen3.5-style | Plain Llama |
+|---|---|---|---|---|
+| Scientific Python | **0.891** | 0.919 | 0.974 | 1.033 |
+| Worked code solutions | **0.851** | 0.869 | 0.910 | 0.964 |
+| StarCoder code | **1.214** | 1.246 | 1.304 | 1.372 |
+| Papers (peS2o) | **1.242** | 1.263 | 1.301 | 1.349 |
+| arXiv | **1.393** | 1.416 | 1.457 | 1.511 |
+| Math reasoning | **1.123** | 1.142 | 1.187 | 1.242 |
+| Japanese Wikipedia | **1.856** | 1.921 | 1.981 | 2.042 |
+| Mean of all 18 sets | **1.348** | 1.376 | 1.420 | 1.477 |
+
+The new layout was ahead of the Qwen3.5-style build on all 54 set-and-seed pairs, by 0.049 to 0.125. It was ahead of the plain Llama on all 54, by 0.097 to 0.193. Its seeds scored 1.349, 1.350 and 1.346. Against the Qwen3.5-style build, its largest leads are on Japanese Wikipedia (0.125) and StarCoder code (0.090).
+
+## Why ExeaLM keeps its stream phase
+
+With the new layout, the stream phase still costs on windows read alone. One seed scored 1.364 with it, against 1.348 without (3 seeds). That is still 0.056 ahead of the Qwen3.5-style build, on all 18 sets.
+
+We keep it. ExeaLM reads 512-token windows. Most papers and source files are longer than that. The stream phase teaches the model to carry what it read in one window into the next. On the MI300X at 0.1B, with an earlier layout, streams in the last 20% of steps made the fourth window of long held-out documents 0.023 bits per byte better than training without them. On code the gain was 0.076.
+
+Streaming is a training recipe any model could use. On the MI300X a Llama with gated attention gained the same 0.023 from it. Our baselines read every window alone, at every size, so any long-document comparison we publish will include ExeaLM's stream phase and say so. Six runs are measuring the stream phase again with the new layout: three seeds with it and three without, at the length of the study's 0.1B runs.
+
+## How fast each model trains
+
+Speed is measured in effective TFLOP/s: 6 times the parameters times the tokens per second. One H100, bf16, ExeaLM as planned:
+
+| Size | ExeaLM as planned | Plain Llama | Qwen3.5-style |
+|---|---|---|---|
+| 0.1B | 74.8 | 135.4 | 41.8 |
+| 0.25B | 109.8 | 201.2 | 68.3 |
+| 0.5B | 119.2 | 217.1 | 69.8 |
+| 3B | 150.1 | 287.0 | 82.7 |
+
+At ExeaLM's 3B rate here, the 9B run the study argues for (9.28B parameters on 1T tokens) would take about 103,000 <Term id="gpu-hour">GPU-hours</Term>. The plan had estimated 187,000 at the MI300X rate. The new layout is mostly attention. Its 3B run trained its first steps at 6.5 seconds a step on four H100s, about 179 effective TFLOP/s per GPU. The 9B measurement on one, two and four nodes will replace both rates.
+
+Our Qwen3.5-style build ran its Gated DeltaNet as plain PyTorch. At 3B that took 13.0 seconds a step on four H100s, 165 hours for one run. We moved its 3B run to the Triton kernel Qwen3-Next uses, from the [flash-linear-attention](https://github.com/fla-org/flash-linear-attention) library by Songlin Yang, Yu Zhang and others. It computes the same recurrence. In 32-bit arithmetic its gradients matched ours to a cosine of 0.9996 or better. In bf16 it was as close to the 32-bit result as our kernel was. The 3B run now takes 6.6 seconds a step, about 84 hours, which saves about 300 GPU-hours. The curve's Qwen3.5-style runs had started on our kernel and keep it, so every curve point trains the same way. We compare ExeaLM with the baselines in FLOPs, which the kernel does not change.
+
+## Five bugs the first night found
+
+Each would have cost hours or results later. All are fixed, with a test where a CPU can run one.
+
+1. **A score that sampled different windows for ExeaLM.** Training's own validation drew rows. A streamed row is four windows, so ExeaLM was scored on 64 windows and the baselines on 256. On one seed this read ExeaLM 0.10 bits per byte worse than the proper scoring. Every model is now scored on the same windows.
+2. **Compiled streaming crashed.** A TONN layer updated a running average in place before the previous window's backward pass had used it. The update now runs outside the compiled graph.
+3. **Four-GPU baselines crashed when their processes drifted apart.** The code that resyncs them read a field only ExeaLM has. It now works for every model.
+4. **The 3B models did not fit an 80 GB H100 with their optimizer.** AdamW's state for 3B parameters takes 23 GB per GPU. The 3B runs now split it across the four GPUs (ZeRO stage 1), which gives the same updates.
+5. **Expanse refused jobs before it ran out of hours.** It holds each job's whole requested time against the project's balance. Every job now asks for a time limit sized to its run.
+
+## What this does not show
+
+- Every comparison here is at 0.1B on 49M training tokens, about an eighth of what the study's 0.1B runs read and far below the 111 tokens per parameter of the 9B run.
+- We chose the layout on the same 18 held-out sets we report. Its lead over the planned layout (0.028) is seven times the spread between its seeds. The study's own runs, at four sizes, are the test of a choice made this way.
+- Most layouts in the search have one or two seeds.
+- Most of ExeaLM's lead over the Qwen3.5-style build comes from its attention layers. ExeaLM now has attention, with a gate, QK-norm, value residual and XSA, in 13 of its 14 layers. The Qwen3.5-style build has Gated DeltaNet in three of every four layers, which Qwen3.5 uses because it costs less on long inputs. At 512-token windows that saving does not show. ExeaLM's attention costs more as inputs grow. The TONN layer's own share of the lead is small at 0.1B.
+- The stream phase with the new layout has one seed on windows read alone. Its long-document check is running.
+- The Llama baseline is plain: it has none of the attention changes ExeaLM's attention layers have. ExeaLM's lead over it includes those changes.
+- Every model here trained at learning rate 1e-3. The study's runs use the rates from its learning-rate checks, which ran with the planned layout.
+
+## Next
+
+The six 0.1B stream runs finish this morning. A long-document check then scores them with the baselines. The 3B pair is training: our Qwen3.5-style build for about 84 hours, ExeaLM since 1:28 a.m. The 0.25B and 0.5B ExeaLM runs start as GPUs free up. The library of research and code entries that ExeaLM's post-training will use (18,545 entries, written from source excerpts by Qwen3-30B-A3B) finished at 1:20 a.m.; its tests come after the scaling runs. We have used 143 of the 2,000 GPU-hours.
