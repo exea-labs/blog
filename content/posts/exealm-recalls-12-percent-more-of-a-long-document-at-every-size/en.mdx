@@ -1,0 +1,87 @@
+---
+title: "ExeaLM recalls 12% more of a long document at every size. Its TONN layer carries a fact from one window to the next."
+date: 2026-11-27
+order: 1
+day: 18
+summary: "On held-out documents read as a stream, ExeaLM gets 14%, 12% and 12% more recall targets exactly right than our Qwen3.5-style build at 0.1B, 0.25B and 0.5B (2 to 3 seeds, p below 1e-40 at each size), and the lead does not shrink with size. With attention in place of its TONN layer, recall is even, but the model finds a pass key one window back 0.094 of the time against ExeaLM's 0.281. No model finds anything two windows back, and the 3B checkpoint a third of the way through training is even on recall."
+dek: "Bits per byte turned into exact answers: recall, the next line of code, and a planted pass key, at three sizes and on 8,192-token documents."
+cover: stack
+tags: [nairr, architecture, scaling]
+numbers:
+  - { value: "+12%", label: "more recall targets exactly right than our Qwen3.5-style build at 0.5B (0.282 against 0.252, 2 seeds; +14% at 0.1B, +12% at 0.25B)" }
+  - { value: "0.281", label: "pass keys found one window back by ExeaLM at 0.25B (3 seeds), against 0.094 with attention in place of its TONN layer and 0 for the Qwen3.5-style build" }
+  - { value: "0.86", label: "pass keys found in the window being read at 0.5B, against 0.19 for the Qwen3.5-style build (2 seeds)" }
+credits:
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Set the claims these tests check, and decided that the 9B keeps its TONN layer for the memory circuits it holds." }
+  - { login: jaztulsi, name: "Jasraj Tulsi", what: "Wrote training across processes with PyTorch DDP (PR #68), which trained every 0.5B and 3B model in this post on four GPUs." }
+sources:
+  - { label: "results/expanse/README.md, section 26: the long-context tasks, with what they do not show", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/README.md" }
+  - { label: "experiments/longctx_tasks.py: the three tasks and how a target is chosen", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/experiments/longctx_tasks.py" }
+  - { label: "results/expanse/longctx_all.json: 4,096-token documents, every finished model", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/longctx_all.json" }
+  - { label: "results/expanse/longctx16_all.json: 8,192-token documents", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/longctx16_all.json" }
+  - { label: "results/expanse/longctx_3b_mid.json: the 3B pair at step 16,000", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/longctx_3b_mid.json" }
+  - { label: "results/streamrag/quick_100m_111x.json: a library entry one and two windows before the question", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/streamrag/quick_100m_111x.json" }
+  - { label: "docs/decisions.md, 27 November: the 9B keeps its TONN layer", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/docs/decisions.md" }
+---
+
+Every comparison so far has been in <Term id="bpb">bits per byte</Term>: how surprised a model is by held-out text. ExeaLM leads our Qwen3.5-style build on every held-out set. Its lead is larger on long documents than on short windows ([the post before this one](/posts/exealm-now-keeps-one-tonn-layer-in-the-middle-at-0-1b-it-leads-our-qwen35-style-build-on-every-held-out-set/)). A research or code assistant is judged on exact answers, not on surprise. This post tests whether the long-document lead becomes exact answers. It also tests which part of ExeaLM carries it.
+
+## Three tasks, scored as exact match
+
+Every finished model of the study read the first 4,096 tokens of held-out documents, 64 per set, as a <Term id="read-stream">stream</Term> of eight 512-token windows. A target counts as an <Term id="exact-match">exact match</Term> when the model's top guess is right at every one of its tokens, given the text before it. That is what greedy decoding would write for that span.
+
+- **Recall** (all nine prose and code sets, 11,614 targets): a six-token run seen earlier in the document. The first two tokens are the cue and the last four the target. The run was last seen before the previous window, so neither the window being read nor the attention's carried keys and values hold it.
+- **Code next line** (four code sets, 12,092 targets): a line that uses an identifier last seen before the previous window, the next-line task of RepoBench with the far context in the same file.
+- **Pass key** (64 trials at each depth): "The pass key is 48213. Remember it." planted in held-out Wikipedia text, with "What is the pass key? The pass key is" in the last window, as in RULER.
+
+## ExeaLM is ahead on every task at every size
+
+Exact-match rates, read as a stream, mean over seeds:
+
+| | Recall | Code next line | Pass key, same window | Pass key, one window back |
+|---|---|---|---|---|
+| **0.1B, 111 tokens per parameter** (2 seeds) | | | | |
+| ExeaLM | **0.268** | **0.042** | **0.648** | **0.078** |
+| Qwen3.5-style build | 0.235 | 0.038 | 0.047 | 0.000 |
+| **0.25B** (3 seeds; plain Llama 1 seed) | | | | |
+| ExeaLM | **0.241** | **0.035** | **0.766** | **0.281** |
+| Qwen3.5-style build | 0.215 | 0.032 | 0.016 | 0.000 |
+| Plain Llama | 0.134 | 0.019 | 0.000 | 0.000 |
+| **0.5B** (2 seeds) | | | | |
+| ExeaLM | **0.282** | **0.045** | **0.859** | **0.266** |
+| Qwen3.5-style build | 0.252 | 0.042 | 0.188 | 0.000 |
+| Plain Llama | 0.186 | 0.027 | 0.000 | 0.000 |
+
+Every target was scored by both models, so we tested each difference target by target (McNemar's test, seeds pooled). ExeaLM recalls 13.9%, 11.9% and 11.7% more targets than the Qwen3.5-style build at 0.1B, 0.25B and 0.5B, with p below 1e-40 at each size. It completes 10.2%, 8.5% and 6.5% more lines of code (p = 2e-5, 3e-5 and 0.002). It finds the pass key in the window it is reading 0.65, 0.77 and 0.86 of the time, against 0.05, 0.02 and 0.19 (p below 1e-16).
+
+The recall lead stays at 12% to 14% from 0.1B to 0.5B. ExeaLM's lead on short windows read alone shrinks over the same range, from 2.8% to 0.6% in bits per byte. The long-memory lead is the one that holds as the models grow.
+
+## What the TONN layer adds
+
+The study also trains ExeaLM with attention in place of its single <Term id="tonn">TONN</Term> layer, with the same streams and recipe. On recall and code next line the two are even (within 1.3%, p = 0.15 and 1.0 at 0.25B). The pass key is not. One window back, ExeaLM finds it 0.281 of the time against 0.094 (0.25B, 3 seeds; 38 trials only ExeaLM gets against 2, p = 3e-8). In the window being read, as a stream, it is 0.766 against 0.635 (p = 6e-4).
+
+Read window by window alone, with no state carried, the two are close (0.677 against 0.609, p = 0.10). What the TONN layer adds is carried from one window to the next, which is the job it was built for. On plain text the attention-only model is even with ExeaLM (results, section 24). The TONN layer stays in the 9B because the library search, the board and the weight edits are TONN circuits. An attention layer cannot hold them ([decisions, 27 November](https://github.com/exea-labs/ExeaLM/blob/nairr/docs/decisions.md)).
+
+## Twice as long a document gives the same answer
+
+On 8,192-token documents (16 windows, 48 documents a set, 32 pass-key trials at each depth) the picture repeats with three times the targets. ExeaLM recalls 11.0%, 13.9% and 10.6% more than the Qwen3.5-style build at 0.1B, 0.25B and 0.5B (p below 1e-50 at each size). It completes 8.5%, 7.5% and 2.8% more lines of code (p = 6e-6, 6e-8 and 0.03). One window back, it finds the pass key 0.09, 0.25 and 0.28 of the time, against 0 for the Qwen3.5-style build. Against attention in its place, recall and code are even again. The pass key one window back is 0.250 against 0.052 at 0.25B.
+
+## Nothing reaches two windows back
+
+No model finds the pass key two or more windows back: 0 of 64 at every depth, every model, every size. The library shows the same edge. We put a library entry one or two windows before its question for the 0.1B models (one seed, 1,195 held-out questions). One window back, every model keeps about 90% of what the entry gives in the question's own window. Two windows back, none keeps anything. Every model then scores worse than with no entry. Exact retrieval from far back is not solved at these sizes, so passages the model must use go in the question's window or the one before it.
+
+## At 3B, the lead is not there yet
+
+We froze the 3B pair at step 16,000 of 45,688, before ExeaLM's stream phase, which starts near step 36,550. Neither model had trained on streams. Read as a stream, ExeaLM recalls 0.281 against 0.286 for the Qwen3.5-style build and completes 0.046 lines of code against 0.048: even. It still leads on the pass key in the window it reads, 0.48 against 0.17. At the smaller sizes the recall lead came with the stream phase, so this check comes too early to settle it. The finished pair does that, around midnight on 29 November.
+
+## What this does not show
+
+- These are exact matches under teacher forcing: the model sees the true text up to each target. They match what greedy decoding would write for the span, not what a model writes freely over a long answer.
+- The Qwen3.5-style build and the plain Llama never train on streams in this study ([decisions, 25 November](https://github.com/exea-labs/ExeaLM/blob/nairr/docs/decisions.md)), so they gain little from the carried state. The plain Llama does worse streamed than alone. The attention-only model trains on streams as ExeaLM does, which makes it the fair test of the TONN layer.
+- Code exact-match rates are low at these sizes, 3% to 5%. The differences are significant, but these are small models.
+- Two to three seeds per size, one seed for the attention-only model at 0.1B and for the plain Llama at 0.25B.
+- The largest finished models are 0.5B. The 3B check above is a checkpoint a third of the way through training.
+
+## Next
+
+The 3B pair finishes around midnight on 29 November. The same three tasks then run on the finished pair, with the stream phase behind ExeaLM. The next post has the other half of the day's work: how ExeaLM and its library compare with released models, Qwen3.5-9B among them.

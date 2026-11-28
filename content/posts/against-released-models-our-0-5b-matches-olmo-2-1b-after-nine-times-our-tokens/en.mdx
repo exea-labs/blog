@@ -1,0 +1,112 @@
+---
+title: "Our 0.5B with its library matches OLMo-2-1B after nine times the tokens. With the paper in hand, our 3B beats Qwen3.5-9B without it."
+date: 2026-11-27
+order: 2
+day: 18
+summary: "Library post-training lifts the 0.5B ExeaLM from 0.418 to 0.486 on SciQ and ARC with no library at test time (4,548 questions, p = 6e-27; 9 of them share any text with its training data). With its library it is even with OLMo-2-1B after 21B tokens, nine times its own. On research questions people wrote about papers, the 3B ExeaLM checkpoint reading paragraphs a search finds in the paper scores 0.904 bits per byte against 0.945 for Qwen3.5-9B without the paper. On equal terms the 9B is well ahead everywhere, and shown worked examples it also beats our 3B with the same library."
+dek: "Released models scored on our questions and ours on theirs: benchmarks after library post-training, checkpoints at matched tokens, a fairer Qwen3.5-9B, and research and code questions written by people."
+cover: search
+tags: [nairr, retrieval, scaling, correction]
+numbers:
+  - { value: "0.486", label: "SciQ and ARC accuracy, 0.5B ExeaLM after 1.4 H100-hours of library post-training, no library at test time (0.418 before; Pythia-410M after 300B tokens 0.455)" }
+  - { value: "9x", label: "the tokens OLMo-2-1B (1.5B parameters) trains on before it matches the 0.5B ExeaLM with its library (0.493 at 21B against 0.495 at 2.3B)" }
+  - { value: "0.904", label: "bits per byte on QASPER answers, 3B ExeaLM checkpoint reading the paragraphs a search finds in the paper, against 0.945 for Qwen3.5-9B without the paper (0.738 with the same paragraphs)" }
+credits:
+  - { login: AvnehSBhatia, name: "Avneh Bhatia", what: "Decided what the funding case rests on and asked for these tests: released models at matched tokens, questions written by people, and a fair format for Qwen3.5-9B. Approved publishing library v2's written tier." }
+  - { login: jaztulsi, name: "Jasraj Tulsi", what: "Wrote training across processes with PyTorch DDP (PR #68), which trained the 0.5B models and post-trained the 3B checkpoint on four GPUs." }
+sources:
+  - { label: "results/expanse/README.md, sections 28 to 30: every number here, with what it does not show", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/README.md" }
+  - { label: "results/expanse/openbook_paired_500m.json and bench_questions_v2.json: benchmarks question by question, and the overlap check", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/openbook_paired_500m.json" }
+  - { label: "results/expanse/openbook_paired_matched_tokens.json: Pythia-410M and OLMo-2-1B checkpoints at matched tokens", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/openbook_paired_matched_tokens.json" }
+  - { label: "results/expanse/external_qwen35_9b_base_v2_3shot.json: Qwen3.5-9B shown worked examples", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/external_qwen35_9b_base_v2_3shot.json" }
+  - { label: "results/expanse/indep_tests.json: QASPER, PubMedQA, BigCodeBench and DS-1000, every model and condition", href: "https://github.com/exea-labs/ExeaLM/blob/nairr/results/expanse/indep_tests.json" }
+  - { label: "experiments/external/: indep_build.py, qasper_paper.py, qasper_lib2.py, public_bench.py", href: "https://github.com/exea-labs/ExeaLM/tree/nairr/experiments/external" }
+  - { label: "Models: huggingface.co/exea-labs/exealm-nairr (ragpost_exealm_500m_v2, ragpost_exealm_3b_v2 and the rest)", href: "https://huggingface.co/exea-labs/exealm-nairr" }
+  - { label: "Library v2's written tier: huggingface.co/datasets/exea-labs/exealm-library (v2/written)", href: "https://huggingface.co/datasets/exea-labs/exealm-library" }
+---
+
+Most comparisons in this study have been between models we trained ourselves, on our data. They show which design is better. They do not show where ExeaLM stands among models people use. Today we scored released models on our questions and our models on questions other people wrote. The library came out stronger than we expected in one place and weaker than we hoped in another. One headline number from our own records did not survive a fairer test.
+
+## Library post-training lifts benchmarks, and it is not leaked answers
+
+Library v2 holds about 194,000 entries on research and code topics written by DeepSeek-V4-Flash, with questions, answers and tasks, beside 25B tokens of real text. We trained the 0.5B ExeaLM and our Qwen3.5-style build to read it for 3,000 steps (1.4 H100-hours for ExeaLM). Then we scored SciQ and ARC zero-shot, every question kept, so each comparison is paired question by question.
+
+With no library at test time, ExeaLM's SciQ went from 0.685 to 0.818, ARC-Easy from 0.396 to 0.455 and ARC-Challenge from 0.233 to 0.264. Across the 4,548 questions it got 575 right that it had missed and lost 266 (p = 6e-27). The Qwen3.5-style build gained about as much, so this gain belongs to the library's training data, which both read.
+
+A gain this size could be leaked answers. We checked every 13-token window of every question, choice, answer and support passage against all 1.24B tokens of the post-training data. Nine of the 4,548 questions share one, six of them only in SciQ's support passage. Without them the gain is the same. With the library at test time, <Term id="open-book">open book</Term>, ExeaLM gains another 0.0095 (p = 0.035), most on SciQ (0.838).
+
+## Against released models, counted in tokens
+
+We scored released models on the same questions with the same harness. Pooled accuracy on SciQ and ARC:
+
+| Model | Training tokens | Accuracy |
+|---|---|---|
+| Pythia-410M, checkpoint | 2.1B | 0.299 |
+| 0.5B ExeaLM | 2.1B | 0.418 |
+| Pythia-410M, checkpoint | 16.8B | 0.410 |
+| Pythia-410M, released | 300B | 0.455 |
+| OLMo-2-1B, checkpoint | 21B | 0.493 |
+| **0.5B ExeaLM with library post-training, open book** | **2.3B** | **0.495** |
+| OLMo-2-1B, checkpoint | 42B | 0.528 |
+| Qwen2.5-0.5B, released | 18T | 0.588 |
+| SmolLM2-360M, released | 4T | 0.646 |
+| OLMo-2-1B, released | 4T | 0.703 |
+| Qwen3.5-9B-Base, released | | 0.765 |
+
+The released small models are far ahead. They trained on 2,000 to 8,000 times our tokens. Pythia and OLMo publish checkpoints along the way, which lets us compare at matched tokens. After the same 2.1B tokens, our 0.5B models lead Pythia-410M by 12 points (p = 2e-63). Pythia needs about eight times the tokens to catch up. That lead is our data and schedule, not ExeaLM's design: our Qwen3.5-style build scores 0.423. With its library, the 0.5B ExeaLM is even with OLMo-2-1B, three times its size and a 2025 recipe, after 21B tokens (p = 0.83). It is behind OLMo-2-1B after 42B.
+
+<Note title="Checkpoints mid-run">
+Pythia's and OLMo's checkpoints come from the middle of their runs, before their learning rate decayed. Ours finished their runs. A checkpoint mid-run reads lower than a model trained to that many tokens would, so these comparisons flatter us somewhat.
+</Note>
+
+## The library against Qwen3.5-9B, made fair
+
+On held-out questions about the library's own topics, the 0.5B ExeaLM with the entry a keyword search picks scores 0.282 <Term id="bpb">bits per byte</Term> on the answers. Our results record first compared it with the released Qwen3.5-9B-Base as is: 0.811 without the library, 0.220 with it. On that reading a 3B ExeaLM checkpoint, a third of the way through pretraining, came within 9% of the 9B with the same library.
+
+That comparison was unfair to the 9B. Our models learned the library's question format in post-training. The 9B had never seen it. Shown three worked examples first, the 9B scores 0.700 without the library and 0.171 with it.
+
+| Held-out library questions, bits per byte | No library | Same library |
+|---|---|---|
+| 0.5B ExeaLM, library post-training | 1.044 | 0.282 |
+| 3B ExeaLM checkpoint, library post-training | 0.910 | 0.239 |
+| Qwen3.5-9B-Base, shown three worked examples | 0.700 | **0.171** |
+
+The 0.5B ExeaLM with its library still scores 60% below the 9B without one, with 18 times fewer parameters. The 3B within 9% of the 9B does not hold: given the same library, the 9B is 28% ahead (0.171 against 0.239). The gap closes with size: the 9B's score is 0.61 of ExeaLM's at 0.5B and 0.72 at 3B.
+
+## Questions people wrote
+
+The library's questions were written by the model that wrote its entries, which suits its search. We scored four sets that people wrote: QASPER (1,372 questions researchers asked about NLP papers, answered by others from the paper), PubMedQA (1,000, expert-labelled), BigCodeBench (1,140 Python functions) and DS-1000 (1,000 data-science problems). Each answer is scored in bits per byte, with Qwen3.5-9B-Base on the same text.
+
+| Bits per byte (ours after library post-training) | 0.5B ExeaLM | 0.5B Qwen3.5-style | 3B ExeaLM checkpoint | Qwen3.5-9B-Base |
+|---|---|---|---|---|
+| QASPER, question alone | 1.295 | 1.313 | 1.211 | **0.945** |
+| QASPER, our library search | 1.283 | 1.307 | 1.176 | **0.928** |
+| QASPER, two-step search | 1.141 | 1.160 | 1.063 | **0.845** |
+| QASPER, paper in hand | 0.978 | 1.011 | 0.904 | **0.738** |
+| PubMedQA, with its abstract | 0.708 | 0.714 | 0.658 | **0.477** |
+| BigCodeBench | 0.312 | 0.336 | 0.257 | **0.142** |
+| DS-1000 | 0.615 | 0.636 | 0.517 | **0.347** |
+
+On equal terms Qwen3.5-9B is well ahead: our 3B checkpoint's scores are 1.2 to 1.8 times its own. These questions test what a model knows and how well it codes. A released 9B has trained far longer than a 3B a third of the way through 12B tokens.
+
+A research assistant usually has the paper. QASPER's own setting gives it. With the paper in hand and the three paragraphs a keyword search inside it ranks first, the 3B ExeaLM scores 0.904 against 0.945 for the 9B without the paper (95% interval of the ratio 0.93 to 0.99). Given the same paragraphs, the 9B reaches 0.738.
+
+Trained on the same data, ExeaLM is ahead of the Qwen3.5-style build at 0.5B on all four sets. It leads by 7% to 9% on BigCodeBench (958 of 1,140 functions), 3% to 5% on DS-1000, 1% to 3% on QASPER and about 1% on PubMedQA.
+
+## The search is the weak link
+
+Our one-step search barely helps on these questions, for any model. On code it does not help at all. It sends the question to both library tiers at once. For QASPER it puts a passage of the asked-about paper first only 31% of the time. Searching the paper's title alone finds it first for 49% of the first 300 questions and in the top 100 for 77%, so most of the papers are in the library. A two-step search finds the paper by its title, then its passage for the question. It finds the paper's passage for 53% of questions and cuts the 3B's bits per byte by 12% and the 9B's by 11%. Given the right evidence paragraphs, the 0.5B's bits per byte fall 62%, as much as the 3B's. The models can read the evidence; the search has to find it.
+
+Library post-training also has a cost here. On these outside questions it made the 0.5B models slightly worse: QASPER with the library went from 1.228 to 1.283, PubMedQA from 0.830 to 0.899. Three thousand steps on one writer's question format pulled the model toward that format. The 9B's post-training needs questions from many sources.
+
+## What this does not show
+
+- One seed per model. The 3B is a checkpoint a third of the way through pretraining, post-trained from step 16,000. The finished pair comes around midnight on 29 November.
+- Bits per byte on a reference answer is not a graded answer. It says how well a model predicts the answer people wrote, not whether its own answer would be right.
+- The comparison with Qwen3.5-9B on library questions uses three worked examples; more examples or post-training on the format would likely lower its score further.
+- The matched-token checkpoints of Pythia and OLMo come from the middle of their runs.
+- Library v2's entries carry knowledge from DeepSeek-V4-Flash, a 284B model. Writing them took 38 H100-hours of ours. Its own training cost is not ours and is not counted.
+
+## Next
+
+The 3B pair finishes around midnight on 29 November. These tests run again on the finished models, with our Qwen3.5-style 3B after the same library post-training. The two-step search goes into the library for questions that name a paper. The 9B's post-training data will mix the library's questions with questions from many other sources. The models are on [Hugging Face](https://huggingface.co/exea-labs/exealm-nairr). Library v2's written tier is [public](https://huggingface.co/datasets/exea-labs/exealm-library) too.

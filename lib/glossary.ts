@@ -182,6 +182,21 @@ export const GLOSSARY: Term[] = [
     en: { term: "Reading as a stream", def: "Reading a long document 512 tokens at a time while carrying the model's state from one window to the next: the TONN layers' state and the attention layers' keys and values of the window before." },
     ja: { term: "ストリームとして読む", def: "長い文書を 512 トークンずつ読み、窓から次の窓へモデルの状態を引き継ぐ読み方。引き継ぐのは TONN 層の状態と、直前の窓のアテンションのキーとバリューです。" },
   },
+  {
+    id: "exact-match",
+    en: { term: "Exact match", def: "A target counts only if the model's top guess is right at every one of its tokens, given the true text before it. It is what greedy decoding would write for that span." },
+    ja: { term: "完全一致", def: "対象の各トークンで、モデルの第一候補がすべて正しいときだけ正解とする採点。直前までは正しい文章を与えます。貪欲デコードでその部分を書いたときと同じ結果になります。" },
+  },
+  {
+    id: "pass-key",
+    en: { term: "Pass key", def: "A five-digit number planted in a long text (\"The pass key is 48213. Remember it.\"), which the model must give back at the end. It tests exact retrieval from far back." },
+    ja: { term: "パスキー", def: "長い文章の途中に埋め込んだ 5 桁の数字（「パスキーは 48213 です。覚えてください。」）。最後にモデルが答えられるかで、離れた位置からの正確な取り出しを測ります。" },
+  },
+  {
+    id: "open-book",
+    en: { term: "Open book", def: "A benchmark question with passages from the library placed before it, found by a search on the question. Closed book is the question alone." },
+    ja: { term: "オープンブック", def: "質問の前に、質問で検索したライブラリの文章を置いて解く設定。質問だけで解くのはクローズドブックです。" },
+  },
 ];
 
 export const glossaryById = Object.fromEntries(GLOSSARY.map((g) => [g.id, g]));
